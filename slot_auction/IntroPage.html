@@ -1,0 +1,46 @@
+{{ block title }}
+    Welcome to our auction experiment!
+{{ endblock }}
+{{ block content }}
+
+    <!-- Role introduction -->
+    {{ if player.role == "global" }}
+
+    <p>You are a <b>global</b> bidder.</p>
+
+    {{ elif player.role == "local" }}
+
+    <p>You are a <b>local</b> bidder.</p>
+
+    {{ else }}
+
+    <p>SOMETHING WENT WRONG! UNKNOWN ROLE: "{{ player.role }}"</p>
+
+    {{ endif }}
+
+
+    <!-- Treatment introduction -->
+    {{ if group.treatment == "hard" }}
+
+    <p>You are participating in an auction with hard ending.</p>
+
+    {{ elif group.treatment == "candle" }}
+
+    <p>You are participating in a candle auction.</p>
+
+    {{ elif group.treatment == "activity" }}
+
+    <p>You are participating in an activity-rule auction.</p>
+
+    {{ else }}
+
+    <p>SOMETHING WENT WRONG! UNKNOWN TREATMENT: "{{ player.treatment }}"</p>
+
+    {{ endif }}
+
+
+    <p>Please press the button below once you are ready.</p>
+
+    {{ next_button }}
+
+{{ endblock }}

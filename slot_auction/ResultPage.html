@@ -1,0 +1,45 @@
+{{ block title }}
+    Final Result {{ player.round_number }} / {{ Constants.num_rounds }}
+{{ endblock }}
+
+{{ block content }}
+
+{{ if group.treatment == "candle" }}
+<p>Auction ended after {{ group.candle_duration }} seconds.</p>
+{{ endif }}
+
+<table class="table table-sm table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Rank</th>
+            {{ for slot in range_slots }}
+            <th>Slot {{ slot }}</th>
+            {{ endfor }}
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ for rank, bids, total in result }}
+        <tr>
+            <td>{{ rank }}.</td>
+
+            {{ for width, player, price in bids }}
+            <td colspan="{{ width }}">
+                {{ if player != 0 }}
+                <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
+                    Player {{ player }}<span class="badge bg-secondary ms-2">{{ price }}</span>
+                </span>
+                {{ endif }}
+            </td>
+            {{ endfor }}
+
+            <td>{{ total }}</td>
+        </tr>
+        {{ endfor }}
+    </tbody>
+</table>
+
+    {{ next_button }}
+{{ endblock }}
+
+

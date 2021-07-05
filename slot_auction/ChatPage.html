@@ -1,0 +1,13 @@
+{{ block title }}
+    Pre-Auction Chat
+{{ endblock }}
+
+{{ block content }}
+  <h1> Chat will all players:</h1>
+  {{ chat }}
+
+  {{ if player.role != 'global' }}
+    <h1> Chat only with {{ player.role }} players:</h1>
+    {{ chat channel=role_channel }}
+  {{ endif }}
+{{ endblock }}

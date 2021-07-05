@@ -1,0 +1,281 @@
+{{ block title }}
+  Auction {{ player.round_number }} / {{ Constants.num_rounds }}
+{{ endblock }}
+{{ block content }}
+
+    <div id="output-timer-alert" class="alert alert-warning">
+        <p>Time left in auction with {{ group.treatment }} ending: <span id="output-timer-label" class="fw-bold">-:--</span></p>
+
+        <div class="progress">
+            <div id="output-timer-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
+        </div>
+    </div>
+
+    <!-- Table with current result of auction -->
+    <h5>Current result:</h5>
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Rank</th>
+                {{ for slot in range_slots }}
+                <th>Slot {{ slot }}</th>
+                {{ endfor }}
+                <th>Distance</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-results">
+          {{ if static_result }}
+            <!-- Row with global choice -->
+            <tr id="output-global-row">
+                <td id="output-global-rank">-</td>
+                <td colspan="{{ num_global_slots }}">
+                    <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
+                        <span id="output-{{ global_value }}-player">No bidder</span>
+                        <span id="output-{{ global_value }}-price" class="badge bg-secondary ms-2">0 points</span>
+                    </span>
+                </td>
+                <td id="output-global-distance">-</td>
+            </tr>
+            <!-- Rows with local choices (technically always just one row) -->
+            {{ for before, after, row in local_choices }}
+            <tr id="output-local-row">
+                {{ if before != 0 }}
+                <td colspan="{{ before }}"></td>
+                {{ endif }}
+                <td id="output-local-rank">-</td>
+                {{ for name, value, valuation in row}}
+                <td>
+                    <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
+                        <span id="output-{{ value }}-player">No bidder</span>
+                        <span id="output-{{ value }}-price" class="badge bg-secondary ms-2">0 points</span>
+                    </span>
+                </td>
+                {{ endfor }}
+                {{ if after != 0 }}
+                <td colspan="{{ after }}"></td>
+                {{ endif }}
+                <td id="output-local-distance">-</td>
+            </tr>
+            {{ endfor }}
+          {{ else }}
+            <td>-</td>
+            <td colspan="{{ num_global_slots }}" class="text-center">
+                <span class="spinner-border spinner-border-sm"></span>
+                Waiting for bids...
+            </td>
+            <td>-</td>
+          {{ endif }}
+        </tbody>
+    </table>
+
+    <br/>
+
+    <!-- Table with selection of global and local slot choices -->
+    <h5>Participate in Auction:</h5>
+    <table class="table table-sm table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                {% for slot in range_slots %}
+                <th>Slot {{ slot }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Row with global choice -->
+            <tr>
+                <td colspan="{{ num_global_slots }}">
+                    <input type="radio" id="input-slots-global" class="btn-check" name="slots" value="{{ global_value }}" autocomplete="off"/>
+                    <label class="btn btn-outline-primary w-100" for="input-slots-global" onclick="select({{ global_valuation }})">All slots<span class="badge bg-secondary ms-2">{{ global_valuation | cu }}</span></label>
+                </td>
+            </tr>
+            <!-- Rows with local choices -->
+            {{ for before, after, row in local_choices }}
+            <tr>
+                {{ if before != 0 }}
+                <td colspan="{{ before }}"></td>
+                {{ endif }}
+                {{ for name, value, valuation in row}}
+                <td colspan="{{ num_local_slots }}">
+                    <input type="radio" id="input-slots-local-{{ value }}" class="btn-check" name="slots" value="{{ value }}" autocomplete="off" onclick="select({{ valuation }})"{{ if valuation == 0 }} disabled{{ endif }}/>
+                    <label class="btn btn-outline-primary w-100" for="input-slots-local-{{ value }}" onclick="select({{ valuation }})">Slot {{ name }}<span class="badge bg-secondary ms-2">{{ valuation | cu }}</span></label>
+                </td>
+                {{ endfor }}
+                {{ if after != 0 }}
+                <td colspan="{{ after }}"></td>
+                {{ endif }}
+            </tr>
+            {{ endfor }}
+        </tbody>
+    </table>
+
+    <!-- Row with price slider and bid button -->
+    <div class="d-gap gap-3 d-flex align-items-center flex-wrap">
+        <label for="input-price">Choose amount to bid: </label>
+        <input type="range" id="input-price" name="price" id="price" value="0" min="0" max="0" disabled/>
+        <output class="output-price" for="input-price">0</output>
+
+        <button type="button" id="button-submit" class="btn btn-primary ms-auto" onclick="bid()" disabled>Send Bid</button>
+    </div>
+
+    <!-- Countdown JS library used by timeout -->
+    <script src="{% static 'otree/js/jquery.countdown.min.js' %}"></script>
+
+    <!-- Custom JS to handle live updates and uses inputs -->
+    <script>
+
+     window.addEventListener('DOMContentLoaded', (event) => {
+
+         /* Run countdown timer and progress bar */
+         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_remaining }})
+           .on('update.countdown', function (event) {
+               this.innerHTML = event.strftime('%-N:%S');
+
+               var remaining = event.offset.totalSeconds;
+
+               var percentage = remaining * 1000 / {{ group.timeout_total }};
+               $('#output-timer-bar').css('width', percentage * 100 + '%');
+
+               {{ if group.treatment == "candle" }}
+               /* Change color once candle auction could end */
+               if(remaining < {{ Constants.candle_duration_min }}) {
+                   $('#output-timer-alert').addClass('alert-danger');
+                   $('#output-timer-bar').addClass('bg-danger');
+               }
+               {{ endif }}
+           })
+           .on('finish.countdown', function (event) {
+               $('<input>').attr({
+                   type: 'hidden',
+                   name: 'timeout_happened',
+                   value: '1'
+               }).appendTo('form');
+               $('#form').submit();
+           });
+
+         /* Request current auction state once page is loaded */
+         liveSend({});
+     });
+
+     /* Initialize needed DOM objects. */
+     const inputPriceDom = document.querySelector('#input-price');
+     const outputPriceDom = document.querySelector('.output-price');
+
+     const buttonDom = document.querySelector('#button-submit');
+
+     /* Callback to update price output field */
+     inputPriceDom.addEventListener('input', function() {
+         outputPriceDom.textContent = this.value;
+         buttonDom.disabled = !this.valueAsNumber;
+     });
+
+     /* Function called by input fields when selecting slots. */
+     function select(valuation) {
+         inputPriceDom.max = valuation;
+         inputPriceDom.disabled = !valuation;
+         outputPriceDom.textContent = inputPriceDom.value;
+     }
+
+     /* Submit currently selected bid */
+     function bid() {
+         var slots = document.querySelector('input[name="slots"]:checked').value;
+         liveSend({
+             'price': inputPriceDom.value,
+             'slot': slots,
+         });
+     }
+
+     /* Receive updated auction state from backend */
+     function liveRecv(data) {
+
+       {{ if group.treatment == "activity" }}
+         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_total }});
+       {{ endif }}
+
+       {{ if static_result }}
+
+         var highest = data[0];
+         var distance = data[1];
+
+         for (var index = 0; index < highest.length; index++) {
+             var value = highest[index][0];
+             var player = highest[index][1];
+             var price = highest[index][2];
+
+             document.querySelector(`#output-${value}-player`).innerHTML = "Player " + player;
+             document.querySelector(`#output-${value}-price`).innerHTML = price;
+         }
+
+         var global_row = document.querySelector('#output-global-row');
+         var global_rank = document.querySelector('#output-global-rank');
+         var global_distance = document.querySelector('#output-global-distance');
+
+         var local_row = document.querySelector('#output-local-row');
+         var local_rank = document.querySelector('#output-local-rank');
+         var local_distance = document.querySelector('#output-local-distance');
+
+         if (distance > 0) {
+             $(global_row).addClass('table-success');
+             global_rank.innerHTML = "1.";
+             global_distance.innerHTML = "-";
+
+             $(local_row).removeClass('table-success');
+             local_rank.innerHTML = "2.";
+             local_distance.innerHTML = distance;
+         } else if (distance < 0) {
+             $(global_row).removeClass('table-success');
+             global_rank.innerHTML = "2.";
+             global_distance.innerHTML = -distance;
+
+             $(local_row).addClass('table-success');
+             local_rank.innerHTML = "1.";
+             local_distance.innerHTML = "-";
+         } else {
+             $(global_row).removeClass('table-success');
+             global_rank.innerHTML = "-";
+             global_distance.innerHTML = distance;
+
+             $(local_row).removeClass('table-success');
+             local_rank.innerHTML = "-";
+             local_distance.innerHTML = distance;
+         }
+
+       {{ else }}
+
+         var results = '';
+
+         for (var index = 0; index < data.length; index++) {
+             var rank = index + 1;
+             var all_bids = data[index][0];
+             var total = data[index][1];
+
+             results += `<tr><td>${rank}</td>`
+
+             for (var column = 0; column < all_bids.length; column++) {
+                 var width = all_bids[column][0];
+                 var player = all_bids[column][1];
+                 var price = all_bids[column][2];
+
+                 results += `<td colspan=${width}>`
+                 if (player != 0) {
+                     var name = "Player " + player;
+                     if (player == {{ player.id_in_group }}) {
+                         name += " (Me)";
+                     }
+
+                     results += `<span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">${name}<span class="badge bg-secondary ms-2">${price}</span></span>`;
+                 }
+                 results += `</td>`;
+             }
+
+             results += `<td>${total}</td></tr>`;
+         }
+
+         document.querySelector('#tbody-results').innerHTML = results;
+
+       {{ endif }}
+
+     }
+
+    </script>
+
+{{ endblock }}

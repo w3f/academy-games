@@ -126,13 +126,13 @@
      window.addEventListener('DOMContentLoaded', (event) => {
 
          /* Run countdown timer and progress bar */
-         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_remaining }})
+         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_remaining_ms }})
            .on('update.countdown', function (event) {
                this.innerHTML = event.strftime('%-N:%S');
 
                var remaining = event.offset.totalSeconds;
 
-               var percentage = remaining * 1000 / {{ group.timeout_total }};
+               var percentage = remaining / {{ group.timeout_total }};
                $('#output-timer-bar').css('width', percentage * 100 + '%');
 
                {{ if group.treatment == "candle" }}
@@ -188,7 +188,7 @@
      function liveRecv(data) {
 
        {{ if group.treatment == "activity" }}
-         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_total }});
+         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_total_ms }});
        {{ endif }}
 
        {{ if static_result }}

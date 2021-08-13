@@ -5,7 +5,7 @@
 {{ block content }}
 
 {{ if group.treatment == "candle" }}
-<p>Auction ended after {{ group.candle_duration }} seconds.</p>
+<p>Auction ended after {{ group.candle_duration }} of {{ Constants.candle_duration_max }} seconds.</p>
 {{ endif }}
 
 <table class="table table-sm table-bordered">

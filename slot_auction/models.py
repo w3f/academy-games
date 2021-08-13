@@ -6,12 +6,6 @@ import math
 import time
 import json
 
-# HELPERS
-def now() -> int:
-    """Return a monotonic timestamp in milliseconds."""
-
-    return int(time.monotonic() * 1000)
-
 
 # DEFAULT MODELS
 class Constants(BaseConstants):
@@ -30,12 +24,12 @@ class Constants(BaseConstants):
     local_valuation_total = cu(80)
 
     # Duration config
-    hard_duration = 60
+    hard_duration = 60.0
 
     candle_duration_max = 90
     candle_duration_min = 45
 
-    activity_duration = 30
+    activity_duration = 30.0
 
     @staticmethod
     def use_static_result(model: models.MixinSessionFK):
@@ -98,45 +92,57 @@ class Group(BaseGroup):
     treatment = models.StringField()
     candle_duration = models.IntegerField()
 
-    timestamp_start = models.IntegerField()
-    timestamp_reset = models.IntegerField()
+    timestamp_start = models.FloatField()
+    timestamp_reset = models.FloatField()
 
     result_json = models.LongStringField()
 
-    def timer_start(self):
+    def timer_start(self) -> None:
         """Start auction timer of group."""
 
-        self.timestamp_start = now()
+        self.timestamp_start = time.monotonic()
         self.timestamp_reset = self.timestamp_start
 
-    def timer_reset(self):
+    def timer_reset(self) -> None:
         """Reset auction timer of group."""
 
-        self.timestamp_reset = now()
+        self.timestamp_reset = time.monotonic()
 
-    def timestamp(self) -> int:
-        """Get timestamp in ms relative to start of auction."""
+    def timestamp(self) -> float:
+        """Get timestamp in s relative to start of auction."""
 
-        return now() - self.timestamp_start
+        return time.monotonic() - self.timestamp_start
 
     @property
-    def timeout_total(self) -> int:
-        """Return the initial page timeout in ms based on auction format."""
+    def timeout_total(self) -> float:
+        """Return the initial page timeout in s based on auction format."""
 
         if self.treatment == "hard":
-            return Constants.hard_duration * 1000
+            return Constants.hard_duration
         elif self.treatment == "candle":
-            return Constants.candle_duration_max * 1000
+            return float(Constants.candle_duration_max)
         elif self.treatment == "activity":
-            return Constants.activity_duration * 1000
+            return Constants.activity_duration
         else:
             raise Exception("Unknown treatment: ", self.treatment)
 
     @property
-    def timeout_remaining(self) -> int:
+    def timeout_total_ms(self) -> int:
+        """Return the initial page timeout in ms based on auction format."""
+
+        return int(self.timeout_total * 1000)
+
+    @property
+    def timeout_remaining(self) -> float:
+        """Return remaining timeout in s since last reset or start."""
+
+        return self.timestamp_reset + self.timeout_total - time.monotonic()
+
+    @property
+    def timeout_remaining_ms(self) -> int:
         """Return remaining timeout in ms since last reset or start."""
 
-        return self.timestamp_reset + self.timeout_total - now()
+        return int(self.timeout_remaining * 1000)
 
     @property
     def result(self) -> any:
@@ -198,7 +204,7 @@ class Bid(ExtraModel):
     player = models.Link(Player)
     slots = models.IntegerField()
     price = models.CurrencyField()
-    timestamp = models.IntegerField()
+    timestamp = models.FloatField()
 
     @property
     def bidder(self):
@@ -239,7 +245,7 @@ class Bid(ExtraModel):
         return count
 
     @staticmethod
-    def for_slots(group: Group, slots: int, timestamp: Optional[int] = None) -> List["Bid"]:
+    def for_slots(group: Group, slots: int, timestamp: Optional[float] = None) -> List["Bid"]:
         """Return all bids for a certain group, slots and optionally until a certain timestamp."""
 
         if timestamp:
@@ -248,7 +254,7 @@ class Bid(ExtraModel):
             return Bid.objects_filter(group=group, slots=slots).order_by('timestamp').all()
 
     @staticmethod
-    def highest(group: Group, slots: int, timestamp: Optional[int] = None) -> List["Bid"]:
+    def highest(group: Group, slots: int, timestamp: Optional[float] = None) -> List["Bid"]:
         """Return highest bid for a certain group, slots and optionally until a certain timestamp."""
 
         result = None
@@ -260,7 +266,7 @@ class Bid(ExtraModel):
 
     # TODO: Improve readability by using named tuples
     @staticmethod
-    def get_winners(group: Group, timestamp: Optional[int] = None) -> List[Tuple[float, int, List["Bid"]]]:
+    def get_winners(group: Group, timestamp: Optional[float] = None) -> List[Tuple[float, int, List["Bid"]]]:
         """Return the winnner for each slot of the auction, optionally until a certain timestamp."""
 
         # Get the highest local slots bids

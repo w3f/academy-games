@@ -237,7 +237,7 @@ class EndWaitPage(WaitPage):
 
         timestamp = None
         if group.treatment == "candle":
-            timestamp = group.candle_duration * 1000
+            timestamp = float(group.candle_duration)
 
         # FIXME: Compute result only once
         #group.result = Bid.get_winners(group, timestamp)
@@ -251,7 +251,7 @@ class ResultPage(Page):
 
         timestamp = None
         if group.treatment == "candle":
-            timestamp = group.candle_duration * 1000
+            timestamp = float(group.candle_duration)
 
         return result2table(group, Bid.get_winners(group, timestamp))
 

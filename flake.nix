@@ -12,12 +12,12 @@
   };
 
   outputs = { self, mach-nix, ... }: let
-    requirements = ''
-      otree
-    '';
+    requirements = builtins.readFile ./requirements.txt;
   in {
     devShell = builtins.mapAttrs
-      (_: lib: lib.mkPythonShell { inherit requirements; })
-      mach-nix.lib;
+      (_: lib: lib.mkPythonShell {
+        inherit requirements;
+        _.otree.propagatedBuildInputs.mod = pySelf: oldAttrs: oldVal: oldVal ++ [ pySelf.psycopg2 ];
+      }) mach-nix.lib;
   };
 }

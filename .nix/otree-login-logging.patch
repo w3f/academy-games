@@ -1,0 +1,31 @@
+--- otree-5.4.1/otree/views/admin.py	2021-09-24 16:35:16.579715156 +0200
++++ otree-5.4.1-patched/otree/views/admin.py	2021-09-24 16:35:21.578671298 +0200
+@@ -2,6 +2,8 @@
+ from starlette.background import BackgroundTask
+ import re
+ 
++import logging
++
+ import wtforms
+ from starlette.endpoints import HTTPEndpoint
+ from starlette.responses import JSONResponse, RedirectResponse, Response
+@@ -33,6 +35,8 @@
+ from . import cbv
+ from .cbv import enqueue_admin_message
+ 
++logger = logging.getLogger(__name__)
++
+ validators_required = [wtvalidators.InputRequired()]
+ 
+ 
+@@ -543,6 +547,10 @@
+         self.request.session[AUTH_COOKIE_NAME] = AUTH_COOKIE_VALUE
+         return self.redirect('DemoIndex')
+ 
++    def form_invalid(self, form):
++        logger.warning('Login failed for %s', self.request.client.host)
++        return super().form_invalid(form)
++
+ 
+ class Logout(HTTPEndpoint):
+     url_pattern = '/logout'

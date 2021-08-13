@@ -14,14 +14,19 @@
   };
 
   outputs = { self, nixpkgs, mach-nix, ... }: let
-
+    # Build python environment with mach-nix and patched otree
     mkPython = lib: lib.mkPython {
       requirements = builtins.readFile ./requirements.txt;
-      _.otree.propagatedBuildInputs.mod = pySelf: oldAttrs: oldVal: oldVal ++ [ pySelf.psycopg2 ];
+      _.otree = {
+        patches = [ ./.nix/otree-login-logging.patch ];
+        propagatedBuildInputs.mod = pyPkgs: _: old: old ++ [ pyPkgs.psycopg2 ];
+      };
     };
 
+    # Build python env and return as shell
     mkShell = _: lib: (mkPython lib).env;
 
+    # Build otree instance script from python env
     mkScript = system: lib:
       nixpkgs.legacyPackages.${system}.writeScriptBin "polkadot-experiments" ''
         cd ${self} && ${mkPython lib}/bin/otree $@

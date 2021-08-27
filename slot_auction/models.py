@@ -188,7 +188,7 @@ class Player(BasePlayer):
 
         return '{}-{}'.format(self.group.id, self.role)
 
-    def get_global_valuation(self) -> int:
+    def get_global_valuation(self) -> Currency:
         """Return player valuations for all slots."""
 
         if self.role == 'global':
@@ -196,7 +196,7 @@ class Player(BasePlayer):
         else:
             return Constants.local_valuation_total
 
-    def get_local_valuations(self) -> List[List[int]]:
+    def get_local_valuations(self) -> List[List[Currency]]:
         """Return players valuation for each of the local choices."""
 
         rows = Constants.get_local_rows(self)
@@ -204,8 +204,8 @@ class Player(BasePlayer):
 
         if self.role == 'local':
             # FIXME: Only values the first two options, so does not work for num_slots > 2
-            valuations[0][0] = int(self.valuation)
-            valuations[0][1] = int(Constants.local_valuation_total - self.valuation)
+            valuations[0][0] = self.valuation
+            valuations[0][1] = Constants.local_valuation_total - self.valuation
 
         return valuations
 
@@ -285,7 +285,7 @@ class Bid(ExtraModel):
         highest = [Bid.highest(group, slots, timestamp)
                    for slots in Constants.get_local_choices(group)]
 
-        result = [(float(b.price), b.slots, [b]) for b in highest if b]
+        result = [(b.price, b.slots, [b]) for b in highest if b]
 
         # Try to combine highest bids in all ways possible
         i = 0
@@ -307,10 +307,10 @@ class Bid(ExtraModel):
         # Add highest global bid
         global_highest = Bid.highest(group, Constants.get_global_value(group), timestamp)
         if global_highest:
-            result += [(float(global_highest.price), global_highest.slots, [global_highest])]
+            result += [(global_highest.price, global_highest.slots, [global_highest])]
 
         # Sort all bids and combination by highest price
-        result.sort(reverse=True, key=(lambda e: int(e[0])))
+        result.sort(reverse=True, key=(lambda e: e[0]))
 
         # Filter out duplicates with lower totals
         filtered = []

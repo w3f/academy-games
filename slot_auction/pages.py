@@ -74,8 +74,11 @@ class AuctionPage(Page):
             # Determine gap at end of row
             gap = (N - offset) % L
 
+            # Strip currency wrapper to be able to use value in javascript
+            valuations_float = [float(v) for v in valuations[offset]]
+
             # Zip together columns to rows and add to choices
-            choices += [(offset, gap, list(zip(names, values, valuations[offset])))]
+            choices += [(offset, gap, list(zip(names, values, valuations_float)))]
 
         return choices
 
@@ -129,7 +132,7 @@ class AuctionPage(Page):
             'static_result': Constants.use_static_result(player),
             'range_slots': range_slots,
             'global_value': Constants.get_global_value(player),
-            'global_valuation': int(player.get_global_valuation()),
+            'global_valuation': float(player.get_global_valuation()),
             'local_choices': AuctionPage.get_local_choices(player),
             'num_global_slots': Constants.get_global_slot_count(player),
             'num_local_slots': Constants.get_local_slot_count(player),

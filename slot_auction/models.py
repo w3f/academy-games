@@ -1,4 +1,16 @@
-from otree.api import *
+from otree.constants import BaseConstants
+from otree.currency import Currency
+from otree.database import (
+    ExtraModel,
+    Link,
+    IntegerField,
+    FloatField,
+    CurrencyField,
+    StringField,
+    LongStringField,
+    MixinSessionFK,
+)
+from otree.models import BaseSubsession, BaseGroup, BasePlayer
 
 from typing import Tuple, List, Optional
 
@@ -18,10 +30,10 @@ class Constants(BaseConstants):
     _num_local_slots = 1
 
     # Valuation config
-    global_valuation_min = cu(90)
-    global_valuation_max = cu(110)
+    global_valuation_min = Currency(90)
+    global_valuation_max = Currency(110)
 
-    local_valuation_total = cu(80)
+    local_valuation_total = Currency(80)
 
     # Duration config
     hard_duration = 60.0
@@ -32,30 +44,30 @@ class Constants(BaseConstants):
     activity_duration = 30.0
 
     @staticmethod
-    def use_static_result(model: models.MixinSessionFK):
+    def use_static_result(model: MixinSessionFK):
         """Return true if static result UI can be used."""
 
         return Constants.get_local_slot_count(model) <= 1
 
     @staticmethod
-    def get_global_slot_count(model: models.MixinSessionFK):
+    def get_global_slot_count(model: MixinSessionFK):
         """Return total number of slots for auction."""
 
         return model.session.config.get('num_global_slots', Constants._num_global_slots)
 
     @staticmethod
-    def get_local_slot_count(model: models.MixinSessionFK):
+    def get_local_slot_count(model: MixinSessionFK):
         """Return number of slots in local players bid."""
 
         return model.session.config.get('num_local_slots', Constants._num_local_slots)
 
     @staticmethod
-    def get_global_value(model: models.MixinSessionFK):
+    def get_global_value(model: MixinSessionFK):
         """Return value equivalent to bidding on all slots."""
         return 2 ** Constants.get_global_slot_count(model) - 1
 
     @staticmethod
-    def get_local_choices(model: models.MixinSessionFK) -> List[int]:
+    def get_local_choices(model: MixinSessionFK) -> List[int]:
         """Return slot values of available local choices."""
 
         # Abbreviations to improve readability
@@ -70,7 +82,7 @@ class Constants(BaseConstants):
         return values
 
     @staticmethod
-    def get_local_rows(model: models.MixinSessionFK) -> List[int]:
+    def get_local_rows(model: MixinSessionFK) -> List[int]:
         """Returns number of choices per row in UI."""
 
         # Abbreviations to improve readability
@@ -89,13 +101,13 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
-    treatment = models.StringField()
-    candle_duration = models.IntegerField()
+    treatment = StringField()
+    candle_duration = IntegerField()
 
-    timestamp_start = models.FloatField()
-    timestamp_reset = models.FloatField()
+    timestamp_start = FloatField()
+    timestamp_reset = FloatField()
 
-    result_json = models.LongStringField()
+    result_json = LongStringField()
 
     def timer_start(self) -> None:
         """Start auction timer of group."""
@@ -157,7 +169,7 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    valuation = models.CurrencyField()
+    valuation = CurrencyField()
 
     @property
     def role(self) -> str:
@@ -200,11 +212,11 @@ class Player(BasePlayer):
 
 # EXTRA MODELS
 class Bid(ExtraModel):
-    group = models.Link(Group)
-    player = models.Link(Player)
-    slots = models.IntegerField()
-    price = models.CurrencyField()
-    timestamp = models.FloatField()
+    group = Link(Group)
+    player = Link(Player)
+    slots = IntegerField()
+    price = CurrencyField()
+    timestamp = FloatField()
 
     @property
     def bidder(self):
@@ -270,7 +282,8 @@ class Bid(ExtraModel):
         """Return the winnner for each slot of the auction, optionally until a certain timestamp."""
 
         # Get the highest local slots bids
-        highest = [Bid.highest(group, slots, timestamp) for slots in Constants.get_local_choices(group)]
+        highest = [Bid.highest(group, slots, timestamp)
+                   for slots in Constants.get_local_choices(group)]
 
         result = [(float(b.price), b.slots, [b]) for b in highest if b]
 

@@ -1,19 +1,21 @@
-from otree.api import *
+from otree.currency import Currency
+from otree.database import MixinSessionFK
+from otree.views import Page, WaitPage
 
-from typing import Tuple, List, Optional, NamedTuple
+from typing import Tuple, List
 
-from .models import *
+from .models import Constants, Player, Group, Bid
 
 
 # HELPERS
-def bids2row(model: models.MixinSessionFK, bids: List[Bid]) -> List[Tuple[int, int, Currency]]:
+def bids2row(model: MixinSessionFK, bids: List[Bid]) -> List[Tuple[int, int, Currency]]:
     """Generate row layout from list of non-overlapping bids."""
 
     N = Constants.get_global_slot_count(model)
 
     sorted(bids, key=lambda b: b.slots)
 
-    layout = [] # contains (width, player, price)
+    layout = []  # contains (width, player, price)
     next = 0
     for b in bids:
         first = b.first_slot
@@ -35,7 +37,7 @@ def bids2row(model: models.MixinSessionFK, bids: List[Bid]) -> List[Tuple[int, i
 def result2table(model, result) -> List[Tuple[List[Tuple[int, int, Currency]], Currency]]:
     """Turn result into table layout."""
 
-    table = [] # (bids, total)
+    table = []  # (bids, total)
     returned = set()
     for total, _, bids in result:
         if not returned.issuperset(bids):
@@ -203,7 +205,7 @@ class AuctionPage(Page):
                     group=player.group,
                     player=player,
                     slots=slots,
-                    price=cu(price),
+                    price=Currency(price),
                     timestamp=timestamp
                 )
 

@@ -1,16 +1,6 @@
-from otree.api import *
-
-# Remove once python 3.9 is more popular
-from typing import Tuple, List, Optional, NamedTuple
-
 import random
-import time
 
-import math
-
-import json
-
-from .models import *
+from .models import Constants, Subsession
 from .pages import *
 
 

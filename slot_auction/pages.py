@@ -1,50 +1,9 @@
 from otree.currency import Currency
-from otree.database import MixinSessionFK
 from otree.views import Page, WaitPage
 
 from typing import Tuple, List
 
-from .models import Constants, Player, Group, Bid
-
-
-# HELPERS
-def bids2row(model: MixinSessionFK, bids: List[Bid]) -> List[Tuple[int, int, Currency]]:
-    """Generate row layout from list of non-overlapping bids."""
-
-    N = Constants.get_global_slot_count(model)
-
-    sorted(bids, key=lambda b: b.slots)
-
-    layout = []  # contains (width, player, price)
-    next = 0
-    for b in bids:
-        first = b.first_slot
-
-        gap = first - next
-        if gap > 0:
-            layout += [(gap, 0, 0)]
-
-        next = b.last_slot + 1
-        layout += [(next - first, b.bidder, b.price)]
-
-    gap = N - next
-    if gap > 0:
-        layout += [(gap, 0, 0)]
-
-    return layout
-
-
-def result2table(model, result) -> List[Tuple[List[Tuple[int, int, Currency]], Currency]]:
-    """Turn result into table layout."""
-
-    table = []  # (bids, total)
-    returned = set()
-    for total, _, bids in result:
-        if not returned.issuperset(bids):
-            table += [(bids2row(model, bids), total)]
-            returned.update(bids)
-
-    return table
+from .models import Constants, Player, Group, Bid, Result
 
 
 # PAGES
@@ -158,7 +117,7 @@ class AuctionPage(Page):
     def get_winners_dynamic(group: Group) -> List[Tuple[int, List[Tuple[int, Currency]], Currency]]:
         """Retrieve winning bids and format them to be passed to frontend."""
 
-        return result2table(group, Bid.get_winners(group))
+        return Result(group).to_table()
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
@@ -255,22 +214,20 @@ class ResultPage(Page):
         if group.treatment == "candle":
             timestamp = float(group.candle_duration)
 
-        return result2table(group, Bid.get_winners(group, timestamp))
+        return Result(group, timestamp).to_table(True)
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Returns additional data to pass to page template."""
 
-        unranked_table = ResultPage.get_result_table(player.group)
-
         num_global_slots = Constants.get_global_slot_count(player)
         range_global_slots = range(1, num_global_slots + 1)
-        result = zip(range(1, len(unranked_table) + 1), *zip(*unranked_table))
+        result = ResultPage.get_result_table(player.group)
 
         return {
             'num_global_slots': num_global_slots,
             'range_global_slots': range_global_slots,
-            'has_result': len(unranked_table) == 0,
+            'has_result': len(result) == 0,
             'result': result
         }
 

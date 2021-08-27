@@ -12,7 +12,7 @@ from otree.database import (
 )
 from otree.models import BaseSubsession, BaseGroup, BasePlayer
 
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Union, Optional
 
 import math
 import time
@@ -312,4 +312,64 @@ class Bid(ExtraModel):
         # Sort all bids and combination by highest price
         result.sort(reverse=True, key=(lambda e: int(e[0])))
 
-        return result
+        # Filter out duplicates with lower totals
+        filtered = []
+        included = set()
+        for entry in result:
+            _, _, bids = entry
+            if not included.issuperset(bids):
+                filtered.append(entry)
+                included.update(bids)
+
+        return filtered
+
+
+class Result:
+
+    def __init__(self, group: Group, timestamp: Optional[float] = None):
+        self.winners = Bid.get_winners(group, timestamp)
+        self.N = Constants.get_global_slot_count(group)
+
+    # Type alias to improve readability
+    LayoutedBid = Tuple[int, int, Currency]  # = (width, player, price)
+
+    Row = Tuple[List[LayoutedBid], Currency]
+    RankedRow = Tuple[int, List[LayoutedBid], Currency]
+
+    Table = Union[List[Row], List[RankedRow]]
+
+    def to_table(self, with_rank: bool = False) -> Table:
+        """Turn result into table layout."""
+
+        table = []  # = (layout, total)
+        for rank, (total, _, bids) in enumerate(self.winners):
+            # Sort bids by slot
+            sorted(bids, key=lambda b: b.slots)
+
+            # Figure out row layout for bids
+            layout = []  # = (width, player, price)
+            next = 0
+            for b in bids:
+                first = b.first_slot
+
+                # Add gap entry if bids do not touch
+                gap = first - next
+                if gap > 0:
+                    layout += [(gap, 0, 0)]
+
+                # Add bid itself
+                next = b.last_slot + 1
+                layout += [(next - first, b.bidder, b.price)]
+
+            # Check and add gap at the end
+            gap = self.N - next
+            if gap > 0:
+                layout += [(gap, 0, 0)]
+
+            # Add resulting row to table
+            if with_rank:
+                table += [(rank + 1, layout, total)]
+            else:
+                table += [(layout, total)]
+
+        return table

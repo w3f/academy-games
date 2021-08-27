@@ -263,11 +263,14 @@ class ResultPage(Page):
 
         unranked_table = ResultPage.get_result_table(player.group)
 
-        range_slots = range(1, Constants.get_global_slot_count(player) + 1)
+        num_global_slots = Constants.get_global_slot_count(player)
+        range_global_slots = range(1, num_global_slots + 1)
         result = zip(range(1, len(unranked_table) + 1), *zip(*unranked_table))
 
         return {
-            'range_slots': range_slots,
+            'num_global_slots': num_global_slots,
+            'range_global_slots': range_global_slots,
+            'has_result': len(unranked_table) == 0,
             'result': result
         }
 

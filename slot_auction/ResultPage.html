@@ -9,16 +9,23 @@
 {{ endif }}
 
 <table class="table table-sm table-bordered">
-    <thead class="thead-dark">
+    <thead class="table-dark">
         <tr>
             <th>Rank</th>
-            {{ for slot in range_slots }}
+            {{ for slot in range_global_slots }}
             <th>Slot {{ slot }}</th>
             {{ endfor }}
             <th>Total</th>
         </tr>
     </thead>
     <tbody>
+      {{ if has_result }}
+        <tr>
+            <td></td>
+            <td colspan="{{ num_global_slots }}">No bids were received...</td>
+            <td></td>
+        </tr>
+      {{ else }}
         {{ for rank, bids, total in result }}
         <tr>
             <td>{{ rank }}.</td>
@@ -36,6 +43,7 @@
             <td>{{ total }}</td>
         </tr>
         {{ endfor }}
+      {{ endif }}
     </tbody>
 </table>
 

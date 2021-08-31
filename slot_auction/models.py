@@ -67,7 +67,7 @@ class Constants(BaseConstants):
         return 2 ** Constants.get_global_slot_count(model) - 1
 
     @staticmethod
-    def get_local_choices(model: MixinSessionFK) -> List[int]:
+    def get_local_values(model: MixinSessionFK) -> List[int]:
         """Return slot values of available local choices."""
 
         # Abbreviations to improve readability
@@ -188,6 +188,23 @@ class Player(BasePlayer):
 
         return '{}-{}'.format(self.group.id, self.role)
 
+    def get_valuation(self, slots: int) -> Currency:
+        """Return valuation of a specific slot."""
+
+        if self.role == 'global' and Constants.get_global_value(self) == slots:
+            return self.get_global_valuation()
+        elif self.role == 'local':
+            # FIXME: Only values the first two options, so does not work for num_slots > 2
+            values = Constants.get_local_values(self)
+
+            if slots == values[0]:
+                return self.valuation
+            elif slots == values[1]:
+                return Constants.local_valuation_total - self.valuation
+
+        # FIXME: Potentially dangerous, might cause negative points
+        return Currency(0)
+
     def get_global_valuation(self) -> Currency:
         """Return player valuations for all slots."""
 
@@ -256,6 +273,14 @@ class Bid(ExtraModel):
 
         return count
 
+    def get_profit(self):
+        valuation = self.player.get_valuation(self.slots)
+
+        if valuation == 0:
+            print("WARNING: no valuation for {} bid".format(self.price))
+
+        return valuation - self.price
+
     @staticmethod
     def for_slots(group: Group, slots: int, timestamp: Optional[float] = None) -> List["Bid"]:
         """Return all bids for a certain group, slots and optionally until a certain timestamp."""
@@ -283,7 +308,7 @@ class Bid(ExtraModel):
 
         # Get the highest local slots bids
         highest = [Bid.highest(group, slots, timestamp)
-                   for slots in Constants.get_local_choices(group)]
+                   for slots in Constants.get_local_values(group)]
 
         result = [(b.price, b.slots, [b]) for b in highest if b]
 
@@ -330,6 +355,9 @@ class Result:
         self.winners = Bid.get_winners(group, timestamp)
         self.N = Constants.get_global_slot_count(group)
 
+    def has_winner(self):
+        return len(self.winners) > 0
+
     # Type alias to improve readability
     LayoutedBid = Tuple[int, int, Currency]  # = (width, player, price)
 
@@ -373,3 +401,15 @@ class Result:
                 table += [(layout, total)]
 
         return table
+
+    def get_profit(self, player: Player) -> Currency:
+        """Determine a player's profit in the auction."""
+
+        if self.has_winner():
+            winning_bids = self.winners[0][2]
+
+            return sum([bid.get_profit() for bid in winning_bids
+                        if bid.player == player],
+                       start=Currency(0))
+
+        return Currency(0)

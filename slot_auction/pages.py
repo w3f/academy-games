@@ -211,27 +211,24 @@ class ResultPage(Page):
     """Page to display results at end of auction."""
 
     @staticmethod
-    def get_result_table(group: Group):
-
-        timestamp = None
-        if group.treatment == "candle":
-            timestamp = float(group.candle_duration)
-
-        return Result(group, timestamp).to_table(True)
-
-    @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Returns additional data to pass to page template."""
 
         num_global_slots = Constants.get_global_slot_count(player)
         range_global_slots = range(1, num_global_slots + 1)
-        result = ResultPage.get_result_table(player.group)
+
+        timestamp = None
+        if player.group.treatment == "candle":
+            timestamp = float(player.group.candle_duration)
+
+        result = Result(player.group, timestamp)
 
         return {
             'num_global_slots': num_global_slots,
             'range_global_slots': range_global_slots,
-            'has_result': len(result) == 0,
-            'result': result
+            'has_result': result.has_winner(),
+            'result': result.to_table(True),
+            'profit': result.get_profit(player),
         }
 
 

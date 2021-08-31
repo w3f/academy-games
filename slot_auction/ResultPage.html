@@ -20,12 +20,6 @@
     </thead>
     <tbody>
       {{ if has_result }}
-        <tr>
-            <td></td>
-            <td colspan="{{ num_global_slots }}">No bids were received...</td>
-            <td></td>
-        </tr>
-      {{ else }}
         {{ for rank, bids, total in result }}
         <tr>
             <td>{{ rank }}.</td>
@@ -43,9 +37,17 @@
             <td>{{ total }}</td>
         </tr>
         {{ endfor }}
+      {{ else }}
+        <tr>
+            <td></td>
+            <td colspan="{{ num_global_slots }}">No bids were received...</td>
+            <td></td>
+        </tr>
       {{ endif }}
     </tbody>
 </table>
+
+<p>You earned <b>{{ profit }}</b>.</p>
 
     {{ next_button }}
 {{ endblock }}

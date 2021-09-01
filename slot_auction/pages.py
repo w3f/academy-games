@@ -117,7 +117,7 @@ class AuctionPage(Page):
         return highest, distance
 
     @staticmethod
-    def get_winners_dynamic(group: Group) -> List[Tuple[int, List[Tuple[int, Currency]], Currency]]:
+    def get_winners_dynamic(group: Group) -> Result.Table:
         """Retrieve winning bids and format them to be passed to frontend."""
 
         return Result(group).to_table()

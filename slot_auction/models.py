@@ -46,30 +46,30 @@ class Constants(BaseConstants):
     activity_duration = 30.0
 
     @staticmethod
-    def use_static_result(model: MixinSessionFK):
+    def use_static_result(model: MixinSessionFK) -> bool:
         """Return true if static result UI can be used."""
 
         return Constants.get_local_slot_count(model) <= 1
 
     @staticmethod
-    def get_global_slot_count(model: MixinSessionFK):
+    def get_global_slot_count(model: MixinSessionFK) -> int:
         """Return total number of slots for auction."""
 
         return model.session.config.get('num_global_slots', Constants._num_global_slots)
 
     @staticmethod
-    def get_local_slot_count(model: MixinSessionFK):
+    def get_local_slot_count(model: MixinSessionFK) -> int:
         """Return number of slots in local players bid."""
 
         return model.session.config.get('num_local_slots', Constants._num_local_slots)
 
     @staticmethod
-    def get_global_value(model: MixinSessionFK):
+    def get_global_value(model: MixinSessionFK) -> Slots:
         """Return value equivalent to bidding on all slots."""
         return 2 ** Constants.get_global_slot_count(model) - 1
 
     @staticmethod
-    def get_local_values(model: MixinSessionFK) -> List[int]:
+    def get_local_values(model: MixinSessionFK) -> List[Slots]:
         """Return slot values of available local choices."""
 
         # Abbreviations to improve readability
@@ -184,6 +184,7 @@ class Group(BaseGroup):
     @result.setter
     def result(self, value):
         """Encode result before setting it."""
+
         self.result_json = json.dumps(value)
 
 
@@ -360,7 +361,7 @@ class Bid(ExtraModel):
             return Bid.objects_filter(group=group, slots=slots).order_by('timestamp').all()
 
     @staticmethod
-    def highest(group: Group, slots: int, timestamp: Optional[float] = None) -> List["Bid"]:
+    def highest(group: Group, slots: Slots, timestamp: Optional[float] = None) -> Optional["Bid"]:
         """Return highest bid for a certain group, slots and optionally until a certain timestamp."""
 
         result = None
@@ -370,9 +371,11 @@ class Bid(ExtraModel):
 
         return result
 
-    # TODO: Improve readability by using named tuples
+    # Type helpers
+    CombinedBids = Tuple[Currency, Slots, List["Bid"]]  # = (total, slots, bids)
+
     @staticmethod
-    def get_winners(group: Group, timestamp: Optional[float] = None) -> List[Tuple[float, int, List["Bid"]]]:
+    def get_winners(group: Group, timestamp: Optional[float] = None) -> List[CombinedBids]:
         """Return the winnner for each slot of the auction, optionally until a certain timestamp."""
 
         # Get the highest local slots bids

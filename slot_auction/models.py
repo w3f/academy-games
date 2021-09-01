@@ -18,6 +18,8 @@ import math
 import time
 import json
 
+# GENERAL TYPE ALIASES
+Slots = int
 
 # DEFAULT MODELS
 class Constants(BaseConstants):
@@ -80,6 +82,12 @@ class Constants(BaseConstants):
             values += [sum([2**p for p in range(s, s + L)]) for s in slots]
 
         return values
+
+    @staticmethod
+    def get_valid_values(model: MixinSessionFK) -> List[Slots]:
+        """Return all valid global and local slot values."""
+
+        return [Constants.get_global_value(model)] + Constants.get_local_values(model)
 
     @staticmethod
     def get_local_rows(model: MixinSessionFK) -> List[int]:
@@ -157,6 +165,17 @@ class Group(BaseGroup):
         return int(self.timeout_remaining * 1000)
 
     @property
+    def duration(self) -> float:
+        """Return total auction length taking into account timer resets."""
+
+        return self.timestamp_reset - self.timestamp_start + self.timeout_total
+
+    def is_valid_timestamp(self, timestamp: float) -> bool:
+        """Check if provided timestamp falls within the auction period."""
+
+        return 0 < timestamp <= self.duration
+
+    @property
     def result(self) -> any:
         """Return decode result."""
 
@@ -188,21 +207,20 @@ class Player(BasePlayer):
 
         return '{}-{}'.format(self.group.id, self.role)
 
-    def get_valuation(self, slots: int) -> Currency:
+    def get_valuation(self, slots: Slots) -> Currency:
         """Return valuation of a specific slot."""
 
-        if self.role == 'global' and Constants.get_global_value(self) == slots:
+        if Constants.get_global_value(self) == slots:
             return self.get_global_valuation()
         elif self.role == 'local':
-            # FIXME: Only values the first two options, so does not work for num_slots > 2
             values = Constants.get_local_values(self)
 
+            # FIXME: Only values the first two options, so does not work for num_slots > 2
             if slots == values[0]:
                 return self.valuation
             elif slots == values[1]:
                 return Constants.local_valuation_total - self.valuation
 
-        # FIXME: Potentially dangerous, might cause negative points
         return Currency(0)
 
     def get_global_valuation(self) -> Currency:
@@ -274,6 +292,8 @@ class Bid(ExtraModel):
         return count
 
     def get_profit(self):
+        """Return difference between valuation and price of bid."""
+
         valuation = self.player.get_valuation(self.slots)
 
         if valuation == 0:
@@ -281,8 +301,57 @@ class Bid(ExtraModel):
 
         return valuation - self.price
 
+    class SubmissionFailure(Exception):
+        """Failure to create valid bid with supplied data."""
+        pass
+
     @staticmethod
-    def for_slots(group: Group, slots: int, timestamp: Optional[float] = None) -> List["Bid"]:
+    def submit(player: Player, slots: Slots, price: Currency, timestamp: float) -> None:
+        """Check and submit bid to database"""
+
+        # Some simple sanity checks
+        if not 0 < slots < 2 ** Constants.get_global_slot_count(player):
+            raise Bid.SubmissionFailure("No or invalid slots selected")
+
+        if not price > 0:
+            raise Bid.SubmissionFailure("Price must be larger then zero")
+
+        # Check timestamp
+        if not player.group.is_valid_timestamp(timestamp):
+            raise Bid.SubmissionFailure("Auction time has run out")
+
+        # Check if bid is a valid choice
+        if slots not in Constants.get_valid_values(player):
+            raise Bid.SubmissionFailure("Invalid combination of slots selected")
+
+        # Check if bid is within valuation
+        valuation = player.get_valuation(slots)
+        if price > valuation:
+            raise Bid.SubmissionFailure(
+                "Price must not exceed valuation of {}".format(valuation)
+            )
+
+        # Check that bid is higher for selection
+        highest = Bid.highest(player.group, slots)
+        if highest and highest.price >= price:
+            raise Bid.SubmissionFailure(
+                "Price must exceed current best bid at {}".format(highest.price)
+            )
+
+        Bid.create(
+            group=player.group,
+            player=player,
+            slots=slots,
+            price=price,
+            timestamp=timestamp
+        )
+
+        # Reset auction time if activity rule is used
+        if player.group.treatment == "activity":
+            player.group.timer_reset()
+
+    @staticmethod
+    def for_slots(group: Group, slots: Slots, timestamp: Optional[float] = None) -> List["Bid"]:
         """Return all bids for a certain group, slots and optionally until a certain timestamp."""
 
         if timestamp:

@@ -70,8 +70,13 @@
 
     <br/>
 
-    <!-- Table with selection of global and local slot choices -->
     <h5>Participate in Auction:</h5>
+
+    <!-- Hidden alerts to display success and error messages -->
+    <div id="output-success" class="alert alert-success d-none"></div>
+    <div id="output-error" class="alert alert-danger d-none"></div>
+
+    <!-- Table with selection of global and local slot choices -->
     <table class="table table-sm table-bordered">
         <thead class="thead-dark">
             <tr>
@@ -157,6 +162,9 @@
      });
 
      /* Initialize needed DOM objects. */
+     const outputSuccessDom = document.querySelector('#output-success');
+     const outputErrorDom = document.querySelector('#output-error');
+
      const inputPriceDom = document.querySelector('#input-price');
      const outputPriceDom = document.querySelector('.output-price');
 
@@ -175,107 +183,152 @@
          outputPriceDom.textContent = inputPriceDom.value;
      }
 
+     /* Helpers to easily display messages in alert section */
+     function displayNone() {
+         outputSuccessDom.classList.add("d-none");
+         outputSuccessDom.innerHTML = "";
+
+         outputErrorDom.classList.add("d-none");
+         outputErrorDom.innerHTML = "";
+     }
+
+     function displaySuccess(message) {
+         outputErrorDom.classList.add("d-none");
+         outputErrorDom.innerHTML = "";
+
+         outputSuccessDom.innerHTML = message;
+         outputSuccessDom.classList.remove("d-none");
+     }
+
+     function displayError(message) {
+         outputSuccessDom.classList.add("d-none");
+         outputSuccessDom.innerHTML = "";
+
+         outputErrorDom.innerHTML = message;
+         outputErrorDom.classList.remove("d-none");
+     }
+
      /* Submit currently selected bid */
      function bid() {
+         displayNone();
+
          var slots = document.querySelector('input[name="slots"]:checked').value;
          liveSend({
              'price': inputPriceDom.value,
-             'slot': slots,
+             'slots': slots,
          });
      }
 
      /* Receive updated auction state from backend */
      function liveRecv(data) {
+       status = data[0];
+       payload = data[1];
 
-       {{ if group.treatment == "activity" }}
-         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_total_ms }});
-       {{ endif }}
+     {{ if group.treatment == "activity" }}
+       /* Reset timer on successfull bid */
+       if (status == "success" || status == "update" )  {
+           $('#output-timer-label').countdown(Date.now() + {{ group.timeout_total_ms }});
+       }
+     {{ endif }}
 
-       {{ if static_result }}
+       if (status == "success") {
+           displaySuccess("Bid was sucessfully submitted!");
+       }
 
-         var highest = data[0];
-         var distance = data[1];
+       if (status == "success" || status == "update" || status == "init" ) {
 
-         for (var index = 0; index < highest.length; index++) {
-             var value = highest[index][0];
-             var player = highest[index][1];
-             var price = highest[index][2];
+         {{ if static_result }}
 
-             document.querySelector(`#output-${value}-player`).innerHTML = "Player " + player;
-             document.querySelector(`#output-${value}-price`).innerHTML = price;
-         }
+           var highest = payload[0];
+           var distance = payload[1];
 
-         var global_row = document.querySelector('#output-global-row');
-         var global_rank = document.querySelector('#output-global-rank');
-         var global_distance = document.querySelector('#output-global-distance');
+           for (var index = 0; index < highest.length; index++) {
+               var value = highest[index][0];
+               var player = highest[index][1];
+               var price = highest[index][2];
 
-         var local_row = document.querySelector('#output-local-row');
-         var local_rank = document.querySelector('#output-local-rank');
-         var local_distance = document.querySelector('#output-local-distance');
+               document.querySelector(`#output-${value}-player`).innerHTML = "Player " + player;
+               document.querySelector(`#output-${value}-price`).innerHTML = price;
+           }
 
-         if (distance > 0) {
-             $(global_row).addClass('table-success');
-             global_rank.innerHTML = "1.";
-             global_distance.innerHTML = "-";
+           var global_row = document.querySelector('#output-global-row');
+           var global_rank = document.querySelector('#output-global-rank');
+           var global_distance = document.querySelector('#output-global-distance');
 
-             $(local_row).removeClass('table-success');
-             local_rank.innerHTML = "2.";
-             local_distance.innerHTML = distance;
-         } else if (distance < 0) {
-             $(global_row).removeClass('table-success');
-             global_rank.innerHTML = "2.";
-             global_distance.innerHTML = -distance;
+           var local_row = document.querySelector('#output-local-row');
+           var local_rank = document.querySelector('#output-local-rank');
+           var local_distance = document.querySelector('#output-local-distance');
 
-             $(local_row).addClass('table-success');
-             local_rank.innerHTML = "1.";
-             local_distance.innerHTML = "-";
-         } else {
-             $(global_row).removeClass('table-success');
-             global_rank.innerHTML = "-";
-             global_distance.innerHTML = distance;
+           if (distance > 0) {
+               $(global_row).addClass('table-success');
+               global_rank.innerHTML = "1.";
+               global_distance.innerHTML = "-";
 
-             $(local_row).removeClass('table-success');
-             local_rank.innerHTML = "-";
-             local_distance.innerHTML = distance;
-         }
+               $(local_row).removeClass('table-success');
+               local_rank.innerHTML = "2.";
+               local_distance.innerHTML = distance;
+           } else if (distance < 0) {
+               $(global_row).removeClass('table-success');
+               global_rank.innerHTML = "2.";
+               global_distance.innerHTML = -distance;
 
-       {{ else }}
+               $(local_row).addClass('table-success');
+               local_rank.innerHTML = "1.";
+               local_distance.innerHTML = "-";
+           } else {
+               $(global_row).removeClass('table-success');
+               global_rank.innerHTML = "-";
+               global_distance.innerHTML = distance;
 
-         var results = '';
+               $(local_row).removeClass('table-success');
+               local_rank.innerHTML = "-";
+               local_distance.innerHTML = distance;
+           }
 
-         for (var index = 0; index < data.length; index++) {
-             var rank = index + 1;
-             var all_bids = data[index][0];
-             var total = data[index][1];
+         {{ else }}
 
-             results += `<tr><td>${rank}</td>`
+           var results = '';
 
-             for (var column = 0; column < all_bids.length; column++) {
-                 var width = all_bids[column][0];
-                 var player = all_bids[column][1];
-                 var price = all_bids[column][2];
+           for (var index = 0; index < payload.length; index++) {
+               var rank = index + 1;
+               var all_bids = payload[index][0];
+               var total = payload[index][1];
 
-                 results += `<td colspan=${width}>`
-                 if (player != 0) {
-                     var name = "Player " + player;
-                     if (player == {{ player.id_in_group }}) {
-                         name += " (Me)";
-                     }
+               results += `<tr><td>${rank}</td>`
 
-                     results += `<span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">${name}<span class="badge bg-secondary ms-2">${price}</span></span>`;
-                 }
-                 results += `</td>`;
-             }
+               for (var column = 0; column < all_bids.length; column++) {
+                   var width = all_bids[column][0];
+                   var player = all_bids[column][1];
+                   var price = all_bids[column][2];
 
-             results += `<td>${total}</td></tr>`;
-         }
+                   results += `<td colspan=${width}>`
+                   if (player != 0) {
+                       var name = "Player " + player;
+                       if (player == {{ player.id_in_group }}) {
+                           name += " (Me)";
+                       }
 
-         document.querySelector('#tbody-results').innerHTML = results;
+                       results += `<span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">${name}<span class="badge bg-secondary ms-2">${price}</span></span>`;
+                   }
+                   results += `</td>`;
+               }
 
-       {{ endif }}
+               results += `<td>${total}</td></tr>`;
+           }
+
+           if (results) {
+               document.querySelector('#tbody-results').innerHTML = results;
+           }
+
+         {{ endif }}
+
+       } else if (status == "error") {
+           displayError(payload);
+       } else {
+           displayError(`Unknown status returned: ${status}`);
+       }
 
      }
-
     </script>
 
 {{ endblock }}

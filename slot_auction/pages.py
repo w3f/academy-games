@@ -145,43 +145,46 @@ class AuctionPage(Page):
         # Save time of reception
         timestamp = player.group.timestamp()
 
-        # Try and parse bid data if provided
+        # Return values
+        status = "init"
+        payload = None
+
+        # Try to parse data if provided
         if data:
             try:
-                price = data['price']
-                slots = data['slot']
+                price = Currency(data['price'])
+                slots = int(data['slots'])
 
-                # FIXME: Needs checks and better feedback
+                Bid.submit(player, slots, price, timestamp)
 
-                # Check timestamp
+                status = "success"
+            except Bid.SubmissionFailure as error:
+                status = "error"
+                payload = str(error)
+            except Exception as fatal:
+                status = "error"
+                payload = "Received malformed bid: {}".format(fatal)
 
-                # Check if bid is a valid choice
+                print("Received: ", data)
+                print("Exception: ", fatal)
+                import traceback
+                traceback.print_exc()
 
-                # Check if bid is within valuation
+        if not payload:
+            # Return latest auction state by default
+            payload = AuctionPage.get_winners(player.group)
 
-                # Check that bid is higher
+        if status == "success":
+            # Successful bids send updates to everybody
+            return {
+                pid: (status if pid == player.id_in_group else "update", payload)
+                for pid in range(1, Constants.players_per_group + 1)
+            }
 
-                # Check activity rule if necessary
-
-                Bid.create(
-                    group=player.group,
-                    player=player,
-                    slots=slots,
-                    price=Currency(price),
-                    timestamp=timestamp
-                )
-
-                # Reset auction time if activity rule is used
-                if player.group.treatment == "activity":
-                    player.group.timer_reset()
-
-            except Exception as ex:
-                print('Exception: ', ex)
-                print('Data: ', data)
-                return
-
-        # Always return current state
-        return {0: AuctionPage.get_winners(player.group)}
+        # Any other request or outcome is only reported to the sender
+        return {
+            player.id_in_group: (status, payload)
+        }
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened: bool):

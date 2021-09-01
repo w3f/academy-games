@@ -3,7 +3,7 @@ from otree.views import Page, WaitPage
 
 from typing import Tuple, List
 
-from .models import Constants, Player, Group, Bid, Result
+from .models import Constants, Player, Group, Bid, Result, FinalResult
 
 
 # PAGES
@@ -202,12 +202,16 @@ class EndWaitPage(WaitPage):
     def after_all_players_arrive(group: Group):
         """Determine winner at end of page."""
 
-        timestamp = None
-        if group.treatment == "candle":
-            timestamp = float(group.candle_duration)
+        # TODO: Compute result only once?
 
-        # FIXME: Compute result only once
-        #group.result = Bid.get_winners(group, timestamp)
+        # Determine payoff based on randomly select round after last auction
+        if group.subsession.round_number == Constants.num_rounds:
+
+            reward_round = group.session.reward_round
+
+            for p in group.get_players():
+                reward_group = p.in_round(reward_round).group
+                p.participant.payoff = FinalResult(reward_group).get_profit(p)
 
 
 class ResultPage(Page):
@@ -220,11 +224,7 @@ class ResultPage(Page):
         num_global_slots = Constants.get_global_slot_count(player)
         range_global_slots = range(1, num_global_slots + 1)
 
-        timestamp = None
-        if player.group.treatment == "candle":
-            timestamp = float(player.group.candle_duration)
-
-        result = Result(player.group, timestamp)
+        result = FinalResult(player.group)
 
         return {
             'num_global_slots': num_global_slots,
@@ -240,3 +240,12 @@ class OutroPage(Page):
 
     def is_displayed(self):
         return self.subsession.round_number == Constants.num_rounds
+
+    @staticmethod
+    def vars_for_template(player: Player) -> dict:
+        """Returns additional data to pass to page template."""
+
+        return {
+            "round": player.session.reward_round,
+            "reward": player.participant.payoff_plus_participation_fee()
+        }

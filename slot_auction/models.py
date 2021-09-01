@@ -485,3 +485,13 @@ class Result:
                        start=Currency(0))
 
         return Currency(0)
+
+
+class FinalResult(Result):
+
+    def __init__(self, group: Group):
+        timestamp = None
+        if group.treatment == "candle":
+            timestamp = float(group.candle_duration)
+
+        super().__init__(group, timestamp)

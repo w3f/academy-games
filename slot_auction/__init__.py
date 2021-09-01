@@ -21,6 +21,7 @@ def creating_session(subsession: Subsession) -> None:
 
     N_group = Constants.players_per_group
 
+    # Initial setup happens in first subsession of session
     if subsession.round_number == 1:
         N = subsession.session.num_participants
 
@@ -37,14 +38,19 @@ def creating_session(subsession: Subsession) -> None:
                 ["global"] * (total // N_group) + ["local"] * (N_group - 1) * (total // N_group)
             ))
 
+        # Assemble and shuffle all requested treatments
         treatments = mkTreatment("hard", N_hard) \
             + mkTreatment("candle", N_candle) \
             + mkTreatment("activity", N_activity)
         random.shuffle(treatments)
 
+        # Assign final result to players
         for p, t in zip(subsession.get_players(), treatments):
             p.participant.treatment = t[0]
             p.participant.role = t[1]
+
+        # Lastly determine round used to calculate participants reward
+        subsession.session.reward_round = random.randint(1, Constants.num_rounds)
 
     # Shuffle groups by treatment
     players = subsession.get_players()

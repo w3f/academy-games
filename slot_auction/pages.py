@@ -66,7 +66,7 @@ class AuctionPage(Page):
             if L > 1:
                 names = ["{} - {}".format(s + 1, s + L) for s in slots]
             else:
-                names = [str(s) for s in slots]
+                names = [str(s + 1) for s in slots]
 
             # Determine bit field value of selection
             values = [sum([2**p for p in range(s, s + L)]) for s in slots]

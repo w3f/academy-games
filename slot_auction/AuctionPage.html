@@ -113,13 +113,16 @@
         </tbody>
     </table>
 
-    <!-- Row with price slider and bid button -->
-    <div class="d-gap gap-3 d-flex align-items-center flex-wrap">
-        <label for="input-price">Choose amount to bid: </label>
-        <input type="range" id="input-price" name="price" id="price" value="0" min="0" max="0" disabled/>
-        <output class="output-price" for="input-price">0</output>
+    <!-- Row with price input, slider and bid button -->
+    <div class="d-flex flex-wrap d-gap gap-3 align-items-center">
+        <div class="form-floating">
+            <input type="number" name="price-number" id="input-price-number" class="form-control" size="7" value="0" min="0" max="0" disabled/>
+            <label for="input-price-number">Amount:</label>
+        </div>
 
-        <button type="button" id="button-submit" class="btn btn-primary ms-auto" onclick="bid()" disabled>Send Bid</button>
+        <input type="range" name="price-range" id="input-price-range" class="flex-fill" value="0" min="0" max="0" disabled/>
+
+        <button type="button" id="button-submit" class="btn btn-primary" onclick="bid()" disabled>Send Bid</button>
     </div>
 
     <!-- Countdown JS library used by timeout -->
@@ -165,23 +168,23 @@
      const outputSuccessDom = document.querySelector('#output-success');
      const outputErrorDom = document.querySelector('#output-error');
 
-     const inputPriceDom = document.querySelector('#input-price');
-     const outputPriceDom = document.querySelector('.output-price');
+     const inputPriceRangeDom = document.querySelector('#input-price-range');
+     const inputPriceNumberDom = document.querySelector('#input-price-number');
 
      const buttonDom = document.querySelector('#button-submit');
 
-     /* Callback to update price output field */
-     inputPriceDom.addEventListener('input', function() {
-         outputPriceDom.textContent = this.value;
+     /* Callbacks to link price input and slider. */
+     inputPriceRangeDom.addEventListener('input', function() {
+         inputPriceNumberDom.value = this.value;
          buttonDom.disabled = !this.valueAsNumber;
      });
 
-     /* Function called by input fields when selecting slots. */
-     function select(valuation) {
-         inputPriceDom.max = valuation;
-         inputPriceDom.disabled = !valuation;
-         outputPriceDom.textContent = inputPriceDom.value;
-     }
+     inputPriceNumberDom.addEventListener('input', function() {
+	       this.value = Math.min(Math.max(this.value, this.min), this.max);
+
+         inputPriceRangeDom.value = this.value;
+         buttonDom.disabled = !this.valueAsNumber;
+     });
 
      /* Helpers to easily display messages in alert section */
      function displayNone() {
@@ -208,13 +211,24 @@
          outputErrorDom.classList.remove("d-none");
      }
 
+     /* Function called by input fields when selecting slots. */
+     function select(valuation) {
+         inputPriceRangeDom.max = valuation;
+         inputPriceNumberDom.max = valuation;
+
+         inputPriceRangeDom.disabled = !valuation;
+         inputPriceNumberDom.disabled = !valuation;
+
+         inputPriceNumberDom.value = inputPriceRangeDom.value;
+     }
+
      /* Submit currently selected bid */
      function bid() {
          displayNone();
 
          var slots = document.querySelector('input[name="slots"]:checked').value;
          liveSend({
-             'price': inputPriceDom.value,
+             'price': inputPriceRangeDom.value,
              'slots': slots,
          });
      }

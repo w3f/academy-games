@@ -83,7 +83,7 @@ SESSION_CONFIG_DEFAULTS = dict(
     num_hard_participants=0, num_candle_participants=0, num_activity_participants=0
 )
 
-PARTICIPANT_FIELDS = ['role', 'treatment']
+PARTICIPANT_FIELDS = ['role', 'treatment', 'finished']
 SESSION_FIELDS = ['reward_round']
 
 # ISO-639 code

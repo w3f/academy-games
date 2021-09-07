@@ -212,6 +212,7 @@ class EndWaitPage(WaitPage):
             for p in group.get_players():
                 reward_group = p.in_round(reward_round).group
                 p.participant.payoff = FinalResult(reward_group).get_profit(p)
+                p.participant.finished = True
 
 
 class ResultPage(Page):

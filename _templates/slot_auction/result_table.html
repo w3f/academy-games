@@ -1,0 +1,40 @@
+<!-- Requires: has_result, result, num_global_slots, range_global_slots -->
+
+<table class="table table-sm table-bordered align-middle text-center">
+    <thead class="table-dark">
+        <tr>
+            <th>Rank</th>
+            {{ for slot in range_global_slots }}
+            <th>Slot {{ slot }}</th>
+            {{ endfor }}
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+      {{ if has_result }}
+        {{ for rank, bids, total in result }}
+        <tr>
+            <td>{{ rank }}.</td>
+
+            {{ for width, player, price in bids }}
+            <td colspan="{{ width }}">
+                {{ if player != 0 }}
+                <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
+                    Player {{ player }}<span class="badge bg-secondary ms-2">{{ price }}</span>
+                </span>
+                {{ endif }}
+            </td>
+            {{ endfor }}
+
+            <td>{{ total }}</td>
+        </tr>
+        {{ endfor }}
+      {{ else }}
+        <tr>
+            <td></td>
+            <td colspan="{{ num_global_slots }}">No bids were received...</td>
+            <td></td>
+        </tr>
+      {{ endif }}
+    </tbody>
+</table>

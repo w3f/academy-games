@@ -1,6 +1,8 @@
 import random
 
-from .models import Constants, Subsession, Bid, FinalResult
+from typing import List
+
+from .models import Constants, Subsession, Player, Bid, FinalResult
 from .pages import *
 
 
@@ -12,6 +14,7 @@ Parachain Auction experiment
 ALL_TREATMENTS = ["hard", "candle", "activity"]
 
 
+# SESSION INITIALIZATION
 def creating_session(subsession: Subsession) -> None:
     """Intialize all random group and player values."""
 
@@ -123,6 +126,45 @@ def vars_for_admin_report(subsession: Subsession):
         'range_global_slots': range_global_slots,
         'result_by_group': result_by_group,
     }
+
+
+# CUSTOM EXPORTER
+def custom_export(all_players: List[Player]):
+    # header row
+    yield [
+        'session',
+        'participant_code',
+        'role',
+        'treatment',
+        'round_number',
+        'group_id',
+        'duration',
+        'player_id',
+        'valuation',
+        'timestamp',
+        'slots',
+        'price',
+    ]
+    for player in all_players:
+        session = player.session
+        participant = player.participant
+        group = player.group
+
+        for bid in Bid.for_player(player):
+            yield [
+                session.code,
+                participant.code,
+                participant.role,
+                participant.treatment,
+                group.round_number,
+                group.id,
+                group.duration_final,
+                player.id_in_group,
+                bid.valuation,
+                bid.timestamp,
+                bid.slots,
+                bid.price,
+            ]
 
 
 # OTHER CONSTANTS

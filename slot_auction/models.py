@@ -149,6 +149,15 @@ class Group(BaseGroup):
             raise Exception("Unknown treatment: ", self.treatment)
 
     @property
+    def timeout_final(self) -> float:
+        """Return the final page timeout in s based on auction format."""
+
+        if self.treatment == "candle":
+            return float(self.candle_duration)
+
+        return self.timeout_total
+
+    @property
     def timeout_total_ms(self) -> int:
         """Return the initial page timeout in ms based on auction format."""
 
@@ -171,6 +180,12 @@ class Group(BaseGroup):
         """Return total auction length taking into account timer resets."""
 
         return self.timestamp_reset - self.timestamp_start + self.timeout_total
+
+    @property
+    def duration_final(self) -> float:
+        """Return final auction length taking into account timer resets."""
+
+        return self.timestamp_reset - self.timestamp_start + self.timeout_final
 
     def is_valid_timestamp(self, timestamp: float) -> bool:
         """Check if provided timestamp falls within the auction period."""
@@ -294,11 +309,19 @@ class Bid(ExtraModel):
 
         return count
 
-    def get_profit(self):
+    @property
+    def valuation(self):
+        """Return how bidder valuates this bid."""
+
+        return self.player.get_valuation(self.slots)
+
+    @property
+    def profit(self):
         """Return difference between valuation and price of bid."""
 
-        valuation = self.player.get_valuation(self.slots)
+        valuation = self.valuation
 
+        # TODO: Check if this warning is necessary
         if valuation == 0:
             print("WARNING: no valuation for {} bid".format(self.price))
 
@@ -358,6 +381,12 @@ class Bid(ExtraModel):
         """Return number of bids in group."""
 
         return Bid.objects_filter(group=group).count()
+
+    @staticmethod
+    def for_player(player: Player):
+        """Return all bids of a certain player."""
+
+        return Bid.objects_filter(group=player.group, player=player).order_by('timestamp').all()
 
     @staticmethod
     def for_slots(group: Group, slots: Slots, timestamp: Optional[float] = None) -> List["Bid"]:
@@ -488,7 +517,7 @@ class Result:
         if self.has_winner():
             winning_bids = self.winners[0][2]
 
-            return sum([bid.get_profit() for bid in winning_bids
+            return sum([bid.profit for bid in winning_bids
                         if bid.player == player],
                        start=Currency(0))
 

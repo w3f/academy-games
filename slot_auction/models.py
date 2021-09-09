@@ -18,14 +18,16 @@ import math
 import time
 import json
 
+
 # GENERAL TYPE ALIASES
 Slots = int
+
 
 # DEFAULT MODELS
 class Constants(BaseConstants):
     name_in_url = 'slot_auction'
     players_per_group = 3
-    num_rounds = 15
+    num_rounds = 10
 
     # Default slots config (overridden by session)
     _num_global_slots = 2

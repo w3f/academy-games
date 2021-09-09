@@ -6,6 +6,10 @@
 
 <p>Thank you for your participation.</p>
 
-<p>Based on your perfomance in round <b>{{ round }}</b>, you total payout will be <b>{{ reward }}.</p>
+<p>Your payout will be based on your perfomance in round <b>{{ round }}</b>:
+
+{{ include "slot_auction/result_table.html" }}
+
+<p>You earned <b>{{ profit }}</b> in that round resulting in a total payout of <b>{{ reward }}.</p>
 
 {{ endblock }}

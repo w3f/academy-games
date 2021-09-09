@@ -246,7 +246,17 @@ class OutroPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Returns additional data to pass to page template."""
 
+        num_global_slots = Constants.get_global_slot_count(player)
+        range_global_slots = range(1, num_global_slots + 1)
+
+        result = FinalResult(player.group)
+
         return {
             "round": player.session.reward_round,
+            'num_global_slots': num_global_slots,
+            'range_global_slots': range_global_slots,
+            'has_result': result.has_winner(),
+            'result': result.to_table(True),
+            'profit': result.get_profit(player),
             "reward": player.participant.payoff_plus_participation_fee()
         }

@@ -1,0 +1,15 @@
+{{ for name, count, has_result, result, profits in result_by_group }}
+
+  <h4>Group {{ name }}</h4>
+
+  <p>Received {{ count }} bids.</p>
+
+  {{ include "slot_auction/result_table.html" }}
+
+  <ul>
+  {{ for i, p in profits }}
+      <li>Player {{ i }}: {{ p }}</li>
+  {{ endfor }}
+  </ul>
+
+{{ endfor }}

@@ -1,6 +1,6 @@
 import random
 
-from .models import Constants, Subsession
+from .models import Constants, Subsession, Bid, FinalResult
 from .pages import *
 
 
@@ -94,6 +94,35 @@ def creating_session(subsession: Subsession) -> None:
             p.valuation = random.randint(Constants.global_valuation_min, Constants.global_valuation_max)
         else:
             p.valuation = random.randint(0, Constants.local_valuation_total)
+
+
+# CUSTOM ADMIN PAGE
+def vars_for_admin_report(subsession: Subsession):
+    """Return template variables for admin report."""
+
+    num_global_slots = Constants.get_global_slot_count(subsession)
+    range_global_slots = range(1, num_global_slots + 1)
+
+    result_by_group = []
+    for group in subsession.get_groups():
+        result = FinalResult(group)
+
+        profits = [(i + 1, result.get_profit(p))
+                   for i, p in enumerate(group.get_players())]
+
+        result_by_group += [(
+            group.id,
+            Bid.count(group),
+            result.has_winner(),
+            result.to_table(True),
+            profits,
+        )]
+
+    return {
+        'num_global_slots': num_global_slots,
+        'range_global_slots': range_global_slots,
+        'result_by_group': result_by_group,
+    }
 
 
 # OTHER CONSTANTS

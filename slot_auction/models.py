@@ -352,6 +352,12 @@ class Bid(ExtraModel):
             player.group.timer_reset()
 
     @staticmethod
+    def count(group: Group) -> int:
+        """Return number of bids in group."""
+
+        return Bid.objects_filter(group=group).count()
+
+    @staticmethod
     def for_slots(group: Group, slots: Slots, timestamp: Optional[float] = None) -> List["Bid"]:
         """Return all bids for a certain group, slots and optionally until a certain timestamp."""
 

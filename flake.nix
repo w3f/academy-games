@@ -13,13 +13,21 @@
     mach-nix.inputs.pypi-deps-db.follows = "pypi-deps-db";
   };
 
-  outputs = { self, mach-nix, ... }: let
-    requirements = builtins.readFile ./requirements.txt;
+  outputs = { self, nixpkgs, mach-nix, ... }: let
+
+    mkPython = lib: lib.mkPython {
+      requirements = builtins.readFile ./requirements.txt;
+      _.otree.propagatedBuildInputs.mod = pySelf: oldAttrs: oldVal: oldVal ++ [ pySelf.psycopg2 ];
+    };
+
+    mkShell = _: lib: (mkPython lib).env;
+
+    mkScript = system: lib:
+      nixpkgs.legacyPackages.${system}.writeScriptBin "polkadot-experiments" ''
+        cd ${self} && ${mkPython lib}/bin/otree $@
+      '';
   in {
-    devShell = builtins.mapAttrs
-      (_: lib: lib.mkPythonShell {
-        inherit requirements;
-        _.otree.propagatedBuildInputs.mod = pySelf: oldAttrs: oldVal: oldVal ++ [ pySelf.psycopg2 ];
-      }) mach-nix.lib;
+    devShell = builtins.mapAttrs mkShell mach-nix.lib;
+    defaultPackage = builtins.mapAttrs mkScript mach-nix.lib;
   };
 }

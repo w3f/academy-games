@@ -42,10 +42,10 @@ class Constants(BaseConstants):
     # Duration config
     hard_duration = 60.0
 
-    candle_duration_max = 90
-    candle_duration_min = 45
+    candle_duration_max = 60
+    candle_duration_min = 20
 
-    activity_duration = 30.0
+    activity_duration = 20.0
 
     @staticmethod
     def use_static_result(model: MixinSessionFK) -> bool:

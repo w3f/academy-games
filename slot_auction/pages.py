@@ -33,7 +33,7 @@ class ChatWaitPage(WaitPage):
 class ChatPage(Page):
     """Pre-auction chat page for players to coordinate bidding."""
 
-    timeout_seconds = 60
+    timeout_seconds = 30
     timer_text = """Time left to chat with other players:"""
 
     @staticmethod

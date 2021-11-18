@@ -139,6 +139,7 @@ class AuctionPage(Page):
         """Returns additional data to pass to page template."""
 
         range_slots = range(1, Constants.get_global_slot_count(player) + 1)
+        candle_percentage_min = 100.0 * Constants.candle_duration_min / Constants.candle_duration_max
 
         return {
             'static_result': Constants.use_static_result(player),
@@ -148,6 +149,8 @@ class AuctionPage(Page):
             'local_choices': AuctionPage.get_local_choices(player),
             'num_global_slots': Constants.get_global_slot_count(player),
             'num_local_slots': Constants.get_local_slot_count(player),
+            'candle_percentage_min': candle_percentage_min,
+            'candle_percentage_max': 100.0 - candle_percentage_min,
         }
 
     @staticmethod

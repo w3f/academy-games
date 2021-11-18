@@ -302,7 +302,7 @@
 
            if (distance > 0) {
                $(global_row).addClass('table-success');
-               global_rank.innerHTML = "1.";
+               global_rank.innerHTML = "&#x1F451; 1.";
                global_distance.innerHTML = "-";
 
                $(local_row).removeClass('table-success');
@@ -314,7 +314,7 @@
                global_distance.innerHTML = -distance;
 
                $(local_row).addClass('table-success');
-               local_rank.innerHTML = "1.";
+               local_rank.innerHTML = "&#x1F451; 1.";
                local_distance.innerHTML = "-";
            } else {
                $(global_row).removeClass('table-success');
@@ -334,6 +334,10 @@
                var rank = index + 1;
                var all_bids = payload[index][0];
                var total = payload[index][1];
+
+               if (rank == 1) {
+                   rank = "&#x1F451; " + rank;
+               }
 
                results += `<tr><td>${rank}</td>`
 

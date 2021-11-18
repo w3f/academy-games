@@ -14,7 +14,7 @@
       {{ if has_result }}
         {{ for rank, bids, total in result }}
         <tr>
-            <td>{{ rank }}.</td>
+            <td>{{ if rank == 1 }}&#x1F451; {{ endif }}{{ rank }}.</td>
 
             {{ for width, player, price in bids }}
             <td colspan="{{ width }}">

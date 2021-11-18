@@ -1,5 +1,5 @@
 {{ block title }}
-    Final Result {{ player.round_number }} / {{ Constants.num_rounds }}
+    End of Round {{ player.round_number }} / {{ Constants.num_rounds }}
 {{ endblock }}
 
 {{ block content }}
@@ -7,6 +7,12 @@
 {{ if group.treatment == "candle" }}
 <p>Auction ended after {{ group.candle_duration }} of {{ Constants.candle_duration_max }} seconds.</p>
 {{ endif }}
+
+<h3>Your Valuation</h3>
+
+{{ include "slot_auction/valuation_table.html" }}
+
+<h3>Result of Round</h3>
 
 {{ include "slot_auction/result_table.html" }}
 

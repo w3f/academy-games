@@ -1,5 +1,5 @@
 {{ block title }}
-    Result and Payout
+    Final Result and Payout
 {{ endblock }}
 
 {{ block content }}
@@ -7,6 +7,12 @@
 <p>Thank you for your participation.</p>
 
 <p>Your payout will be based on your perfomance in round <b>{{ round }}</b>:
+
+<h3>Your valuation</h3>
+
+{{ include "slot_auction/valuation_table.html" }}
+
+<h3>Round result</h3>
 
 {{ include "slot_auction/result_table.html" }}
 

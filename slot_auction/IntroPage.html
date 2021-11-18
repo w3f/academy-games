@@ -1,7 +1,11 @@
 {{ block title }}
-    Welcome to our auction experiment!
+    Start of Round {{ player.round_number }} / {{ Constants.num_rounds }}
 {{ endblock }}
 {{ block content }}
+
+  {{ if subsession.round_number == 1 }}
+
+    <h3>Introduction</h3>
 
     <!-- Role introduction -->
     {{ if player.role == "global" }}
@@ -38,6 +42,11 @@
 
     {{ endif }}
 
+  {{ endif }}
+
+    <h3>Your Valuation</h3>
+
+    {{ include "slot_auction/valuation_table.html" }}
 
     <p>Please press the button below once you are ready.</p>
 

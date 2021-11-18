@@ -10,8 +10,20 @@ from .models import Constants, Player, Group, Bid, Result, FinalResult
 class IntroPage(Page):
     """Introduction page explaining auction mechanics."""
 
-    def is_displayed(self):
-        return self.subsession.round_number == 1
+    @staticmethod
+    def vars_for_template(player: Player) -> dict:
+        """Returns additional data to pass to page template."""
+
+        num_global_slots = Constants.get_global_slot_count(player)
+        range_global_slots = range(1, num_global_slots + 1)
+
+        return {
+            'range_global_slots': range_global_slots,
+            'num_global_slots': num_global_slots,
+            'global_valuation': float(player.get_global_valuation()),
+            'num_local_slots': Constants.get_local_slot_count(player),
+            'local_choices': AuctionPage.get_local_choices(player),
+        }
 
 
 class ChatWaitPage(WaitPage):
@@ -230,6 +242,9 @@ class ResultPage(Page):
         return {
             'num_global_slots': num_global_slots,
             'range_global_slots': range_global_slots,
+            'global_valuation': float(player.get_global_valuation()),
+            'num_local_slots': Constants.get_local_slot_count(player),
+            'local_choices': AuctionPage.get_local_choices(player),
             'has_result': result.has_winner(),
             'result': result.to_table(True),
             'profit': result.get_profit(player),
@@ -253,8 +268,11 @@ class OutroPage(Page):
 
         return {
             "round": player.session.reward_round,
-            'num_global_slots': num_global_slots,
             'range_global_slots': range_global_slots,
+            'num_global_slots': num_global_slots,
+            'num_local_slots': Constants.get_local_slot_count(player),
+            'global_valuation': float(player.get_global_valuation()),
+            'local_choices': AuctionPage.get_local_choices(player),
             'has_result': result.has_winner(),
             'result': result.to_table(True),
             'profit': result.get_profit(player),

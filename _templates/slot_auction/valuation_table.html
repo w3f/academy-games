@@ -1,0 +1,35 @@
+<!-- Requires: range_global_slots, num_global_slots, global_valuation, num_local_slots, local_choices -->
+
+<table class="table table-sm table-bordered">
+    <thead class="table-dark">
+        <tr>
+            {% for slot in range_global_slots %}
+                <th>Slot {{ slot }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Row with global choice -->
+        <tr>
+            <td colspan="{{ num_global_slots }}" class="text-center">
+                <span class="badge bg-secondary ms-2">{{ global_valuation | cu }}</span>
+            </td>
+        </tr>
+        <!-- Rows with local choices -->
+        {{ for before, after, row in local_choices }}
+            <tr>
+                {{ if before != 0 }}
+                    <td colspan="{{ before }}"></td>
+                {{ endif }}
+                {{ for name, value, valuation in row}}
+                    <td colspan="{{ num_local_slots }}" class="text-center">
+                        <span class="badge bg-secondary ms-2">{{ valuation | cu }}</span>
+                    </td>
+                {{ endfor }}
+                {{ if after != 0 }}
+                    <td colspan="{{ after }}"></td>
+                {{ endif }}
+            </tr>
+        {{ endfor }}
+    </tbody>
+</table>

@@ -149,19 +149,19 @@ class Group(BaseGroup):
             raise Exception("Unknown treatment: ", self.treatment)
 
     @property
+    def timeout_total_ms(self) -> int:
+        """Return the initial page timeout in ms based on auction format."""
+
+        return int(self.timeout_total * 1000)
+
+    @property
     def timeout_final(self) -> float:
-        """Return the final page timeout in s based on auction format."""
+        """Return the final auction timeout in s based on auction format."""
 
         if self.treatment == "candle":
             return float(self.candle_duration)
 
         return self.timeout_total
-
-    @property
-    def timeout_total_ms(self) -> int:
-        """Return the initial page timeout in ms based on auction format."""
-
-        return int(self.timeout_total * 1000)
 
     @property
     def timeout_remaining(self) -> float:
@@ -177,13 +177,7 @@ class Group(BaseGroup):
 
     @property
     def duration(self) -> float:
-        """Return total auction length taking into account timer resets."""
-
-        return self.timestamp_reset - self.timestamp_start + self.timeout_total
-
-    @property
-    def duration_final(self) -> float:
-        """Return final auction length taking into account timer resets."""
+        """Return auction length considering candle ending and timer resets."""
 
         return self.timestamp_reset - self.timestamp_start + self.timeout_final
 

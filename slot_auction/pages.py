@@ -243,6 +243,8 @@ class ResultPage(Page):
         result = FinalResult(player.group)
 
         return {
+            'candle_ending_duration': player.group.timeout_final - Constants.candle_duration_min,
+            'candle_ending_total': Constants.candle_duration_max - Constants.candle_duration_min,
             'num_global_slots': num_global_slots,
             'range_global_slots': range_global_slots,
             'global_valuation': float(player.get_global_valuation()),

@@ -87,7 +87,7 @@ class AuctionPage(Page):
             gap = (N - offset) % L
 
             # Strip currency wrapper to be able to use value in javascript
-            valuations_float = [float(v) for v in valuations[offset]]
+            valuations_float = [float(valuations.pop(0)) for _ in range(len(slots))]
 
             # Zip together columns to rows and add to choices
             choices += [(offset, gap, list(zip(names, values, valuations_float)))]

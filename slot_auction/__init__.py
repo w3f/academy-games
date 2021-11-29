@@ -91,12 +91,15 @@ def creating_session(subsession: Subsession) -> None:
     for g in subsession.get_groups():
         g.candle_duration = random.randint(Constants.candle_duration_min, Constants.candle_duration_max)
 
+    N_slots = Constants.get_global_slot_count(subsession)
+
     # Determine valuation based on role
     for p in subsession.get_players():
         if p.role == "global":
-            p.valuation = random.randint(Constants.global_valuation_min, Constants.global_valuation_max)
+            p.valuations = random.randint(Constants.global_valuation_min, Constants.global_valuation_max)
         else:
-            p.valuation = random.randint(0, Constants.local_valuation_total)
+            valued_slots = random.choices(range(N_slots), k=int(Constants.local_valuation_total))
+            p.valuations = [valued_slots.count(i) for i in range(N_slots)]
 
 
 # CUSTOM ADMIN PAGE
@@ -130,20 +133,23 @@ def vars_for_admin_report(subsession: Subsession):
 
 # CUSTOM EXPORTER
 def custom_export(all_players: List[Player]):
-    # header row
+    """Custom exporter for auctions bids."""
+
+    # Export header row
     yield [
-        'session',
+        'session_code',
         'participant_code',
-        'role',
-        'treatment',
-        'round_number',
+        'participant_role',
+        'participant_treatment',
+        'group_round',
         'group_id',
-        'duration',
+        'group_duration',
         'player_id',
-        'valuation',
-        'timestamp',
-        'slots',
-        'price',
+        'player_valuations'
+        'bid_timestamp',
+        'bid_slots',
+        'bid_price',
+        'bid_valuation',
     ]
     for player in all_players:
         session = player.session
@@ -160,10 +166,11 @@ def custom_export(all_players: List[Player]):
                 group.id,
                 group.duration,
                 player.id_in_group,
-                bid.valuation,
+                player.valuations,
                 bid.timestamp,
                 bid.slots,
                 bid.price,
+                bid.valuation,
             ]
 
 

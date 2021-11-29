@@ -91,16 +91,6 @@ class Constants(BaseConstants):
 
         return [Constants.get_global_value(model)] + Constants.get_local_values(model)
 
-    @staticmethod
-    def get_local_rows(model: MixinSessionFK) -> List[int]:
-        """Returns number of choices per row in UI."""
-
-        # Abbreviations to improve readability
-        N = Constants.get_global_slot_count(model)
-        L = Constants.get_local_slot_count(model)
-
-        return [(N - offset) // L for offset in range(L)]
-
     # Basic sanity checks
     assert _num_global_slots > _num_local_slots
     assert global_valuation_max >= global_valuation_min
@@ -200,7 +190,7 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
-    valuation = CurrencyField()
+    valuations_json = LongStringField()
 
     @property
     def role(self) -> str:
@@ -219,19 +209,41 @@ class Player(BasePlayer):
 
         return '{}-{}'.format(self.group.id, self.role)
 
-    def get_valuation(self, slots: Slots) -> Currency:
-        """Return valuation of a specific slot."""
+    @property
+    def valuations(self) -> any:
+        """Return decoded valuations."""
 
-        if Constants.get_global_value(self) == slots:
+        return json.loads(self.valuations_json)
+
+    @valuations.setter
+    def valuations(self, value):
+        """Encode valuations before setting it."""
+
+        self.valuations_json = json.dumps(value)
+
+    def get_valuation(self, slots: Slots) -> Currency:
+        """Return valuation of a specific slot combination."""
+
+        global_value = Constants.get_global_value(self)
+
+        if global_value == slots:
             return self.get_global_valuation()
         elif self.role == 'local':
-            values = Constants.get_local_values(self)
 
-            # FIXME: Only values the first two options, so does not work for num_slots > 2
-            if slots == values[0]:
-                return self.valuation
-            elif slots == values[1]:
-                return Constants.local_valuation_total - self.valuation
+            if slots > global_value:
+                raise Exception("Invalid slots value")
+
+            value = 0
+            index = 0
+
+            while slots != 0:
+                if slots & 1:
+                    value += self.valuations[index]
+
+                slots >>= 1
+                index += 1
+
+            return Currency(value)
 
         return Currency(0)
 
@@ -239,22 +251,14 @@ class Player(BasePlayer):
         """Return player valuations for all slots."""
 
         if self.role == 'global':
-            return self.valuation
+            return self.valuations
         else:
             return Constants.local_valuation_total
 
-    def get_local_valuations(self) -> List[List[Currency]]:
+    def get_local_valuations(self) -> List[Currency]:
         """Return players valuation for each of the local choices."""
 
-        rows = Constants.get_local_rows(self)
-        valuations = [[0] * n for n in rows]
-
-        if self.role == 'local':
-            # FIXME: Only values the first two options, so does not work for num_slots > 2
-            valuations[0][0] = self.valuation
-            valuations[0][1] = Constants.local_valuation_total - self.valuation
-
-        return valuations
+        return [self.get_valuation(v) for v in Constants.get_local_values(self)]
 
 
 # EXTRA MODELS

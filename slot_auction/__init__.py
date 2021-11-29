@@ -156,6 +156,24 @@ def custom_export(all_players: List[Player]):
         participant = player.participant
         group = player.group
 
+        # Export at least valuations...
+        yield [
+            session.code,
+            participant.code,
+            participant.role,
+            participant.treatment,
+            group.round_number,
+            group.id,
+            group.duration,
+            player.id_in_group,
+            player.valuations,
+            None,  # bid.timestamp
+            None,  # bid.slots
+            None,  # bid.price
+            None,  # bid.valuation
+        ]
+
+        # ... and all bids
         for bid in Bid.for_player(player):
             yield [
                 session.code,

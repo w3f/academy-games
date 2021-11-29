@@ -479,7 +479,7 @@ class Result:
         table = []  # = (layout, total)
         for rank, (total, _, bids) in enumerate(self.winners):
             # Sort bids by slot
-            sorted(bids, key=lambda b: b.slots)
+            bids.sort(key=lambda b: b.slots)
 
             # Figure out row layout for bids
             layout = []  # = (width, player, price)

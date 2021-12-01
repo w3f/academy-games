@@ -36,7 +36,7 @@
                 <td colspan="{{ num_global_slots }}">
                     <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
                         <span id="output-{{ global_value }}-player">No bidder</span>
-                        <span id="output-{{ global_value }}-price" class="badge bg-secondary ms-2">0 points</span>
+                        <span id="output-{{ global_value }}-price" class="badge bg-secondary ms-2">{{ 0 | cu }}</span>
                     </span>
                 </td>
                 <td id="output-global-distance">-</td>
@@ -52,7 +52,7 @@
                 <td>
                     <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
                         <span id="output-{{ value }}-player">No bidder</span>
-                        <span id="output-{{ value }}-price" class="badge bg-secondary ms-2">0 points</span>
+                        <span id="output-{{ value }}-price" class="badge bg-secondary ms-2">{{ 0 | cu }}</span>
                     </span>
                 </td>
                 {{ endfor }}

@@ -18,6 +18,7 @@ import math
 import time
 import json
 
+from functools import cmp_to_key
 
 # GENERAL TYPE ALIASES
 Slots = int
@@ -441,8 +442,14 @@ class Bid(ExtraModel):
         if global_highest:
             result += [(global_highest.price, global_highest.slots, [global_highest])]
 
-        # Sort all bids and combination by highest price
-        result.sort(reverse=True, key=(lambda e: e[0]))
+        # Sort all bid combinations by highest price, resolve ties by lowest timestamp
+        def toTimestampTuple(xs: List["Bid"]) -> Tuple[float]:
+            return tuple(sorted(map(lambda x: x.timestamp, xs), reverse=True))
+
+        def timestampCmp(xs: List[Bid], ys: List["Bid"]) -> int:
+            return -1 if toTimestampTuple(xs) < toTimestampTuple(ys) else 1
+
+        result.sort(key=cmp_to_key(lambda a, b: timestampCmp(a[2], b[2]) if a[0] == b[0] else b[0] - a[0]))
 
         # Filter out duplicates with lower totals
         filtered = []

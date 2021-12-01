@@ -276,7 +276,8 @@
          {{ if static_result }}
 
            var highest = payload[0];
-           var distance = payload[1];
+           var winner = payload[1];
+           var distance = payload[2];
 
            for (var index = 0; index < highest.length; index++) {
                var value = highest[index][0];
@@ -300,7 +301,7 @@
            var local_rank = document.querySelector('#output-local-rank');
            var local_distance = document.querySelector('#output-local-distance');
 
-           if (distance > 0) {
+           if (winner == "global") {
                $(global_row).addClass('table-success');
                global_rank.innerHTML = "&#x1F451; 1.";
                global_distance.innerHTML = "-";
@@ -308,10 +309,10 @@
                $(local_row).removeClass('table-success');
                local_rank.innerHTML = "2.";
                local_distance.innerHTML = distance;
-           } else if (distance < 0) {
+           } else if (winner == "local") {
                $(global_row).removeClass('table-success');
                global_rank.innerHTML = "2.";
-               global_distance.innerHTML = -distance;
+               global_distance.innerHTML = distance;
 
                $(local_row).addClass('table-success');
                local_rank.innerHTML = "&#x1F451; 1.";
@@ -319,11 +320,11 @@
            } else {
                $(global_row).removeClass('table-success');
                global_rank.innerHTML = "-";
-               global_distance.innerHTML = distance;
+               global_distance.innerHTML = "-";
 
                $(local_row).removeClass('table-success');
                local_rank.innerHTML = "-";
-               local_distance.innerHTML = distance;
+               local_distance.innerHTML = "-";
            }
 
          {{ else }}

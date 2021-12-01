@@ -113,20 +113,34 @@ class AuctionPage(Page):
 
         # Retrieve highest bids for each possible combination of slots
         bid_global = Bid.highest(group, 2 ** N - 1)
-        bids_local = [Bid.highest(group, 2 ** s) for s in range(N)]
+        bids_local = list(filter(None, [Bid.highest(group, 2 ** s) for s in range(N)]))
 
         # Extract required data of highest bids
-        highest = [(b.slots, b.bidder, str(b.price)) for b in bids_local if b]
+        highest = [(b.slots, b.bidder, str(b.price)) for b in bids_local]
         if bid_global:
             highest.append((bid_global.slots, bid_global.bidder, str(bid_global.price)))
 
         # Determine ranking and distance
         total_global = bid_global.price if bid_global else 0
-        total_local = sum([b.price for b in bids_local if b])
+        total_local = sum([b.price for b in bids_local])
 
-        distance = int(total_global - total_local)
+        distance = float(total_global - total_local)
 
-        return highest, distance
+        # Resolve tie based on timestamps
+        winner = "none"
+        if distance > 0:
+            winner = "global"
+        elif distance < 0:
+            winner = "local"
+        elif bid_global and bids_local:
+            if bid_global.timestamp < max([b.timestamp for b in bids_local]):
+                winner = "global"
+            else:
+                winner = "local"
+
+        distance = abs(distance)
+
+        return highest, winner, distance
 
     @staticmethod
     def get_winners_dynamic(group: Group) -> Result.Table:

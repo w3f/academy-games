@@ -264,6 +264,8 @@ class Player(BasePlayer):
 
 # EXTRA MODELS
 class Bid(ExtraModel):
+    """Additional model to track and process all bids."""
+
     group = Link(Group)
     player = Link(Player)
     slots = IntegerField()
@@ -464,6 +466,7 @@ class Bid(ExtraModel):
 
 
 class Result:
+    """Wrapper around Bids to easily generate results."""
 
     def __init__(self, group: Group, timestamp: Optional[float] = None):
         self.winners = Bid.get_winners(group, timestamp)
@@ -530,6 +533,7 @@ class Result:
 
 
 class FinalResult(Result):
+    """Result that takes candle auction ending into consideration."""
 
     def __init__(self, group: Group):
         timestamp = None

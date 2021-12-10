@@ -167,6 +167,12 @@ class Group(BaseGroup):
         return int(self.timeout_remaining * 1000)
 
     @property
+    def duration_fix(self) -> float:
+        """Return auction length considering candle ending and timer resets."""
+
+        return self.timestamp_reset - self.timestamp_start + self.timeout_total
+
+    @property
     def duration(self) -> float:
         """Return auction length considering candle ending and timer resets."""
 
@@ -175,7 +181,7 @@ class Group(BaseGroup):
     def is_valid_timestamp(self, timestamp: float) -> bool:
         """Check if provided timestamp falls within the auction period."""
 
-        return 0 < timestamp <= self.duration
+        return 0 < timestamp <= self.duration_fix
 
     @property
     def result(self) -> any:

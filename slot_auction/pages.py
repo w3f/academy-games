@@ -247,6 +247,9 @@ class EndWaitPage(WaitPage):
 class ResultPage(Page):
     """Page to display results at end of auction."""
 
+    timeout_seconds = 30
+    timer_text = """Time left to view result:"""
+
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Returns additional data to pass to page template."""

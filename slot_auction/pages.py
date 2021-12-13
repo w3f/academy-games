@@ -283,7 +283,8 @@ class OutroPage(Page):
         num_global_slots = Constants.get_global_slot_count(player)
         range_global_slots = range(1, num_global_slots + 1)
 
-        result = FinalResult(player.group)
+        reward_round = player.session.reward_round
+        result = FinalResult(player.in_round(reward_round).group)
 
         return {
             "round": player.session.reward_round,
@@ -294,6 +295,6 @@ class OutroPage(Page):
             'local_choices': AuctionPage.get_local_choices(player),
             'has_result': result.has_winner(),
             'result': result.to_table(True),
-            'profit': result.get_profit(player),
+            'profit': result.get_profit(player.in_round(reward_round)),
             "reward": player.participant.payoff_plus_participation_fee()
         }

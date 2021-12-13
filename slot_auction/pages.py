@@ -10,6 +10,18 @@ from .models import Constants, Player, Group, Bid, Result, FinalResult
 class IntroPage(Page):
     """Introduction page explaining auction mechanics."""
 
+    timeout_seconds = 30
+    timer_text = """Time left to prepare for round:"""
+
+    @staticmethod
+    def get_timeout_seconds(player):
+        """Returns timeout unless in first round."""
+
+        if player.subsession.round_number == 1:
+            return None
+
+        return IntroPage.timeout_seconds
+
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Returns additional data to pass to page template."""

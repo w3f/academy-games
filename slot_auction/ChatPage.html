@@ -4,10 +4,14 @@
 
 {{ block content }}
   <h1> Chat will all players:</h1>
+
+  <p>You are Player {{ player.id_in_group }}.</p>
+
   {{ chat }}
 
   {{ if player.role != 'global' }}
     <h1> Chat only with {{ player.role }} players:</h1>
+
     {{ chat channel=role_channel }}
   {{ endif }}
 {{ endblock }}

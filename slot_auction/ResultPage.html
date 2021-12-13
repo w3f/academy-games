@@ -7,7 +7,7 @@
 <!-- Auction duration -->
 {{ if group.treatment == "candle" }}
 
-<p>The auction ended after {{ group.duration }} of {{ Constants.candle_duration_max | to1 }} seconds, after {{ candle_ending_duration }} of {{ candle_ending_total | to1 }} seconds in the end period.</p>
+<p>The auction ended after {{ group.duration }} of {{ Constants.candle_duration_max | to1 }} seconds in total, after {{ candle_ending_duration }} of {{ candle_ending_total | to1 }} seconds in the candle period.</p>
 
 {{ else }}
 

@@ -231,9 +231,11 @@ class AuctionPage(Page):
     def before_next_page(player: Player, timeout_happened: bool):
         """Make sure page was submitted by timeout."""
 
-        if not timeout_happened:
-            # TODO: Make sure this is tracked
-            print("Warning: Player ended auction before timeout!")
+        pass
+
+        # TODO: Currently broken, make sure this is tracked
+        #if not timeout_happened:
+        #    print("Warning: Player ended auction before timeout!")
 
 
 class EndWaitPage(WaitPage):

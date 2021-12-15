@@ -167,21 +167,25 @@ class Group(BaseGroup):
         return int(self.timeout_remaining * 1000)
 
     @property
-    def duration_fix(self) -> float:
-        """Return auction length considering candle ending and timer resets."""
+    def duration_max(self) -> float:
+        """Return maximum auction length considering max candle ending and timer resets."""
 
         return self.timestamp_reset - self.timestamp_start + self.timeout_total
 
     @property
-    def duration(self) -> float:
-        """Return auction length considering candle ending and timer resets."""
+    def duration_final(self) -> float:
+        """Return auction length considering actual candle ending and timer resets."""
+
+        # Allow access to this field even if round was not started for exports
+        if self.field_maybe_none('timestamp_start') is None:
+            return self.timeout_final
 
         return self.timestamp_reset - self.timestamp_start + self.timeout_final
 
     def is_valid_timestamp(self, timestamp: float) -> bool:
         """Check if provided timestamp falls within the auction period."""
 
-        return 0 < timestamp <= self.duration_fix
+        return 0 < timestamp <= self.duration_max
 
     @property
     def result(self) -> any:

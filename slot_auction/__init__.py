@@ -164,7 +164,7 @@ def custom_export(all_players: List[Player]):
             participant.treatment,
             group.round_number,
             group.id,
-            group.duration,
+            group.duration_final,
             player.id_in_group,
             player.valuations,
             None,  # bid.timestamp
@@ -182,7 +182,7 @@ def custom_export(all_players: List[Player]):
                 participant.treatment,
                 group.round_number,
                 group.id,
-                group.duration,
+                group.duration_final,
                 player.id_in_group,
                 player.valuations,
                 bid.timestamp,

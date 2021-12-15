@@ -98,8 +98,14 @@ def creating_session(subsession: Subsession) -> None:
         if p.role == "global":
             p.valuations = random.randint(Constants.global_valuation_min, Constants.global_valuation_max)
         else:
-            valued_slots = random.choices(range(N_slots), k=int(Constants.local_valuation_total))
-            p.valuations = [valued_slots.count(i) for i in range(N_slots)]
+            K_total = int(Constants.local_valuation_total)
+            if N_slots == 2:
+                k = random.randint(0, K_total)
+                p.valuations = [k, K_total - k]
+            else:
+                # TODO: Use a more varianced distribution here
+                valued_slots = random.choices(range(N_slots), k=K_total)
+                p.valuations = [valued_slots.count(i) for i in range(N_slots)]
 
 
 # CUSTOM ADMIN PAGE

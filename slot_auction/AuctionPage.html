@@ -8,8 +8,8 @@
 
         <div class="progress">
           {{ if group.treatment == "candle" }}
-            <div id="output-timer-bar-min" class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{ candle_percentage_min }}%"></div>
-            <div id="output-timer-bar-max" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: {{ candle_percentage_max }}%"></div>
+            <div id="output-timer-bar-ending" class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{ candle_percentage_ending }}%"></div>
+            <div id="output-timer-bar-normal" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: {{ candle_percentage_normal }}%"></div>
           {{ else }}
             <div id="output-timer-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
           {{ endif }}
@@ -150,16 +150,17 @@
 
              {{ if group.treatment == "candle" }}
 
-               var percentage_max = Math.max(percentage - {{ candle_percentage_min }}, 0);
-               var percentage_min = Math.min(percentage, {{ candle_percentage_min }});
+               var percentage_normal = Math.max(percentage - {{ candle_percentage_ending }}, 0);
+               var percentage_ending = Math.min(percentage, {{ candle_percentage_ending }});
 
-               $('#output-timer-bar-max').css('width', percentage_max + '%');
-               $('#output-timer-bar-min').css('width', percentage_min + '%');
+               $('#output-timer-bar-normal').css('width', percentage_normal + '%');
 
                /* Change alert color once candle auction could end */
-               if(percentage_max <= 0) {
+               if(percentage_normal <= 0) {
                    $('#output-timer-alert').addClass('alert-danger');
                }
+
+               $('#output-timer-bar-ending').css('width', percentage_ending + '%');
 
              {{ else }}
 

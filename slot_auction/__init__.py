@@ -145,7 +145,7 @@ def custom_export(all_players: List[Player]):
         'group_id',
         'group_duration',
         'player_id',
-        'player_valuations'
+        'player_valuations',
         'bid_timestamp',
         'bid_slots',
         'bid_price',

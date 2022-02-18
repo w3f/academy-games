@@ -3,6 +3,9 @@
 {{ endblock }}
 
 {{ block content }}
+
+  {{ include "slot_auction/practice_alert.html" }}
+
   <h1> Chat will all players:</h1>
 
   <p>You are Player {{ player.id_in_group }}.</p>

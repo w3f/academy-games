@@ -28,7 +28,8 @@ Slots = int
 class Constants(BaseConstants):
     name_in_url = 'slot_auction'
     players_per_group = 3
-    num_rounds = 10
+    num_rounds = 13
+    num_practice = 3
 
     # Default slots config (overridden by session)
     _num_global_slots = 2

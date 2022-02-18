@@ -3,6 +3,8 @@
 {{ endblock }}
 {{ block content }}
 
+  {{ include "slot_auction/practice_alert.html" }}
+
     <div id="output-timer-alert" class="alert alert-warning">
         <p>Time left in auction with {{ group.treatment }} ending: <span id="output-timer-label" class="fw-bold">-:--</span></p>
 

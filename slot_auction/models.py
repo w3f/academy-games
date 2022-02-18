@@ -35,10 +35,10 @@ class Constants(BaseConstants):
     _num_local_slots = 1
 
     # Valuation config
-    global_valuation_min = Currency(90)
-    global_valuation_max = Currency(110)
+    global_valuation_min = Currency(45)
+    global_valuation_max = Currency(55)
 
-    local_valuation_total = Currency(80)
+    local_valuation_total = Currency(40)
 
     # Duration config
     hard_duration = 60.0

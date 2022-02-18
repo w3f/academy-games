@@ -45,7 +45,9 @@ def creating_session(subsession: Subsession) -> None:
         treatments = mkTreatment("hard", N_hard) \
             + mkTreatment("candle", N_candle) \
             + mkTreatment("activity", N_activity)
-        random.shuffle(treatments)
+
+        if(subsession.session.config.get('shuffle_participants', False)):
+            random.shuffle(treatments)
 
         # Assign final result to players
         for p, t in zip(subsession.get_players(), treatments):

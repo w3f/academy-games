@@ -3,11 +3,11 @@
 <table class="table table-sm table-bordered align-middle text-center">
     <thead class="table-dark">
         <tr>
-            <th>Rank</th>
+            <th>{{ lexicon.rank }}</th>
             {{ for slot in range_global_slots }}
-            <th>Slot {{ slot }}</th>
+            <th>{{ lexicon.slot }} {{ slot }}</th>
             {{ endfor }}
-            <th>Total</th>
+            <th>{{ lexicon.total }}</th>
         </tr>
     </thead>
     <tbody>
@@ -20,7 +20,7 @@
             <td colspan="{{ width }}">
                 {{ if player != 0 }}
                 <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
-                    Player {{ player }}<span class="badge bg-secondary ms-2">{{ price }}</span>
+                    {{ lexicon.player }} {{ player }}<span class="badge bg-secondary ms-2">{{ price }}</span>
                 </span>
                 {{ endif }}
             </td>
@@ -32,7 +32,7 @@
       {{ else }}
         <tr>
             <td></td>
-            <td colspan="{{ num_global_slots }}">No bids were received...</td>
+            <td colspan="{{ num_global_slots }}">{{ lexicon.no_bids }}</td>
             <td></td>
         </tr>
       {{ endif }}

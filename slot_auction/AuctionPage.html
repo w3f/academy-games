@@ -1,10 +1,10 @@
 {{ block title }}
-  Auction {{ round }} / {{ num_rounds }}
+  {{ lexicon.title }} {{ round }} / {{ num_rounds }}
 {{ endblock }}
 {{ block content }}
 
     <div id="output-timer-alert" class="alert alert-warning">
-        <p>Time left in auction with {{ group.treatment }} ending: <span id="output-timer-label" class="fw-bold">-:--</span></p>
+        <p>{{ lexicon.timer }}: <span id="output-timer-label" class="fw-bold">-:--</span></p>
 
         <div class="progress">
           {{ if group.treatment == "candle" }}
@@ -19,15 +19,15 @@
     {{ include "slot_auction/practice_alert.html" }}
 
     <!-- Table with current result of auction -->
-    <h3>Current result</h3>
+    <h3>{{ lexicon.subtitle_result }}</h3>
     <table class="table table-sm table-bordered align-middle text-center">
         <thead class="table-dark">
             <tr>
-                <th>Rank</th>
+                <th>{{ lexicon.rank }}</th>
                 {{ for slot in range_global_slots }}
-                <th>Slot {{ slot }}</th>
+                <th>{{ lexicon.slot }} {{ slot }}</th>
                 {{ endfor }}
-                <th>Distance</th>
+                <th>{{ lexicon.distance }}</th>
             </tr>
         </thead>
         <tbody id="tbody-results">
@@ -37,7 +37,7 @@
                 <td id="output-global-rank">-</td>
                 <td colspan="{{ num_global_slots }}">
                     <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
-                        <span id="output-{{ global_value }}-player">No bidder</span>
+                        <span id="output-{{ global_value }}-player">{{ lexicon.no_bidder }}</span>
                         <span id="output-{{ global_value }}-price" class="badge bg-secondary ms-2">{{ 0 | cu }}</span>
                     </span>
                 </td>
@@ -53,7 +53,7 @@
                 {{ for name, value, valuation in row}}
                 <td>
                     <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
-                        <span id="output-{{ value }}-player">No bidder</span>
+                        <span id="output-{{ value }}-player">{{ lexicon.no-bidder }}</span>
                         <span id="output-{{ value }}-price" class="badge bg-secondary ms-2">{{ 0 | cu }}</span>
                     </span>
                 </td>
@@ -68,7 +68,7 @@
             <td>-</td>
             <td colspan="{{ num_global_slots }}" class="text-center">
                 <span class="spinner-border spinner-border-sm"></span>
-                Waiting for bids...
+                {{ lexicon.waiting }}
             </td>
             <td>-</td>
           {{ endif }}
@@ -77,9 +77,9 @@
 
     <br/>
 
-    <h3>Participate in Auction</h3>
+    <h3>{{ lexicon.subtitle_input }}</h3>
 
-    <p>You are Player {{ player.id_in_group }}.</p>
+    <p>{{ lexicon.player_id }} {{ player.id_in_group }}.</p>
 
     <!-- Hidden alerts to display success and error messages -->
     <div id="output-success" class="alert alert-success d-none"></div>
@@ -90,7 +90,7 @@
         <thead class="table-dark">
             <tr>
                 {% for slot in range_global_slots %}
-                <th>Slot {{ slot }}</th>
+                <th>{{ lexicon.slot }} {{ slot }}</th>
                 {% endfor %}
             </tr>
         </thead>
@@ -99,7 +99,7 @@
             <tr>
                 <td colspan="{{ num_global_slots }}">
                     <input type="radio" id="input-slots-global" class="btn-check" name="slots" value="{{ global_value }}" autocomplete="off"/>
-                    <label class="btn btn-outline-primary w-100" for="input-slots-global" onclick="select({{ global_valuation }})">All slots<span class="badge bg-secondary ms-2">{{ global_valuation | cu }}</span></label>
+                    <label class="btn btn-outline-primary w-100" for="input-slots-global" onclick="select({{ global_valuation }})">{{ lexicon.all_slots }}<span class="badge bg-secondary ms-2">{{ global_valuation | cu }}</span></label>
                 </td>
             </tr>
             <!-- Rows with local choices -->
@@ -111,7 +111,7 @@
                 {{ for name, value, valuation in row}}
                 <td colspan="{{ num_local_slots }}">
                     <input type="radio" id="input-slots-local-{{ value }}" class="btn-check" name="slots" value="{{ value }}" autocomplete="off" onclick="select({{ valuation }})"{{ if valuation == 0 }} disabled{{ endif }}/>
-                    <label class="btn btn-outline-primary w-100" for="input-slots-local-{{ value }}" onclick="select({{ valuation }})">Slot {{ name }}<span class="badge bg-secondary ms-2">{{ valuation | cu }}</span></label>
+                    <label class="btn btn-outline-primary w-100" for="input-slots-local-{{ value }}" onclick="select({{ valuation }})">{{ lexicon.slot }} {{ name }}<span class="badge bg-secondary ms-2">{{ valuation | cu }}</span></label>
                 </td>
                 {{ endfor }}
                 {{ if after != 0 }}
@@ -126,12 +126,12 @@
     <div class="d-flex flex-wrap d-gap gap-3 align-items-center">
         <div class="form-floating">
             <input type="number" name="price-number" id="input-price-number" class="form-control" size="7" value="0" min="0" max="0" onkeydown="bidOnEnter(event)" disabled/>
-            <label for="input-price-number">Amount:</label>
+            <label for="input-price-number">{{ lexicon.label_price }}:</label>
         </div>
 
         <input type="range" name="price-range" id="input-price-range" class="flex-fill" value="0" min="0" max="0" onkeydown="bidOnEnter(event)" disabled/>
 
-        <button type="button" id="button-submit" class="btn btn-primary" onclick="bid()" disabled>Send Bid</button>
+        <button type="button" id="button-submit" class="btn btn-primary" onclick="bid()" disabled>{{ lexicon.button_bid }}</button>
     </div>
 
     <!-- Countdown JS library used by timeout -->
@@ -273,7 +273,7 @@
      {{ endif }}
 
        if (status == "success") {
-           displaySuccess("Bid was sucessfully submitted!");
+           displaySuccess("{{ lexicon.result_success }}");
        }
 
        if (status == "success" || status == "update" || status == "init" ) {
@@ -354,9 +354,9 @@
 
                    results += `<td colspan=${width}>`
                    if (player != 0) {
-                       var name = "Player " + player;
+                       var name = "{{ lexicon.player }} " + player;
                        if (player == js_vars.id_in_group) {
-                           name += " (Me)";
+                           name += " ({{ lexicon.player_me }})";
                        }
 
                        results += `<span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">${name}<span class="badge bg-secondary ms-2">${price}</span></span>`;
@@ -376,7 +376,7 @@
        } else if (status == "error") {
            displayError(payload);
        } else {
-           displayError(`Unknown status returned: ${status}`);
+           displayError(`{{ lexicon.status_unknown }}: ${status}`);
        }
 
      }

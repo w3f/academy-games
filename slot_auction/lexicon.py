@@ -1,8 +1,27 @@
-
-
 class Lexicon(dict):
+    """Thin wrapper around a dict to easily create lexicons."""
     data = {
         'common': {
+            'rank': {
+                'en': "Rank",
+                'de': "Rang",
+            },
+            'slot': {
+                'en': "Period",
+                'de': "Periode",
+            },
+            'total': {
+                'en': "Total",
+                'de': "Summe",
+            },
+            'player': {
+                'en': "Bidder",
+                'de': "Bieter",
+            },
+            'no_bids': {
+                'en': "No bids were received...",
+                'de': "Es wurden keine Gebote abgegeben...",
+            },
             'player_id': {
                 'en': "You are Player",
                 'de': "Sie sind Bieter",
@@ -80,6 +99,66 @@ class Lexicon(dict):
                 'de': "Warte auf andere Bieter...",
             },
         },
+        'auction': {
+            'title': {
+                'en': "Auction",
+                'de': "Phase 2: Auktion",
+            },
+            'timer': {
+                'en': "Time left in auction",
+                'de': "Verbleibende Zeit bis zum Ende der Auktion",
+            },
+            'subtitle_result': {
+                'en': "Current result",
+                'de': "Aktuelle Ergebnisse",
+            },
+            'distance': {
+                'en': "Distance",
+                'de': "Distanz",
+            },
+            'no_bidder': {
+                'en': "No bidder",
+                'de': "Kein Bieter",
+            },
+            'waiting': {
+                'en': "Waiting for bids...",
+                'de': "Warte auf Gebote...",
+            },
+            'subtitle_input': {
+                'en': "Participate in Auction",
+                'de': "Teilnehmen an der Auktion",
+            },
+            'all_slots': {
+                'en': "All periods",
+                'de': "Alle Perioden",
+            },
+            'label_price': {
+                'en': "Amount",
+                'de': "Anzahl",
+            },
+            'button_bid': {
+                'en': "Send Bid",
+                'de': "Bieten",
+            },
+            'result_success': {
+                'en': "Bid was successfully submitted.",
+                'de': "Gebot wurde angenommen.",
+            },
+            'player_me': {
+                'en': "Me",
+                'de': "Ich",
+            },
+            'status_unknown': {
+                'en': "Unknown status returned",
+                'de': "Unbekannter Status empfangen",
+            },
+        },
+        'result': {
+
+        },
+        'outro': {
+
+        }
     }
 
     @classmethod

@@ -2,13 +2,13 @@
   description = "Polkadot Experiment Platform";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
 
     pypi-deps-db.url = "github:DavHau/pypi-deps-db";
     pypi-deps-db.inputs.nixpkgs.follows = "nixpkgs";
     pypi-deps-db.inputs.mach-nix.follows = "mach-nix";
 
-    mach-nix.url = "github:DavHau/mach-nix/3.3.0";
+    mach-nix.url = "github:DavHau/mach-nix/3.4.0";
     mach-nix.inputs.nixpkgs.follows = "nixpkgs";
     mach-nix.inputs.pypi-deps-db.follows = "pypi-deps-db";
   };

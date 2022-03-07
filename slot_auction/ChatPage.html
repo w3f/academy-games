@@ -14,7 +14,7 @@
 
   {{ include "slot_auction/practice_alert.html" }}
 
-  <h1>{{ lexicon.subtitle_global }}</h1>
+  <h3>{{ lexicon.subtitle_global }}</h3>
 
   <p>{{ lexicon.player_id }} {{ player.id_in_group }}.</p>
 
@@ -23,7 +23,7 @@
 
   <!-- Local group chat -->
   {{ if player.role != 'global' }}
-    <h1>{{ lexicon.subtitle_local }}</h1>
+    <h3>{{ lexicon.subtitle_local }}</h3>
 
     {{ chat channel=role_channel }}
   {{ endif }}

@@ -46,7 +46,7 @@ SESSION_CONFIG_DEFAULTS = dict(
     doc="Please ensure adjustment of participants per treatment in 'Configure session' section.",
     num_hard_participants=0, num_candle_participants=0, num_activity_participants=0,
     num_demo_participants=3, num_global_slots=2, num_local_slots=1, 
-    shuffle_participants=False,
+    shuffle_groups=False,
 )
 
 PARTICIPANT_FIELDS = ['role', 'treatment', 'finished']

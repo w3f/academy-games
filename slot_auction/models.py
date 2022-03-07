@@ -119,6 +119,7 @@ class Subsession(BaseSubsession):
 
 
 class Group(BaseGroup):
+    # TODO: Take treatment from participant?
     treatment = StringField()
     candle_duration = IntegerField()
 

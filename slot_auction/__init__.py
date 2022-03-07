@@ -24,7 +24,9 @@ def creating_session(subsession: Subsession) -> None:
 
     N_group = Constants.players_per_group
 
-    # Initial setup happens in first subsession of session
+    shuffle_groups = subsession.session.config.get('shuffle_groups', False)
+
+    # Initial participant setup happens in first subsession of session
     if subsession.round_number == 1:
         N = subsession.session.num_participants
 
@@ -46,8 +48,7 @@ def creating_session(subsession: Subsession) -> None:
             + mkTreatment("candle", N_candle) \
             + mkTreatment("activity", N_activity)
 
-        if(subsession.session.config.get('shuffle_participants', False)):
-            random.shuffle(treatments)
+        random.shuffle(treatments)
 
         # Assign final result to players
         for p, t in zip(subsession.get_players(), treatments):
@@ -57,40 +58,43 @@ def creating_session(subsession: Subsession) -> None:
         # Lastly determine round used to calculate participants reward
         subsession.session.reward_round = random.randint(Constants.num_practice + 1, Constants.num_rounds)
 
-    # Shuffle groups by treatment
-    players = subsession.get_players()
-    players_by_treatment = {t: [p for p in players if p.treatment == t] for t in ALL_TREATMENTS}
+    # Shuffle groups by treatment if necessary
+    if shuffle_groups or subsession.round_number in [1, Constants.num_practice + 1]:
+        players = subsession.get_players()
+        players_by_treatment = {t: [p for p in players if p.treatment == t] for t in ALL_TREATMENTS}
 
-    # TODO: Remove this sanity check
-    assert len(players_by_treatment['hard']) == N_hard
-    assert len(players_by_treatment['candle']) == N_candle
-    assert len(players_by_treatment['activity']) == N_activity
+        group_treatments = []
+        group_matrix = []
+        for name, subgroup in players_by_treatment.items():
+            group_treatments += [name] * (len(subgroup) // N_group)
 
-    group_treatments = []
-    group_matrix = []
-    for name, subgroup in players_by_treatment.items():
-        group_treatments += [name] * (len(subgroup) // N_group)
+            players_global = [p for p in subgroup if p.role == "global"]
+            players_local = [p for p in subgroup if p.role == "local"]
 
-        players_global = [p for p in subgroup if p.role == "global"]
-        players_local = [p for p in subgroup if p.role == "local"]
-        random.shuffle(players_global)
-        random.shuffle(players_local)
+            random.shuffle(players_global)
+            random.shuffle(players_local)
 
-        players_local_matrix = [players_local[i:i+N_group-1] for i in range(0, len(players_local), N_group - 1)]
+            players_local_matrix = [players_local[i:i+N_group-1] for i in range(0, len(players_local), N_group - 1)]
 
-        group_matrix += [[g] + l for g, l in zip(players_global, players_local_matrix)]
+            group_matrix += [[g] + l for g, l in zip(players_global, players_local_matrix)]
 
-    subsession.set_group_matrix(group_matrix)
+        subsession.set_group_matrix(group_matrix)
+    else:
+        subsession.group_like_round(subsession.round_number - 1)
 
-    for g, t in zip(subsession.get_groups(), group_treatments):
-        g.treatment = t
+    # Update treatment cache in groups
+    for g in subsession.get_groups():
+        ps = g.get_players()
+        # TODO: Do not cache treatment in group?
+        g.treatment = ps.pop().treatment
 
         # TODO: Check logic and remove this sanity check
-        for p in g.get_players():
-            assert p.treatment == t
+        for p in ps:
+            assert p.treatment == g.treatment
 
     # Randomly choose length of (potential) candle auction
     for g in subsession.get_groups():
+        # TODO: Only generate for candle auctions
         g.candle_duration = random.randint(Constants.candle_duration_min, Constants.candle_duration_max)
 
     N_slots = Constants.get_global_slot_count(subsession)

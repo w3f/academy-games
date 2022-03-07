@@ -43,12 +43,14 @@ class IntroPage(Page):
 class ChatWaitPage(WaitPage):
     """Wait page to collect player before entering chats."""
 
+    @staticmethod
+    def after_all_players_arrive(group: Group):
+        """Record server side start time of auction."""
+        group.chat_start()
+
 
 class ChatPage(Page):
     """Pre-auction chat page for players to coordinate bidding."""
-
-    timeout_seconds = 30
-    timer_text = """Time left to chat with other players:"""
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:

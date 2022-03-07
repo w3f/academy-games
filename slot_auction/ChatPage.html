@@ -4,6 +4,14 @@
 
 {{ block content }}
 
+  <div id="output-timer-alert" class="alert alert-warning">
+    <p>Time left to chat with other players: <span id="output-timer-label" class="fw-bold">-:--</span></p>
+
+    <div class="progress">
+      <div id="output-timer-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
+    </div>
+  </div>
+
   {{ include "slot_auction/practice_alert.html" }}
 
   <h1> Chat will all players:</h1>
@@ -17,6 +25,33 @@
 
     {{ chat channel=role_channel }}
   {{ endif }}
+
+  <!-- Countdown JS library used by timeout -->
+  <script src="{% static 'otree/js/jquery.countdown.min.js' %}"></script>
+
+  <!-- Custom JS to handle live updates and uses inputs -->
+  <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+      /* Run countdown timer and progress bar */
+      $('#output-timer-label').countdown(Date.now() + {{ group.chat_remaining_ms }})
+        .on('update.countdown', function (event) {
+          this.innerHTML = event.strftime('%-N:%S');
+
+          var remaining = event.offset.totalSeconds;
+          var percentage = 100.0 * remaining / {{ Constants.chat_duration }};
+
+          $('#output-timer-bar').css('width', percentage + '%');
+        })
+        .on('finish.countdown', function (event) {
+          $('<input>').attr({
+            type: 'hidden',
+            name: 'timeout_happened',
+            value: '1'
+          }).appendTo('form');
+          $('#form').submit();
+        });
+    });
+  </script>
 
   {{ next_button }}
 {{ endblock }}

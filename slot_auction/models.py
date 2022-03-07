@@ -42,6 +42,8 @@ class Constants(BaseConstants):
     local_valuation_total = Currency(40)
 
     # Duration config
+    chat_duration = 90.0
+
     hard_duration = 60.0
 
     candle_duration_max = 60
@@ -123,10 +125,26 @@ class Group(BaseGroup):
     treatment = StringField()
     candle_duration = IntegerField()
 
+    timestamp_chat = FloatField()
+
     timestamp_start = FloatField()
     timestamp_reset = FloatField()
 
     result_json = LongStringField()
+
+    def chat_start(self) -> None:
+        """Start chat timer of group."""
+        self.timestamp_chat = time.monotonic()
+
+    @property
+    def chat_remaining(self) -> float:
+        """Return remaining timeout in s since last reset or start."""
+        return self.timestamp_chat + Constants.chat_duration - time.monotonic()
+
+    @property
+    def chat_remaining_ms(self) -> int:
+        """Return remaining timeout in ms since last reset or start."""
+        return int(self.chat_remaining * 1000)
 
     def timer_start(self) -> None:
         """Start auction timer of group."""

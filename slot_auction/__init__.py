@@ -55,7 +55,7 @@ def creating_session(subsession: Subsession) -> None:
             p.participant.role = t[1]
 
         # Lastly determine round used to calculate participants reward
-        subsession.session.reward_round = random.randint(1, Constants.num_rounds)
+        subsession.session.reward_round = random.randint(Constants.num_practice + 1, Constants.num_rounds)
 
     # Shuffle groups by treatment
     players = subsession.get_players()

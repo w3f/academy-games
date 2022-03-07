@@ -50,6 +50,22 @@ class Constants(BaseConstants):
     activity_duration = 20.0
 
     @staticmethod
+    def get_round_number(model: MixinSessionFK) -> int:
+        """Return relative (practice) round number."""
+        if model.round_number <= Constants.num_practice:
+            return model.round_number
+        else:
+            return model.round_number - Constants.num_practice
+
+    @staticmethod
+    def get_num_rounds(model: MixinSessionFK) -> int:
+        """Return number of rounds of current mode."""
+        if model.round_number <= Constants.num_practice:
+            return Constants.num_practice
+        else:
+            return Constants.num_rounds - Constants.num_practice
+
+    @staticmethod
     def use_static_result(model: MixinSessionFK) -> bool:
         """Return true if static result UI can be used."""
 

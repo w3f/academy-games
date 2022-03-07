@@ -30,6 +30,8 @@ class IntroPage(Page):
         range_global_slots = range(1, num_global_slots + 1)
 
         return {
+            'num_rounds': Constants.get_num_rounds(player),
+            'round': Constants.get_round_number(player),
             'range_global_slots': range_global_slots,
             'num_global_slots': num_global_slots,
             'global_valuation': float(player.get_global_valuation()),
@@ -53,6 +55,8 @@ class ChatPage(Page):
         """Returns additional data to pass to page template."""
 
         return {
+            'num_rounds': Constants.get_num_rounds(player),
+            'round': Constants.get_round_number(player),
             'role_channel': player.get_role_channel(),
         }
 
@@ -168,6 +172,8 @@ class AuctionPage(Page):
         candle_percentage_normal = 100.0 * Constants.candle_duration_min / Constants.candle_duration_max
 
         return {
+            'num_rounds': Constants.get_num_rounds(player),
+            'round': Constants.get_round_number(player),
             'static_result': Constants.use_static_result(player),
             'range_slots': range_slots,
             'global_value': Constants.get_global_value(player),
@@ -274,6 +280,8 @@ class ResultPage(Page):
         result = FinalResult(player.group)
 
         return {
+            'num_rounds': Constants.get_num_rounds(player),
+            'round': Constants.get_round_number(player),
             'candle_ending_duration': player.group.timeout_final - Constants.candle_duration_min,
             'candle_ending_total': Constants.candle_duration_max - Constants.candle_duration_min,
             'num_global_slots': num_global_slots,
@@ -304,7 +312,7 @@ class OutroPage(Page):
         result = FinalResult(player.in_round(reward_round).group)
 
         return {
-            "round": player.session.reward_round,
+            'reward_round': reward_round,
             'range_global_slots': range_global_slots,
             'num_global_slots': num_global_slots,
             'num_local_slots': Constants.get_local_slot_count(player),

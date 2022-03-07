@@ -1,9 +1,7 @@
 {{ block title }}
-  Auction {{ player.round_number }} / {{ Constants.num_rounds }}
+  Auction {{ round }} / {{ num_rounds }}
 {{ endblock }}
 {{ block content }}
-
-  {{ include "slot_auction/practice_alert.html" }}
 
     <div id="output-timer-alert" class="alert alert-warning">
         <p>Time left in auction with {{ group.treatment }} ending: <span id="output-timer-label" class="fw-bold">-:--</span></p>
@@ -17,6 +15,8 @@
           {{ endif }}
         </div>
     </div>
+
+    {{ include "slot_auction/practice_alert.html" }}
 
     <!-- Table with current result of auction -->
     <h3>Current result</h3>

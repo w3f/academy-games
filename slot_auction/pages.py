@@ -4,6 +4,7 @@ from otree.views import Page, WaitPage
 from typing import Tuple, List
 
 from .models import Constants, Player, Group, Bid, Result, FinalResult
+from settings import LANGUAGE_CODE
 
 
 # PAGES
@@ -32,6 +33,7 @@ class IntroPage(Page):
         range_global_slots = range(1, num_global_slots + 1)
 
         return {
+            'LANGUAGE_CODE': LANGUAGE_CODE,
             'num_rounds': Constants.get_num_rounds(player),
             'round': Constants.get_round_number(player),
             'with_details': with_details,

@@ -17,7 +17,7 @@ class IntroPage(Page):
     def get_timeout_seconds(player):
         """Returns timeout unless in first round."""
 
-        if player.subsession.round_number == 1:
+        if player.subsession.round_number in [1, Constants.num_practice + 1]:
             return None
 
         return IntroPage.timeout_seconds
@@ -26,12 +26,15 @@ class IntroPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Returns additional data to pass to page template."""
 
+        with_details = player.round_number in [1, Constants.num_practice + 1]
+
         num_global_slots = Constants.get_global_slot_count(player)
         range_global_slots = range(1, num_global_slots + 1)
 
         return {
             'num_rounds': Constants.get_num_rounds(player),
             'round': Constants.get_round_number(player),
+            'with_details': with_details,
             'range_global_slots': range_global_slots,
             'num_global_slots': num_global_slots,
             'global_valuation': float(player.get_global_valuation()),

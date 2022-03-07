@@ -42,7 +42,7 @@ SESSION_CONFIGS = [
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = dict(
-    real_world_currency_per_point=1.00, participation_fee=0.00,
+    real_world_currency_per_point=2.00, participation_fee=0.00,
     doc="Please ensure adjustment of participants per treatment in 'Configure session' section.",
     num_hard_participants=0, num_candle_participants=0, num_activity_participants=0,
     num_demo_participants=3, num_global_slots=2, num_local_slots=1, 

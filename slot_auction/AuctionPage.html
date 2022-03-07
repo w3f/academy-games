@@ -24,14 +24,14 @@
         <thead class="table-dark">
             <tr>
                 <th>Rank</th>
-                {{ for slot in range_slots }}
+                {{ for slot in range_global_slots }}
                 <th>Slot {{ slot }}</th>
                 {{ endfor }}
                 <th>Distance</th>
             </tr>
         </thead>
         <tbody id="tbody-results">
-          {{ if static_result }}
+          {{ if use_static_result }}
             <!-- Row with global choice -->
             <tr id="output-global-row">
                 <td id="output-global-rank">-</td>
@@ -89,7 +89,7 @@
     <table class="table table-sm table-bordered">
         <thead class="table-dark">
             <tr>
-                {% for slot in range_slots %}
+                {% for slot in range_global_slots %}
                 <th>Slot {{ slot }}</th>
                 {% endfor %}
             </tr>
@@ -278,7 +278,7 @@
 
        if (status == "success" || status == "update" || status == "init" ) {
 
-         {{ if static_result }}
+         {{ if use_static_result }}
 
            var highest = payload[0];
            var winner = payload[1];

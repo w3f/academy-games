@@ -4,7 +4,36 @@ from otree.views import Page, WaitPage
 from typing import Tuple, List
 
 from .models import Constants, Player, Group, Bid, Result, FinalResult
+from .lexicon import Lexicon
+
 from settings import LANGUAGE_CODE
+
+
+def DEFAULT_TEMPLATE_VARS(page: str, player: Player) -> dict:
+    """Return default template data used by most pages."""
+    intro_round = player.round_number in [1, Constants.num_practice + 1]
+
+    num_global_slots = Constants.get_global_slot_count(player)
+    range_global_slots = range(1, num_global_slots + 1)
+
+    return {
+        'language': LANGUAGE_CODE,
+        'lexicon': Lexicon.for_page(page, LANGUAGE_CODE),
+
+        'num_rounds': Constants.get_num_rounds(player),
+        'round': Constants.get_round_number(player),
+
+        'is_intro_round': intro_round,
+        'use_static_result': Constants.use_static_result(player),
+
+        'num_global_slots': num_global_slots,
+        'range_global_slots': range_global_slots,
+        'global_valuation': float(player.get_global_valuation()),
+        'global_value': Constants.get_global_value(player),
+
+        'num_local_slots': Constants.get_local_slot_count(player),
+        'local_choices': AuctionPage.get_local_choices(player),
+    }
 
 
 # PAGES
@@ -25,24 +54,8 @@ class IntroPage(Page):
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
-        """Returns additional data to pass to page template."""
-
-        with_details = player.round_number in [1, Constants.num_practice + 1]
-
-        num_global_slots = Constants.get_global_slot_count(player)
-        range_global_slots = range(1, num_global_slots + 1)
-
-        return {
-            'LANGUAGE_CODE': LANGUAGE_CODE,
-            'num_rounds': Constants.get_num_rounds(player),
-            'round': Constants.get_round_number(player),
-            'with_details': with_details,
-            'range_global_slots': range_global_slots,
-            'num_global_slots': num_global_slots,
-            'global_valuation': float(player.get_global_valuation()),
-            'num_local_slots': Constants.get_local_slot_count(player),
-            'local_choices': AuctionPage.get_local_choices(player),
-        }
+        """Return additional data to pass to page template."""
+        return DEFAULT_TEMPLATE_VARS("intro", player)
 
 
 class ChatWaitPage(WaitPage):
@@ -61,6 +74,7 @@ class ChatPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         return {
+            'lexicon': Lexicon.for_page("chat", LANGUAGE_CODE),
             'num_rounds': Constants.get_num_rounds(player),
             'round': Constants.get_round_number(player),
             'role_channel': player.get_role_channel(),
@@ -224,19 +238,9 @@ class AuctionPage(Page):
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
-        range_slots = range(1, Constants.get_global_slot_count(player) + 1)
         candle_percentage_normal = 100.0 * Constants.candle_duration_min / Constants.candle_duration_max
 
-        return {
-            'num_rounds': Constants.get_num_rounds(player),
-            'round': Constants.get_round_number(player),
-            'static_result': Constants.use_static_result(player),
-            'range_slots': range_slots,
-            'global_value': Constants.get_global_value(player),
-            'global_valuation': float(player.get_global_valuation()),
-            'local_choices': AuctionPage.get_local_choices(player),
-            'num_global_slots': Constants.get_global_slot_count(player),
-            'num_local_slots': Constants.get_local_slot_count(player),
+        return DEFAULT_TEMPLATE_VARS("auction", player) | {
             'candle_percentage_ending': 100.0 - candle_percentage_normal,
             'candle_percentage_normal': candle_percentage_normal,
         }
@@ -345,23 +349,10 @@ class ResultPage(Page):
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
-        """Returns additional data to pass to page template."""
-
-        num_global_slots = Constants.get_global_slot_count(player)
-        range_global_slots = range(1, num_global_slots + 1)
-
+        """Return additional data to pass to page template."""
         result = FinalResult(player.group)
 
-        return {
-            'num_rounds': Constants.get_num_rounds(player),
-            'round': Constants.get_round_number(player),
-            'candle_ending_duration': player.group.timeout_final - Constants.candle_duration_min,
-            'candle_ending_total': Constants.candle_duration_max - Constants.candle_duration_min,
-            'num_global_slots': num_global_slots,
-            'range_global_slots': range_global_slots,
-            'global_valuation': float(player.get_global_valuation()),
-            'num_local_slots': Constants.get_local_slot_count(player),
-            'local_choices': AuctionPage.get_local_choices(player),
+        return DEFAULT_TEMPLATE_VARS("result", player) | {
             'has_result': result.has_winner(),
             'result': result.to_table(True),
             'profit': result.get_profit(player),
@@ -376,23 +367,14 @@ class OutroPage(Page):
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
-        """Returns additional data to pass to page template."""
-
-        num_global_slots = Constants.get_global_slot_count(player)
-        range_global_slots = range(1, num_global_slots + 1)
-
+        """Return additional data to pass to page template."""
         reward_round = player.session.reward_round
         result = FinalResult(player.in_round(reward_round).group)
 
-        return {
+        return DEFAULT_TEMPLATE_VARS("outro", player) | {
             'reward_round': reward_round,
-            'range_global_slots': range_global_slots,
-            'num_global_slots': num_global_slots,
-            'num_local_slots': Constants.get_local_slot_count(player),
-            'global_valuation': float(player.get_global_valuation()),
-            'local_choices': AuctionPage.get_local_choices(player),
             'has_result': result.has_winner(),
             'result': result.to_table(True),
-            'profit': result.get_profit(player.in_round(reward_round)),
-            "reward": player.participant.payoff_plus_participation_fee()
+            'profit': result.get_profit(player),
+            'reward': player.participant.payoff_plus_participation_fee()
         }

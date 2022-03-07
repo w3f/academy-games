@@ -1,11 +1,11 @@
 {{ block title }}
-    Pre-Auction Chat {{ round }} / {{ num_rounds }}
+    {{ lexicon.title }} {{ round }} / {{ num_rounds }}
 {{ endblock }}
 
 {{ block content }}
 
   <div id="output-timer-alert" class="alert alert-warning">
-    <p>Time left to chat with other players: <span id="output-timer-label" class="fw-bold">-:--</span></p>
+    <p>{{ lexicon.timer }}: <span id="output-timer-label" class="fw-bold">-:--</span></p>
 
     <div class="progress">
       <div id="output-timer-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
@@ -14,16 +14,16 @@
 
   {{ include "slot_auction/practice_alert.html" }}
 
-  <h1> Chat will all players:</h1>
+  <h1>{{ lexicon.subtitle_global }}</h1>
 
-  <p>You are Player {{ player.id_in_group }}.</p>
+  <p>{{ lexicon.player_id }} {{ player.id_in_group }}.</p>
 
   <!-- Default group chat -->
   {{ chat }}
 
   <!-- Local group chat -->
   {{ if player.role != 'global' }}
-    <h1> Chat only with {{ player.role }} players:</h1>
+    <h1>{{ lexicon.subtitle_local }}</h1>
 
     {{ chat channel=role_channel }}
   {{ endif }}
@@ -81,9 +81,9 @@
       var total = js_vars.players_per_group;
 
       if(ready) {
-        labelDom.innerHTML = `Waiting... (${num} / ${total})`;
+        labelDom.innerHTML = `{{ lexicon.button_on }} (${num} / ${total})`;
       } else {
-        labelDom.innerHTML = `Done chatting (${num} / ${total})`;
+        labelDom.innerHTML = `{{ lexicon.button_off }} (${num} / ${total})`;
       }
       inputDom.checked = ready;
 

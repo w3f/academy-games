@@ -57,12 +57,20 @@ class ChatPage(Page):
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
-        """Returns additional data to pass to page template."""
-
+        """Return additional data to pass to page template."""
         return {
             'num_rounds': Constants.get_num_rounds(player),
             'round': Constants.get_round_number(player),
             'role_channel': player.get_role_channel(),
+        }
+
+    @staticmethod
+    def js_vars(player):
+        """Return additional data to pass to js in page template."""
+        return {
+            'chat_duration': Constants.chat_duration,
+            'chat_remaining_ms': player.group.chat_remaining_ms,
+            'players_per_group': Constants.players_per_group,
         }
 
     @staticmethod
@@ -213,8 +221,7 @@ class AuctionPage(Page):
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
-        """Returns additional data to pass to page template."""
-
+        """Return additional data to pass to page template."""
         range_slots = range(1, Constants.get_global_slot_count(player) + 1)
         candle_percentage_normal = 100.0 * Constants.candle_duration_min / Constants.candle_duration_max
 
@@ -230,6 +237,23 @@ class AuctionPage(Page):
             'num_local_slots': Constants.get_local_slot_count(player),
             'candle_percentage_ending': 100.0 - candle_percentage_normal,
             'candle_percentage_normal': candle_percentage_normal,
+        }
+
+    @staticmethod
+    def js_vars(player: Player):
+        """Return additional data to pass to js in page template."""
+        group = player.group
+
+        candle_percentage = 100.0 * (1.0 - Constants.candle_duration_min / Constants.candle_duration_max)
+
+        return {
+            'id_in_group': player.id_in_group,
+
+            'timeout_remaining_ms': group.timeout_remaining_ms,
+            'timeout_total_ms': group.timeout_total_ms,
+            'timeout_total': group.timeout_total,
+
+            'candle_percentage': candle_percentage,
         }
 
     @staticmethod

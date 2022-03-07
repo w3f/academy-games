@@ -143,17 +143,17 @@
      window.addEventListener('DOMContentLoaded', (event) => {
 
          /* Run countdown timer and progress bar */
-         $('#output-timer-label').countdown(Date.now() + {{ group.timeout_remaining_ms }})
+         $('#output-timer-label').countdown(Date.now() + js_vars.timeout_remaining_ms)
            .on('update.countdown', function (event) {
                this.innerHTML = event.strftime('%-N:%S');
 
                var remaining = event.offset.totalSeconds;
-               var percentage = 100.0 * remaining / {{ group.timeout_total }};
+               var percentage = 100.0 * remaining / js_vars.timeout_total;
 
              {{ if group.treatment == "candle" }}
 
-               var percentage_normal = Math.max(percentage - {{ candle_percentage_ending }}, 0);
-               var percentage_ending = Math.min(percentage, {{ candle_percentage_ending }});
+               var percentage_normal = Math.max(percentage - js_vars.candle_percentage, 0);
+               var percentage_ending = Math.min(percentage, js_vars.candle_percentage);
 
                $('#output-timer-bar-normal').css('width', percentage_normal + '%');
 
@@ -268,7 +268,7 @@
      {{ if group.treatment == "activity" }}
        /* Reset timer on successfull bid */
        if (status == "success" || status == "update" )  {
-           $('#output-timer-label').countdown(Date.now() + {{ group.timeout_total_ms }});
+           $('#output-timer-label').countdown(Date.now() + js_vars.timeout_total_ms);
        }
      {{ endif }}
 
@@ -290,7 +290,7 @@
                var price = highest[index][2];
 
                var name = "Player " + player;
-               if (player == {{ player.id_in_group }}) {
+               if (player == js_vars.id_in_group) {
                    name += " (Me)";
                }
 
@@ -355,7 +355,7 @@
                    results += `<td colspan=${width}>`
                    if (player != 0) {
                        var name = "Player " + player;
-                       if (player == {{ player.id_in_group }}) {
+                       if (player == js_vars.id_in_group) {
                            name += " (Me)";
                        }
 

@@ -40,12 +40,12 @@
   <script>
     window.addEventListener('DOMContentLoaded', (event) => {
       /* Run countdown timer and progress bar */
-      $('#output-timer-label').countdown(Date.now() + {{ group.chat_remaining_ms }})
+      $('#output-timer-label').countdown(Date.now() + js_vars.chat_remaining_ms)
         .on('update.countdown', function (event) {
           this.innerHTML = event.strftime('%-N:%S');
 
           var remaining = event.offset.totalSeconds;
-          var percentage = 100.0 * remaining / {{ Constants.chat_duration }};
+          var percentage = 100.0 * remaining / js_vars.chat_duration;
 
           $('#output-timer-bar').css('width', percentage + '%');
         })
@@ -78,7 +78,7 @@
     function liveRecv(data) {
       var ready = data[0];
       var num = data[1];
-      var total = {{ Constants.players_per_group }};
+      var total = js_vars.players_per_group;
 
       if(ready) {
         labelDom.innerHTML = `Waiting... (${num} / ${total})`;

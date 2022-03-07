@@ -18,19 +18,31 @@ class Lexicon(dict):
                 'en': "Bidder",
                 'de': "Bieter",
             },
+            'seconds': {
+                'en': "seconds",
+                'de': "Sekunden",
+            },
             'no_bids': {
                 'en': "No bids were received...",
                 'de': "Es wurden keine Gebote abgegeben...",
             },
-            'player_id': {
-                'en': "You are Player",
+            'player_is': {
+                'en': "You are Bidder",
                 'de': "Sie sind Bieter",
+            },
+            'player_earn': {
+                'en': "You earned",
+                'de': "Sie verdienen",
             },
             'alert_practice': {
                 'en': "This is a practice round!",
                 'de': "Sie befinden sich in einer Proberunde!"
             },
-            'title_valuation': {
+            'subtitle_result': {
+                'en': "Result of Round",
+                'de': "Ergebnis der Runde",
+            },
+            'subtitle_valuation': {
                 'en': "Your Valuation",
                 'de': "Ihre Wertschätzung",
             },
@@ -154,11 +166,33 @@ class Lexicon(dict):
             },
         },
         'result': {
-
+            'title': {
+                'en': "End of Round",
+                'de': "Ende der Runde",
+            },
+            'duration_is': {
+                'en': "The auction ended after",
+                'de': "Die Auktion endete nach",
+            },
         },
         'outro': {
-
-        }
+            'title': {
+                'en': "Final Result and Payout",
+                'de': "Endergebnis und Bezahlung",
+            },
+            'thanks': {
+                'en': "Thank you for your participation.",
+                'de': "Vielen Dank für Ihre Teilnahme.",
+            },
+            'reward_round': {
+                'en': "Your payout will be based on your perfomance in round",
+                'de': "Ihre Bezahlung basiert auf Ihre Leistung in Runde",
+            },
+            'player_payout': {
+                'en': "Your total payout will be",
+                'de': "In Summe ist die Bezahlung",
+            },
+        },
     }
 
     @classmethod

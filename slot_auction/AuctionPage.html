@@ -53,7 +53,7 @@
                 {{ for name, value, valuation in row}}
                 <td>
                     <span class="d-flex justify-content-center align-items-center text-secodary border rounded border-secondary p-1">
-                        <span id="output-{{ value }}-player">{{ lexicon.no-bidder }}</span>
+                        <span id="output-{{ value }}-player">{{ lexicon.no_bidder }}</span>
                         <span id="output-{{ value }}-price" class="badge bg-secondary ms-2">{{ 0 | cu }}</span>
                     </span>
                 </td>
@@ -79,7 +79,7 @@
 
     <h3>{{ lexicon.subtitle_input }}</h3>
 
-    <p>{{ lexicon.player_id }} {{ player.id_in_group }}.</p>
+    <p>{{ lexicon.player_is }} {{ player.id_in_group }}.</p>
 
     <!-- Hidden alerts to display success and error messages -->
     <div id="output-success" class="alert alert-success d-none"></div>

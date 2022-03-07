@@ -3,6 +3,7 @@ from otree.currency import Currency
 from otree.database import (
     ExtraModel,
     Link,
+    BooleanField,
     IntegerField,
     FloatField,
     CurrencyField,
@@ -126,10 +127,12 @@ class Group(BaseGroup):
     candle_duration = IntegerField()
 
     timestamp_chat = FloatField()
+    chat_locked = BooleanField(initial=False)
 
     timestamp_start = FloatField()
     timestamp_reset = FloatField()
 
+    # TODO: Use or remove this field
     result_json = LongStringField()
 
     def chat_start(self) -> None:
@@ -238,6 +241,8 @@ class Group(BaseGroup):
 
 class Player(BasePlayer):
     valuations_json = LongStringField()
+
+    chat_ready = BooleanField(initial=False)
 
     @property
     def role(self) -> str:

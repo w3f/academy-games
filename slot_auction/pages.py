@@ -62,6 +62,48 @@ class ChatPage(Page):
             'role_channel': player.get_role_channel(),
         }
 
+    @staticmethod
+    def live_method(player: Player, data: dict) -> dict:
+        """Receive ready signals from players."""
+        # Check if group was locked already
+        if player.group.chat_locked:
+            return {player.id_in_group: (True, Constants.players_per_group)}
+
+        # Try to parse data if provided
+        update_all = False
+        if data:
+            try:
+                ready = data['ready']
+
+                if player.chat_ready != ready:
+                    player.chat_ready = ready
+                    update_all = True
+
+            except Exception as fatal:
+                print("Received: ", data)
+                print("Exception: ", fatal)
+                import traceback
+                traceback.print_exc()
+
+        # Check how many players are ready
+        num_ready = sum([p.chat_ready for p in player.group.get_players()])
+
+        # Send out update to all players if required
+        if update_all:
+            # Lock chat if all player are ready
+            if num_ready == Constants.players_per_group:
+                player.group.chat_locked = True
+
+            return {
+                p.id_in_group: (p.chat_ready, num_ready)
+                for p in player.group.get_players()
+            }
+
+        # Otherwise just update sending player
+        return {
+            player.id_in_group: (player.chat_ready, num_ready)
+        }
+
 
 class StartWaitPage(WaitPage):
     """Wait page before auction to determine auction start time."""

@@ -1,8 +1,9 @@
 {{ block title }}
   {{ lexicon.title }} {{ round }} / {{ num_rounds }}
 {{ endblock }}
-{{ block content }}
 
+
+{{ block content }}
     <div id="output-timer-alert" class="alert alert-warning">
         <p>{{ lexicon.timer }}: <span id="output-timer-label" class="fw-bold">-:--</span></p>
 
@@ -133,15 +134,16 @@
 
         <button type="button" id="button-submit" class="btn btn-primary" onclick="bid()" disabled>{{ lexicon.button_bid }}</button>
     </div>
+{% endblock %}
 
+
+{% block scripts %}
     <!-- Countdown JS library used by timeout -->
     <script src="{% static 'otree/js/jquery.countdown.min.js' %}"></script>
 
     <!-- Custom JS to handle live updates and uses inputs -->
     <script>
-
      window.addEventListener('DOMContentLoaded', (event) => {
-
          /* Run countdown timer and progress bar */
          $('#output-timer-label').countdown(Date.now() + js_vars.timeout_remaining_ms)
            .on('update.countdown', function (event) {
@@ -381,5 +383,4 @@
 
      }
     </script>
-
 {{ endblock }}

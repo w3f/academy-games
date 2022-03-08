@@ -2,8 +2,8 @@
     {{ lexicon.title }} {{ round }} / {{ num_rounds }}
 {{ endblock }}
 
-{{ block content }}
 
+{{ block content }}
   <div id="output-timer-alert" class="alert alert-warning">
     <p>{{ lexicon.timer }}: <span id="output-timer-label" class="fw-bold">-:--</span></p>
 
@@ -32,7 +32,10 @@
     <input type="checkbox" class="btn-check" id="input-ready" autocomplete="off" onchange="onChange(checked)">
     <label class="btn btn-outline-success"  id="label-ready" for="input-ready">...</label>
   </div>
+{% endblock %}
 
+
+{% block scripts %}
   <!-- Countdown JS library used by timeout -->
   <script src="{% static 'otree/js/jquery.countdown.min.js' %}"></script>
 

@@ -4,6 +4,7 @@ import random
 
 from typing import List
 
+from .lexicon import Lexicon
 from .models import Constants, Subsession, Player, Bid, FinalResult
 from .pages import *
 
@@ -133,6 +134,8 @@ def vars_for_admin_report(subsession: Subsession):
         )]
 
     return {
+        'lexicon': Lexicon.page("common"),
+        'id_in_group': 0,
         'num_global_slots': num_global_slots,
         'range_global_slots': range_global_slots,
         'result_by_group': result_by_group,

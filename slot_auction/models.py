@@ -381,7 +381,7 @@ class Bid(ExtraModel):
             raise Bid.SubmissionFailure.from_lexicon("slots_invalid")
 
         if not price > 0:
-            raise Bid.SubmissionFailure.from_lexicon("slots_negative")
+            raise Bid.SubmissionFailure.from_lexicon("price_negative")
 
         # Check timestamp
         if not player.group.is_valid_timestamp(timestamp):

@@ -219,20 +219,20 @@ class Lexicon:
         },
         'bid': {
             'slots_invalid': {
-                'en': "No or invalid period selected",
-                'de': "Keine oder ungültige Periode ausgewählt",
+                'en': "No or invalid period selected.",
+                'de': "Keine oder ungültige Periode ausgewählt.",
             },
             'price_negative': {
-                'en': "Amount must be larger then zero",
-                'de': "Die gebotene Menge muss positive sein",
+                'en': "Amount must be larger then zero.",
+                'de': "Die gebotene Menge muss positive sein.",
             },
             'auction_timeout': {
-                'en': "Auction time has run out",
-                'de': "Die Auktion wurde beendet",
+                'en': "Auction time has run out.",
+                'de': "Die Auktion wurde beendet.",
             },
             'slots_mismatch': {
-                'en': "Invalid combination of periods selected",
-                'de': "Ungültige Kombination von Perioden",
+                'en': "Invalid combination of periods selected.",
+                'de': "Ungültige Kombination von Perioden.",
             },
             'price_too_high': {
                 'en': "Amount must not exceed valuation of",

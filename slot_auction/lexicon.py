@@ -1,6 +1,18 @@
-class Lexicon(dict):
-    """Thin wrapper around a dict to easily create lexicons."""
-    data = {
+"""
+Provides localization support for custom text.
+
+Return language is configure in otree, i.e. the LANGUAGE_CODE setting.
+"""
+
+from settings import LANGUAGE_CODE
+
+
+class Lexicon:
+    """Thin wrapper around a locals dict to easily create lexicons."""
+
+    # Nested dict organized into pages, identifiers and languages
+    _locals = {
+        # Share dictionary used by most page templates and shared templates
         'common': {
             'rank': {
                 'en': "Rank",
@@ -55,6 +67,10 @@ class Lexicon(dict):
             'title': {
                 'en': "Start of Round",
                 'de': "Beginn der Runde",
+            },
+            'timer': {
+                'en': "Time left to prepare for round:",
+                'de': "Verbleibende Zeit zum Vorbereiten:",
             },
             'timer': {
                 'en': "Time left to prepare for round:",
@@ -156,6 +172,10 @@ class Lexicon(dict):
                 'en': "Bid was successfully submitted.",
                 'de': "Gebot wurde angenommen.",
             },
+            'result_malformed': {
+                'en': "Received malformed bid",
+                'de': "Unbekanntes Gebotsformat",
+            },
             'player_me': {
                 'en': "Me",
                 'de': "Ich",
@@ -169,6 +189,10 @@ class Lexicon(dict):
             'title': {
                 'en': "End of Round",
                 'de': "Ende der Runde",
+            },
+            'timer': {
+                'en': "Time left to view result:",
+                'de': "Verbleibende Zeit zum Betrachten des Ergebnisses:",
             },
             'duration_is': {
                 'en': "The auction ended after",
@@ -190,13 +214,51 @@ class Lexicon(dict):
             },
             'player_payout': {
                 'en': "Your total payout will be",
-                'de': "In Summe ist die Bezahlung",
+                'de': "In Summe erhalten Sie als Bezahlung",
+            },
+        },
+        'bid': {
+            'slots_invalid': {
+                'en': "No or invalid period selected",
+                'de': "Keine oder ungültige Periode ausgewählt",
+            },
+            'price_negative': {
+                'en': "Amount must be larger then zero",
+                'de': "Die gebotene Menge muss positive sein",
+            },
+            'auction_timeout': {
+                'en': "Auction time has run out",
+                'de': "Die Auktion wurde beendet",
+            },
+            'slots_mismatch': {
+                'en': "Invalid combination of periods selected",
+                'de': "Ungültige Kombination von Perioden",
+            },
+            'price_too_high': {
+                'en': "Amount must not exceed valuation of",
+                'de': "Menge übersteigt die Wertschätzung von",
+            },
+            'price_too_low': {
+                'en': "Amount must exceed current best bid at",
+                'de': "Menge übersteigt nicht Höchstgebot von",
             },
         },
     }
 
     @classmethod
-    def for_page(cls, page: str, lang: str):
-        """Create lexicon for specified page and language."""
-        return { k: v[lang] for k, v in cls.data.get('common').items() } \
-             | { k: v[lang] for k, v in cls.data.get(page, {}).items() }
+    def for_page_template(cls, page: str):
+        """Create lexicon to be used in full page context (incl. common)."""
+        return cls.page("common") | cls.page(page)
+
+    @classmethod
+    def page(cls, page: str):
+        """Return lexicon for a single page."""
+        return {
+            k: v.get(LANGUAGE_CODE, "")
+            for k, v in cls._locals.get(page, {}).items()
+        }
+
+    @classmethod
+    def entry(cls, page: str, identity: str):
+        """Return a specific lexicon entry."""
+        return cls._locals.get(page, {}).get(identity, {}).get(LANGUAGE_CODE, "")

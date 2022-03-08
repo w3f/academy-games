@@ -21,6 +21,9 @@ import json
 
 from functools import cmp_to_key
 
+from .lexicon import Lexicon
+
+
 # GENERAL TYPE ALIASES
 Slots = int
 
@@ -381,7 +384,15 @@ class Bid(ExtraModel):
 
     class SubmissionFailure(Exception):
         """Failure to create valid bid with supplied data."""
-        pass
+
+        @classmethod
+        def from_format(cls, templ: str, *args, **kwargs):
+            """Create error message from formatted string."""
+            return cls(templ.format(*args, **kwargs))
+
+        @classmethod
+        def from_lexicon(cls, ident: str):
+            return cls(Lexicon.entry("bid", ident))
 
     @staticmethod
     def submit(player: Player, slots: Slots, price: Currency, timestamp: float) -> None:
@@ -389,31 +400,31 @@ class Bid(ExtraModel):
 
         # Some simple sanity checks
         if not 0 < slots < 2 ** Constants.get_global_slot_count(player):
-            raise Bid.SubmissionFailure("No or invalid slots selected")
+            raise Bid.SubmissionFailure.from_lexicon("slots_invalid")
 
         if not price > 0:
-            raise Bid.SubmissionFailure("Price must be larger then zero")
+            raise Bid.SubmissionFailure.from_lexicon("slots_negative")
 
         # Check timestamp
         if not player.group.is_valid_timestamp(timestamp):
-            raise Bid.SubmissionFailure("Auction time has run out")
+            raise Bid.SubmissionFailure.from_lexicon("auction_timeout")
 
         # Check if bid is a valid choice
         if slots not in Constants.get_valid_values(player):
-            raise Bid.SubmissionFailure("Invalid combination of slots selected")
+            raise Bid.SubmissionFailure.from_lexicon("slots_mismatch")
 
         # Check if bid is within valuation
         valuation = player.get_valuation(slots)
         if price > valuation:
-            raise Bid.SubmissionFailure(
-                "Price must not exceed valuation of {}".format(valuation)
+            raise Bid.SubmissionFailure.format(
+                "{} {}", Lexicon.entry("bid", "price_too_high"), valuation
             )
 
         # Check that bid is higher for selection
         highest = Bid.highest(player.group, slots)
         if highest and highest.price >= price:
-            raise Bid.SubmissionFailure(
-                "Price must exceed current best bid at {}".format(highest.price)
+            raise Bid.SubmissionFailure.format(
+                "{} {}", Lexicon.entry("bid", "price_too_low"), highest.price
             )
 
         Bid.create(

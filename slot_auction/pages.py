@@ -18,7 +18,7 @@ def DEFAULT_TEMPLATE_VARS(page: str, player: Player) -> dict:
 
     return {
         'language': LANGUAGE_CODE,
-        'lexicon': Lexicon.for_page(page, LANGUAGE_CODE),
+        'lexicon': Lexicon.for_page_template(page),
 
         'num_rounds': Constants.get_num_rounds(player),
         'round': Constants.get_round_number(player),
@@ -41,7 +41,7 @@ class IntroPage(Page):
     """Introduction page explaining auction mechanics."""
 
     timeout_seconds = 30
-    timer_text = """Time left to prepare for round:"""
+    timer_text = Lexicon.entry("intro", 'timer')
 
     @staticmethod
     def get_timeout_seconds(player):
@@ -74,7 +74,7 @@ class ChatPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         return {
-            'lexicon': Lexicon.for_page("chat", LANGUAGE_CODE),
+            'lexicon': Lexicon.for_page_template("chat"),
             'num_rounds': Constants.get_num_rounds(player),
             'round': Constants.get_round_number(player),
             'role_channel': player.get_role_channel(),
@@ -287,7 +287,9 @@ class AuctionPage(Page):
                 payload = str(error)
             except Exception as fatal:
                 status = "error"
-                payload = "Received malformed bid: {}".format(fatal)
+                payload = "{}: {}".format(
+                    Lexicon.entry("auction", "result_malformed"), fatal
+                )
 
                 print("Received: ", data)
                 print("Exception: ", fatal)
@@ -345,7 +347,7 @@ class ResultPage(Page):
     """Page to display results at end of auction."""
 
     timeout_seconds = 30
-    timer_text = """Time left to view result:"""
+    timer_text = Lexicon.entry("result", 'timer')
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:

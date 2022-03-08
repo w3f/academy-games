@@ -289,9 +289,9 @@
                var player = highest[index][1];
                var price = highest[index][2];
 
-               var name = "Player " + player;
+               var name = "{{ lexicon.player }} " + player;
                if (player == js_vars.id_in_group) {
-                   name += " (Me)";
+                   name += " ({{ lexicon.player_me }})";
                }
 
                document.querySelector(`#output-${value}-player`).innerHTML = name;

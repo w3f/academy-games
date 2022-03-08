@@ -1,3 +1,5 @@
+"""Collection of all database models."""
+
 from otree.constants import BaseConstants
 from otree.currency import Currency
 from otree.database import (
@@ -30,6 +32,8 @@ Slots = int
 
 # DEFAULT MODELS
 class Constants(BaseConstants):
+    """Collection of configuration constants."""
+
     name_in_url = 'slot_auction'
     players_per_group = 3
     num_rounds = 13
@@ -74,19 +78,16 @@ class Constants(BaseConstants):
     @staticmethod
     def use_static_result(model: MixinSessionFK) -> bool:
         """Return true if static result UI can be used."""
-
         return Constants.get_local_slot_count(model) <= 1
 
     @staticmethod
     def get_global_slot_count(model: MixinSessionFK) -> int:
         """Return total number of slots for auction."""
-
         return model.session.config.get('num_global_slots', Constants._num_global_slots)
 
     @staticmethod
     def get_local_slot_count(model: MixinSessionFK) -> int:
         """Return number of slots in local players bid."""
-
         return model.session.config.get('num_local_slots', Constants._num_local_slots)
 
     @staticmethod
@@ -97,7 +98,6 @@ class Constants(BaseConstants):
     @staticmethod
     def get_local_values(model: MixinSessionFK) -> List[Slots]:
         """Return slot values of available local choices."""
-
         # Abbreviations to improve readability
         N = Constants.get_global_slot_count(model)
         L = Constants.get_local_slot_count(model)
@@ -112,7 +112,6 @@ class Constants(BaseConstants):
     @staticmethod
     def get_valid_values(model: MixinSessionFK) -> List[Slots]:
         """Return all valid global and local slot values."""
-
         return [Constants.get_global_value(model)] + Constants.get_local_values(model)
 
     # Basic sanity checks
@@ -121,10 +120,14 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
+    """One round of auction."""
+
     pass
 
 
 class Group(BaseGroup):
+    """Group of players in the same auction."""
+
     # TODO: Take treatment from participant?
     treatment = StringField()
     candle_duration = IntegerField()
@@ -154,24 +157,20 @@ class Group(BaseGroup):
 
     def timer_start(self) -> None:
         """Start auction timer of group."""
-
         self.timestamp_start = time.monotonic()
         self.timestamp_reset = self.timestamp_start
 
     def timer_reset(self) -> None:
         """Reset auction timer of group."""
-
         self.timestamp_reset = time.monotonic()
 
     def timestamp(self) -> float:
         """Get timestamp in s relative to start of auction."""
-
         return time.monotonic() - self.timestamp_start
 
     @property
     def timeout_total(self) -> float:
         """Return the initial page timeout in s based on auction format."""
-
         if self.treatment == "hard":
             return Constants.hard_duration
         elif self.treatment == "candle":
@@ -184,13 +183,11 @@ class Group(BaseGroup):
     @property
     def timeout_total_ms(self) -> int:
         """Return the initial page timeout in ms based on auction format."""
-
         return int(self.timeout_total * 1000)
 
     @property
     def timeout_final(self) -> float:
         """Return the final auction timeout in s based on auction format."""
-
         if self.treatment == "candle":
             return float(self.candle_duration)
 
@@ -199,25 +196,21 @@ class Group(BaseGroup):
     @property
     def timeout_remaining(self) -> float:
         """Return remaining timeout in s since last reset or start."""
-
         return self.timestamp_reset + self.timeout_total - time.monotonic()
 
     @property
     def timeout_remaining_ms(self) -> int:
         """Return remaining timeout in ms since last reset or start."""
-
         return int(self.timeout_remaining * 1000)
 
     @property
     def duration_max(self) -> float:
         """Return maximum auction length considering max candle ending and timer resets."""
-
         return self.timestamp_reset - self.timestamp_start + self.timeout_total
 
     @property
     def duration_final(self) -> float:
         """Return auction length considering actual candle ending and timer resets."""
-
         # Allow access to this field even if round was not started for exports
         if self.field_maybe_none('timestamp_start') is None:
             return self.timeout_final
@@ -226,59 +219,52 @@ class Group(BaseGroup):
 
     def is_valid_timestamp(self, timestamp: float) -> bool:
         """Check if provided timestamp falls within the auction period."""
-
         return 0 < timestamp <= self.duration_max
 
     @property
     def result(self) -> any:
         """Return decode result."""
-
         return json.loads(self.result_json)
 
     @result.setter
     def result(self, value):
         """Encode result before setting it."""
-
         self.result_json = json.dumps(value)
 
 
 class Player(BasePlayer):
+    """Bidder in an auction."""
+
     valuations_json = LongStringField()
 
     chat_ready = BooleanField(initial=False)
 
     @property
     def role(self) -> str:
-        """Return role from underlying participant"""
-
+        """Return role from underlying participant."""
         return self.participant.role
 
     @property
     def treatment(self) -> str:
-        """Return treatment from underlying participant"""
-
+        """Return treatment from underlying participant."""
         return self.participant.treatment
 
     def get_role_channel(self) -> str:
         """Return name of role specific chat channel."""
-
         return '{}-{}'.format(self.group.id, self.role)
 
     @property
     def valuations(self) -> any:
         """Return decoded valuations."""
-
         return json.loads(self.valuations_json)
 
     @valuations.setter
     def valuations(self, value):
         """Encode valuations before setting it."""
-
         self.valuations_json = json.dumps(value)
 
     def get_valuation(self, slots: Slots) -> Currency:
         """Return valuation of a specific slot combination."""
-
         global_value = Constants.get_global_value(self)
 
         if global_value == slots:
@@ -304,7 +290,6 @@ class Player(BasePlayer):
 
     def get_global_valuation(self) -> Currency:
         """Return player valuations for all slots."""
-
         if self.role == 'global':
             return self.valuations
         else:
@@ -312,7 +297,6 @@ class Player(BasePlayer):
 
     def get_local_valuations(self) -> List[Currency]:
         """Return players valuation for each of the local choices."""
-
         return [self.get_valuation(v) for v in Constants.get_local_values(self)]
 
 
@@ -329,13 +313,11 @@ class Bid(ExtraModel):
     @property
     def bidder(self):
         """Return unique bidder id within his bidding group."""
-
         return self.player.id_in_group
 
     @property
     def first_slot(self):
         """Return first slot of bid."""
-
         low = (self.slots & -self.slots)
         lowBit = -1
 
@@ -348,13 +330,11 @@ class Bid(ExtraModel):
     @property
     def last_slot(self):
         """Return last slot of bid."""
-
         return math.floor(math.log(self.slots, 2))
 
     @property
     def num_slots(self):
         """Return number of slots selected in bid."""
-
         slots = self.slots
 
         count = 0
@@ -367,13 +347,11 @@ class Bid(ExtraModel):
     @property
     def valuation(self):
         """Return how bidder valuates this bid."""
-
         return self.player.get_valuation(self.slots)
 
     @property
     def profit(self):
         """Return difference between valuation and price of bid."""
-
         valuation = self.valuation
 
         # TODO: Check if this warning is necessary
@@ -392,12 +370,12 @@ class Bid(ExtraModel):
 
         @classmethod
         def from_lexicon(cls, ident: str):
+            """Create error message from lexicon entry."""
             return cls(Lexicon.entry("bid", ident))
 
     @staticmethod
     def submit(player: Player, slots: Slots, price: Currency, timestamp: float) -> None:
-        """Check and submit bid to database"""
-
+        """Check and submit bid to database."""
         # Some simple sanity checks
         if not 0 < slots < 2 ** Constants.get_global_slot_count(player):
             raise Bid.SubmissionFailure.from_lexicon("slots_invalid")
@@ -416,14 +394,14 @@ class Bid(ExtraModel):
         # Check if bid is within valuation
         valuation = player.get_valuation(slots)
         if price > valuation:
-            raise Bid.SubmissionFailure.format(
+            raise Bid.SubmissionFailure.from_format(
                 "{} {}", Lexicon.entry("bid", "price_too_high"), valuation
             )
 
         # Check that bid is higher for selection
         highest = Bid.highest(player.group, slots)
         if highest and highest.price >= price:
-            raise Bid.SubmissionFailure.format(
+            raise Bid.SubmissionFailure.from_format(
                 "{} {}", Lexicon.entry("bid", "price_too_low"), highest.price
             )
 
@@ -442,19 +420,16 @@ class Bid(ExtraModel):
     @staticmethod
     def count(group: Group) -> int:
         """Return number of bids in group."""
-
         return Bid.objects_filter(group=group).count()
 
     @staticmethod
     def for_player(player: Player):
         """Return all bids of a certain player."""
-
         return Bid.objects_filter(group=player.group, player=player).order_by('timestamp').all()
 
     @staticmethod
     def for_slots(group: Group, slots: Slots, timestamp: Optional[float] = None) -> List["Bid"]:
         """Return all bids for a certain group, slots and optionally until a certain timestamp."""
-
         if timestamp:
             return Bid.objects_filter(Bid.timestamp <= timestamp, group=group, slots=slots).order_by('timestamp').all()
         else:
@@ -463,7 +438,6 @@ class Bid(ExtraModel):
     @staticmethod
     def highest(group: Group, slots: Slots, timestamp: Optional[float] = None) -> Optional["Bid"]:
         """Return highest bid for a certain group, slots and optionally until a certain timestamp."""
-
         result = None
         for bid in Bid.for_slots(group, slots, timestamp):
             if not result or result.price < bid.price:
@@ -477,7 +451,6 @@ class Bid(ExtraModel):
     @staticmethod
     def get_winners(group: Group, timestamp: Optional[float] = None) -> List[CombinedBids]:
         """Return the winnner for each slot of the auction, optionally until a certain timestamp."""
-
         # Get the highest local slots bids
         highest = [Bid.highest(group, slots, timestamp)
                    for slots in Constants.get_local_values(group)]
@@ -531,10 +504,12 @@ class Result:
     """Wrapper around Bids to easily generate results."""
 
     def __init__(self, group: Group, timestamp: Optional[float] = None):
+        """Create result from db for group and optional end timestamp."""
         self.winners = Bid.get_winners(group, timestamp)
         self.N = Constants.get_global_slot_count(group)
 
     def has_winner(self):
+        """Check if there are any bids."""
         return len(self.winners) > 0
 
     # Type alias to improve readability
@@ -547,7 +522,6 @@ class Result:
 
     def to_table(self, with_rank: bool = False) -> Table:
         """Turn result into table layout."""
-
         table = []  # = (layout, total)
         for rank, (total, _, bids) in enumerate(self.winners):
             # Sort bids by slot
@@ -582,8 +556,7 @@ class Result:
         return table
 
     def get_profit(self, player: Player) -> Currency:
-        """Determine a player's profit in the auction."""
-
+        """Determine a player's profit in a result."""
         if self.has_winner():
             winning_bids = self.winners[0][2]
 
@@ -598,6 +571,7 @@ class FinalResult(Result):
     """Result that takes candle auction ending into consideration."""
 
     def __init__(self, group: Group):
+        """Create a new candle-aware result."""
         timestamp = None
         if group.treatment == "candle":
             timestamp = float(group.candle_duration)

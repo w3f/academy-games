@@ -1,3 +1,5 @@
+"""Collection of all views."""
+
 from otree.currency import Currency
 from otree.views import Page, WaitPage
 
@@ -45,8 +47,7 @@ class IntroPage(Page):
 
     @staticmethod
     def get_timeout_seconds(player):
-        """Returns timeout unless in first round."""
-
+        """Return timeout unless in first round."""
         if player.subsession.round_number in [1, Constants.num_practice + 1]:
             return None
 
@@ -137,7 +138,7 @@ class StartWaitPage(WaitPage):
 
     @staticmethod
     def after_all_players_arrive(group: Group):
-        """Records server side start time of auction."""
+        """Record server side start time of auction."""
         group.timer_start()
 
 
@@ -146,8 +147,7 @@ class AuctionPage(Page):
 
     @staticmethod
     def get_local_choices(player: Player) -> List[Tuple[int, List[Tuple[str, int, int, int]]]]:
-        """Returns a list of names, start slots and bitfield values per row of choices in UI."""
-
+        """Return a list of names, start slots and bitfield values per row of choices in UI."""
         # Abbreviations to improve readability
         N = Constants.get_global_slot_count(player)
         L = Constants.get_local_slot_count(player)
@@ -183,6 +183,7 @@ class AuctionPage(Page):
 
     @staticmethod
     def get_winners(group: Group):
+        """Retrieve winning bids and format them to be passed to frontend."""
         if Constants.use_static_result(group):
             return AuctionPage.get_winners_static(group)
         else:
@@ -191,7 +192,7 @@ class AuctionPage(Page):
     # TODO: Add NamedTupple and Typing
     @staticmethod
     def get_winners_static(group: Group):
-
+        """Provide current winning bids for a static view."""
         # Abbreviations to improve readability
         N = Constants.get_global_slot_count(group)
         L = Constants.get_local_slot_count(group)
@@ -231,8 +232,7 @@ class AuctionPage(Page):
 
     @staticmethod
     def get_winners_dynamic(group: Group) -> Result.Table:
-        """Retrieve winning bids and format them to be passed to frontend."""
-
+        """Provide current winning bids for a static dynamic view."""
         return Result(group).to_table()
 
     @staticmethod
@@ -265,7 +265,6 @@ class AuctionPage(Page):
     @staticmethod
     def live_method(player: Player, data: dict) -> dict:
         """Receive players bids and act accordingly."""
-
         # Save time of reception
         timestamp = player.group.timestamp()
 
@@ -315,7 +314,6 @@ class AuctionPage(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened: bool):
         """Make sure page was submitted by timeout."""
-
         pass
 
         # TODO: Currently broken, make sure this is tracked
@@ -329,7 +327,6 @@ class EndWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         """Determine winner at end of page."""
-
         # TODO: Compute result only once?
 
         # Determine payoff based on randomly select round after last auction
@@ -365,6 +362,7 @@ class OutroPage(Page):
     """Final page displaying overall result."""
 
     def is_displayed(self):
+        """Display page on during the last round."""
         return self.subsession.round_number == Constants.num_rounds
 
     @staticmethod

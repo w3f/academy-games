@@ -1,3 +1,5 @@
+"""Contains the oTree Slot Auction Experiment."""
+
 import random
 
 from typing import List
@@ -6,10 +8,6 @@ from .models import Constants, Subsession, Player, Bid, FinalResult
 from .pages import *
 
 
-doc = """
-Parachain Auction experiment
-"""
-
 # All treatments to consider (TODO: Use more consistently)
 ALL_TREATMENTS = ["hard", "candle", "activity"]
 
@@ -17,7 +15,6 @@ ALL_TREATMENTS = ["hard", "candle", "activity"]
 # SESSION INITIALIZATION
 def creating_session(subsession: Subsession) -> None:
     """Intialize all random group and player values."""
-
     N_hard = subsession.session.config.get('num_hard_participants', 0)
     N_candle = subsession.session.config.get('num_candle_participants', 0)
     N_activity = subsession.session.config.get('num_activity_participants', 0)
@@ -117,7 +114,6 @@ def creating_session(subsession: Subsession) -> None:
 # CUSTOM ADMIN PAGE
 def vars_for_admin_report(subsession: Subsession):
     """Return template variables for admin report."""
-
     num_global_slots = Constants.get_global_slot_count(subsession)
     range_global_slots = range(1, num_global_slots + 1)
 
@@ -145,8 +141,7 @@ def vars_for_admin_report(subsession: Subsession):
 
 # CUSTOM EXPORTER
 def custom_export(all_players: List[Player]):
-    """Custom exporter for auctions bids."""
-
+    """Export auctions bids as custom exporter."""
     # Export header row
     yield [
         'session_code',

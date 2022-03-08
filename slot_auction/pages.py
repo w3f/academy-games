@@ -24,6 +24,7 @@ def DEFAULT_TEMPLATE_VARS(page: str, player: Player) -> dict:
 
         'num_rounds': Constants.get_num_rounds(player),
         'round': Constants.get_round_number(player),
+        'id_in_group': player.id_in_group,
 
         'is_intro_round': intro_round,
         'use_static_result': Constants.use_static_result(player),

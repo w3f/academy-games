@@ -26,10 +26,6 @@ class Lexicon:
                 'en': "Total",
                 'de': "Summe",
             },
-            'player': {
-                'en': "Bidder",
-                'de': "Bieter",
-            },
             'seconds': {
                 'en': "seconds",
                 'de': "Sekunden",
@@ -37,6 +33,14 @@ class Lexicon:
             'no_bids': {
                 'en': "No bids were received...",
                 'de': "Es wurden keine Gebote abgegeben...",
+            },
+            'player': {
+                'en': "Bidder",
+                'de': "Bieter",
+            },
+            'player_me': {
+                'en': "Me",
+                'de': "Ich",
             },
             'player_is': {
                 'en': "You are Bidder",
@@ -175,10 +179,6 @@ class Lexicon:
             'result_malformed': {
                 'en': "Received malformed bid",
                 'de': "Unbekanntes Gebotsformat",
-            },
-            'player_me': {
-                'en': "Me",
-                'de': "Ich",
             },
             'status_unknown': {
                 'en': "Unknown status returned",

@@ -9,7 +9,7 @@
   <!-- Auction duration -->
   {{ if group.treatment == "candle" }}
 
-    <p>{{ lexicon.duration_is }} {{ group.duration_final }} / {{ Constants.candle_duration_max | to0 }} {{ lexicon.seconds }}.
+    <p>{{ lexicon.duration_is }} {{ group.duration_final | to0 }} / {{ Constants.candle_duration_max | to0 }} {{ lexicon.seconds }}.
 
   {{ else }}
 

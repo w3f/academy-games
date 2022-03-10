@@ -249,7 +249,11 @@ class Player(BasePlayer):
         verbose_name=Lexicon.entry('quiz', "role_shuffle")
     )
 
-    chat_ready = BooleanField(initial=False)
+    # Track if player wants to skip over the chat page
+    chat_skipped = BooleanField(initial=False)
+
+    # Track if player left page of the auction before its end
+    auction_skipped = BooleanField(initial=False)
 
     @property
     def role(self) -> str:

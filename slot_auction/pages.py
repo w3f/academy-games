@@ -134,8 +134,8 @@ class ChatPage(Page):
             try:
                 ready = data['ready']
 
-                if player.chat_ready != ready:
-                    player.chat_ready = ready
+                if player.chat_skipped != ready:
+                    player.chat_skipped = ready
                     update_all = True
 
             except Exception as fatal:
@@ -145,7 +145,7 @@ class ChatPage(Page):
                 traceback.print_exc()
 
         # Check how many players are ready
-        num_ready = sum([p.chat_ready for p in player.group.get_players()])
+        num_ready = sum([p.chat_skipped for p in player.group.get_players()])
 
         # Send out update to all players if required
         if update_all:
@@ -154,13 +154,13 @@ class ChatPage(Page):
                 player.group.chat_locked = True
 
             return {
-                p.id_in_group: (p.chat_ready, num_ready)
+                p.id_in_group: (p.chat_skipped, num_ready)
                 for p in player.group.get_players()
             }
 
         # Otherwise just update sending player
         return {
-            player.id_in_group: (player.chat_ready, num_ready)
+            player.id_in_group: (player.chat_skipped, num_ready)
         }
 
 
@@ -346,11 +346,9 @@ class AuctionPage(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened: bool):
         """Make sure page was submitted by timeout."""
-        pass
-
-        # TODO: Currently broken, make sure this is tracked
-        #if not timeout_happened:
-        #    print("Warning: Player ended auction before timeout!")
+        if timeout_happened: # Logic seems to be inverted for some reason
+            player.auction_skipped = True
+            print("Warning: Player ended auction before timeout!")
 
 
 class ResultWaitPage(WaitPage):
@@ -358,7 +356,7 @@ class ResultWaitPage(WaitPage):
 
     @staticmethod
     def after_all_players_arrive(group: Group):
-        """Determine winner at end of page."""
+        """Determine winner after auction ends."""
         # TODO: Compute result only once?
 
         # Determine payoff based on randomly select round after last auction

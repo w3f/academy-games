@@ -90,10 +90,10 @@ def creating_session(subsession: Subsession) -> None:
         for p in ps:
             assert p.treatment == g.treatment
 
-    # Randomly choose length of (potential) candle auction
+    # Randomly choose length of candle auctions
     for g in subsession.get_groups():
-        # TODO: Only generate for candle auctions
-        g.candle_duration = random.randint(Constants.candle_duration_min, Constants.candle_duration_max)
+        if g.treatment == "candle":
+            g.candle_duration = random.randint(Constants.candle_duration_min, Constants.candle_duration_max)
 
     N_slots = Constants.get_global_slot_count(subsession)
 

@@ -222,8 +222,10 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     """Bidder in an auction."""
 
+    # Players valuations, determines how high they can bid
     valuations_json = LongStringField()
 
+    # Quiz questions, straight from the lexicon
     quiz_player_per_group = IntegerField(
         verbose_name=Lexicon.entry('quiz', "player_per_group")
     )
@@ -307,10 +309,15 @@ class Player(BasePlayer):
 class Bid(ExtraModel):
     """Additional model to track and process all bids."""
 
+    # Useful index
     group = Link(Group)
+    # Who bid?
     player = Link(Player)
+    # On what?
     slots = IntegerField()
+    # How much?
     price = CurrencyField()
+    # And when?
     timestamp = FloatField()
 
     @property

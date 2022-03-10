@@ -62,27 +62,41 @@ class Lexicon:
                 'en': "Your Valuation",
                 'de': "Ihre Wertschätzung",
             },
-            'next_button': {
-                'en': "Please press the button below once you are ready.",
-                'de': "Bitte klicken Sie auf <i>Weiter</i> sobald Sie bereit sind.",
+        },
+        'quiz': {
+            'title': {
+                'en': "Quiz",
+                'de': "Quiz",
+            },
+            'text': {
+                'en': "Please answer the following questions to make sure you understood the rules of the game correctly.",
+                'de': "Bitte beantworten Sie die folgenden Fragen um sicherzustellen, dass Sie die Regel verstanden haben.",
+            },
+            'error_message': {
+                'en': "Your answer is not correct.",
+                'de': "Ihre Antwort ist falsch.",
+            },
+            'player_per_group': {
+                'en': "How many bidders (incl. you) participate in the auction?",
+                'de': "Wie viele Teilnehmer befinden sich (inkl. Ihnen) in einer Auktion?",
+            },
+            'num_global_local': {
+                'en': "There are always one local and two global bidders in an auction.",
+                'de': "Es gibt immer einen Spieler A und zwei Spieler B in einer Auktion.",
+            },
+            'role_shuffle': {
+                'en': "The bidders role changes every round.",
+                'de': "Die Rolle eines Spielers wechselt jede Runde.",
             },
         },
-        'intro': {
+        'valuation': {
             'title': {
-                'en': "Start of Round",
-                'de': "Beginn der Runde",
+                'en': "Valuation for Round",
+                'de': "Wertschätzung für Runde",
             },
             'timer': {
                 'en': "Time left to prepare for round:",
                 'de': "Verbleibende Zeit zum Vorbereiten:",
-            },
-            'timer': {
-                'en': "Time left to prepare for round:",
-                'de': "Verbleibende Zeit zum Vorbereiten:",
-            },
-            'subtitle': {
-                'en': "Introduction",
-                'de': "Einführung",
             },
             'role_global': {
                 'en': "You are a <b>global</b> bidder.",
@@ -199,7 +213,7 @@ class Lexicon:
                 'de': "Die Auktion endete nach",
             },
         },
-        'outro': {
+        'reward': {
             'title': {
                 'en': "Final Result and Payout",
                 'de': "Endergebnis und Bezahlung",

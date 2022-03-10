@@ -204,12 +204,13 @@ def custom_export(all_players: List[Player]):
 
 # OTHER CONSTANTS
 page_sequence = [
-    IntroPage,
+    QuizPage,
+    ValuationPage,
     ChatWaitPage,
     ChatPage,
-    StartWaitPage,
+    AuctionWaitPage,
     AuctionPage,
-    EndWaitPage,
+    ResultWaitPage,
     ResultPage,
-    OutroPage
+    RewardPage
 ]

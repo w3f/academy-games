@@ -1,0 +1,14 @@
+{{ block title }}
+  {{ lexicon.title }}
+{{ endblock }}
+{{ block content }}
+
+  <p>{{ lexicon.text }}</p>
+
+  {{ formfields }}
+
+  <div class="float-end mt-3">
+    {{ next_button }}
+  </div>
+
+{{ endblock }}

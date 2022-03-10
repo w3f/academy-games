@@ -13,8 +13,6 @@ from settings import LANGUAGE_CODE
 
 def DEFAULT_TEMPLATE_VARS(page: str, player: Player) -> dict:
     """Return default template data used by most pages."""
-    intro_round = player.round_number in [1, Constants.num_practice + 1]
-
     num_global_slots = Constants.get_global_slot_count(player)
     range_global_slots = range(1, num_global_slots + 1)
 
@@ -25,9 +23,6 @@ def DEFAULT_TEMPLATE_VARS(page: str, player: Player) -> dict:
         'num_rounds': Constants.get_num_rounds(player),
         'round': Constants.get_round_number(player),
         'id_in_group': player.id_in_group,
-
-        'is_intro_round': intro_round,
-        'use_static_result': Constants.use_static_result(player),
 
         'num_global_slots': num_global_slots,
         'range_global_slots': range_global_slots,
@@ -40,24 +35,56 @@ def DEFAULT_TEMPLATE_VARS(page: str, player: Player) -> dict:
 
 
 # PAGES
-class IntroPage(Page):
-    """Introduction page explaining auction mechanics."""
+class QuizPage(Page):
+    """Quiz page checking the participants knowledge of auction mechanics."""
 
-    timeout_seconds = 30
-    timer_text = Lexicon.entry("intro", 'timer')
+    form_model = "player"
+    form_fields = [
+        "quiz_player_per_group",
+        "quiz_num_global_local",
+        "quiz_role_shuffle",
+    ]
 
-    @staticmethod
-    def get_timeout_seconds(player):
-        """Return timeout unless in first round."""
-        if player.subsession.round_number in [1, Constants.num_practice + 1]:
-            return None
-
-        return IntroPage.timeout_seconds
+    def is_displayed(self):
+        """Display page only during the first round."""
+        return self.subsession.round_number == 1
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
-        return DEFAULT_TEMPLATE_VARS("intro", player)
+        return {
+            'lexicon': Lexicon.for_page_template("quiz"),
+        }
+
+
+def quiz_player_per_group_error_message(_: Player, value: int):
+    """Check quiz answer to group size."""
+    if value != Constants.players_per_group:
+        return Lexicon.entry("quiz", 'error_message')
+
+
+def quiz_num_global_local_error_message(_: Player, value: bool):
+    """Check quiz answer to global/local player count."""
+    if value:
+        return Lexicon.entry("quiz", 'error_message')
+
+
+def quiz_role_shuffle_error_message(_: Player, value: bool):
+    """Check quiz answer to role shuffling."""
+    if value:
+        return Lexicon.entry("quiz", 'error_message')
+
+
+class ValuationPage(Page):
+    """Introduction page explaining auction mechanics."""
+
+    timeout_seconds = 30
+    timer_text = Lexicon.entry("valuation", 'timer')
+
+    @staticmethod
+    def vars_for_template(player: Player) -> dict:
+        """Return additional data to pass to page template."""
+        return DEFAULT_TEMPLATE_VARS("valuation", player)
 
 
 class ChatWaitPage(WaitPage):
@@ -134,7 +161,7 @@ class ChatPage(Page):
         }
 
 
-class StartWaitPage(WaitPage):
+class AuctionWaitPage(WaitPage):
     """Wait page before auction to determine auction start time."""
 
     @staticmethod
@@ -242,6 +269,7 @@ class AuctionPage(Page):
         candle_percentage_normal = 100.0 * Constants.candle_duration_min / Constants.candle_duration_max
 
         return DEFAULT_TEMPLATE_VARS("auction", player) | {
+            'use_static_result': Constants.use_static_result(player),
             'candle_percentage_ending': 100.0 - candle_percentage_normal,
             'candle_percentage_normal': candle_percentage_normal,
         }
@@ -322,7 +350,7 @@ class AuctionPage(Page):
         #    print("Warning: Player ended auction before timeout!")
 
 
-class EndWaitPage(WaitPage):
+class ResultWaitPage(WaitPage):
     """Wait page at end of auction to trigger result calculation."""
 
     @staticmethod
@@ -359,7 +387,7 @@ class ResultPage(Page):
         }
 
 
-class OutroPage(Page):
+class RewardPage(Page):
     """Final page displaying overall result."""
 
     def is_displayed(self):
@@ -372,7 +400,7 @@ class OutroPage(Page):
         reward_round = player.session.reward_round
         result = FinalResult(player.in_round(reward_round).group)
 
-        return DEFAULT_TEMPLATE_VARS("outro", player) | {
+        return DEFAULT_TEMPLATE_VARS("reward", player) | {
             'reward_round': reward_round,
             'has_result': result.has_winner(),
             'result': result.to_table(True),

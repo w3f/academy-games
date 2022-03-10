@@ -237,6 +237,18 @@ class Player(BasePlayer):
 
     valuations_json = LongStringField()
 
+    quiz_player_per_group = IntegerField(
+        verbose_name=Lexicon.entry('quiz', "player_per_group")
+    )
+
+    quiz_num_global_local = BooleanField(
+        verbose_name=Lexicon.entry('quiz', "num_global_local")
+    )
+
+    quiz_role_shuffle = BooleanField(
+        verbose_name=Lexicon.entry('quiz', "role_shuffle")
+    )
+
     chat_ready = BooleanField(initial=False)
 
     @property

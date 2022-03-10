@@ -19,13 +19,13 @@
   <p>{{ lexicon.player_is }} {{ player.id_in_group }}.</p>
 
   <!-- Default group chat -->
-  {{ chat }}
+  {{ chat nickname=player_nickname }}
 
   <!-- Local group chat -->
   {{ if player.role != 'global' }}
     <h3>{{ lexicon.subtitle_local }}</h3>
 
-    {{ chat channel=role_channel }}
+    {{ chat channel=role_channel nickname=player_nickname }}
   {{ endif }}
 
   <div class="float-end mt-3">

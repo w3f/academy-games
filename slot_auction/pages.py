@@ -107,6 +107,9 @@ class ChatPage(Page):
             'num_rounds': Constants.get_num_rounds(player),
             'round': Constants.get_round_number(player),
             'role_channel': player.get_role_channel(),
+            'player_nickname': "{} {}".format(
+                Lexicon.entry('common', 'player'), player.id_in_group
+            ),
         }
 
     @staticmethod

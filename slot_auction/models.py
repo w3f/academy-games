@@ -138,9 +138,6 @@ class Group(BaseGroup):
     timestamp_start = FloatField()
     timestamp_reset = FloatField()
 
-    # TODO: Use or remove this field
-    result_json = LongStringField()
-
     def chat_start(self) -> None:
         """Start chat timer of group."""
         self.timestamp_chat = time.monotonic()
@@ -220,16 +217,6 @@ class Group(BaseGroup):
     def is_valid_timestamp(self, timestamp: float) -> bool:
         """Check if provided timestamp falls within the auction period."""
         return 0 < timestamp <= self.duration_max
-
-    @property
-    def result(self) -> any:
-        """Return decode result."""
-        return json.loads(self.result_json)
-
-    @result.setter
-    def result(self, value):
-        """Encode result before setting it."""
-        self.result_json = json.dumps(value)
 
 
 class Player(BasePlayer):

@@ -67,3 +67,10 @@ ADMIN_PASSWORD = environ.get('OTREE_ADMIN_PASSWORD')
 DEMO_PAGE_INTRO_HTML = """<h4>Polkadot Experiments Platform</h4>"""
 
 SECRET_KEY = '3685133242197'
+
+ROOMS = [
+    dict(
+        name='testing',
+        display_name='Testing & Development',
+    ),
+]

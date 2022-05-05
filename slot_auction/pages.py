@@ -399,12 +399,13 @@ class RewardPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         reward_round = player.session.reward_round
-        result = FinalResult(player.in_round(reward_round).group)
+        reward_player = player.in_round(reward_round)
+        result = FinalResult(reward_player.group)
 
-        return DEFAULT_TEMPLATE_VARS("reward", player) | {
-            'reward_round': reward_round,
+        return DEFAULT_TEMPLATE_VARS("reward", reward_player) | {
+            'reward_round': reward_round - Constants.num_practice,
             'has_result': result.has_winner(),
             'result': result.to_table(True),
-            'profit': result.get_profit(player),
+            'profit': result.get_profit(reward_player),
             'reward': player.participant.payoff_plus_participation_fee()
         }

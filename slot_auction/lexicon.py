@@ -158,9 +158,9 @@ class Lexicon:
                 'en': "Current result",
                 'de': "Aktuelle Ergebnisse",
             },
-            'distance': {
-                'en': "Minimum raise<br/>for lead",
-                'de': "Minimal-Erhöhung<br/>zur Führung",
+            'total': {
+                'en': "Total",
+                'de': "Summe",
             },
             'no_bidder': {
                 'en': "No bidder",

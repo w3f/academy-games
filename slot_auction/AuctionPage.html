@@ -28,7 +28,9 @@
                 {{ for slot in range_global_slots }}
                 <th>{{ lexicon.slot }} {{ slot }}</th>
                 {{ endfor }}
-                <th>{{ lexicon.distance }}</th>
+                {{ if use_dynamic_result }}
+                <th>{{ lexicon.total }}</th>
+                {{ endif }}
             </tr>
         </thead>
         <tbody id="tbody-results">
@@ -42,7 +44,6 @@
                         <span id="output-{{ global_value }}-price" class="badge bg-secondary ms-2">{{ 0 | cu }}</span>
                     </span>
                 </td>
-                <td id="output-global-distance">-</td>
             </tr>
             <!-- Rows with local choices (technically always just one row) -->
             {{ for before, after, row in local_choices }}
@@ -62,7 +63,6 @@
                 {{ if after != 0 }}
                 <td colspan="{{ after }}"></td>
                 {{ endif }}
-                <td id="output-local-distance">-</td>
             </tr>
             {{ endfor }}
           {{ else }}
@@ -302,38 +302,30 @@
                document.querySelector(`#output-${value}-price`).innerHTML = price;
            }
 
-           var global_row = document.querySelector('#output-global-row');
-           var global_rank = document.querySelector('#output-global-rank');
-           var global_distance = document.querySelector('#output-global-distance');
+           let global_row = document.querySelector('#output-global-row');
+           let global_rank = document.querySelector('#output-global-rank');
 
-           var local_row = document.querySelector('#output-local-row');
-           var local_rank = document.querySelector('#output-local-rank');
-           var local_distance = document.querySelector('#output-local-distance');
+           let local_row = document.querySelector('#output-local-row');
+           let local_rank = document.querySelector('#output-local-rank');
 
            if (winner == "global") {
                $(global_row).addClass('table-success');
                global_rank.innerHTML = "&#x1F451; 1.";
-               global_distance.innerHTML = "-";
 
                $(local_row).removeClass('table-success');
                local_rank.innerHTML = "2.";
-               local_distance.innerHTML = distance;
            } else if (winner == "local") {
                $(global_row).removeClass('table-success');
                global_rank.innerHTML = "2.";
-               global_distance.innerHTML = distance;
 
                $(local_row).addClass('table-success');
                local_rank.innerHTML = "&#x1F451; 1.";
-               local_distance.innerHTML = "-";
            } else {
                $(global_row).removeClass('table-success');
                global_rank.innerHTML = "-";
-               global_distance.innerHTML = "-";
 
                $(local_row).removeClass('table-success');
                local_rank.innerHTML = "-";
-               local_distance.innerHTML = "-";
            }
 
          {{ else }}

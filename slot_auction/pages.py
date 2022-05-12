@@ -213,18 +213,19 @@ class AuctionPage(Page):
         return choices
 
     @staticmethod
-    def get_winners(group: Group):
+    def get_result(player: Player):
         """Retrieve winning bids and format them to be passed to frontend."""
-        if Constants.use_static_result(group):
-            return AuctionPage.get_winners_static(group)
+        if Constants.use_static_result(player):
+            return AuctionPage.get_result_static(player)
         else:
-            return AuctionPage.get_winners_dynamic(group)
+            return AuctionPage.get_result_dynamic(player)
 
     # TODO: Add NamedTupple and Typing
     @staticmethod
-    def get_winners_static(group: Group):
+    def get_result_static(player: Player):
         """Provide current winning bids for a static view."""
         # Abbreviations to improve readability
+        group = player.group
         N = Constants.get_global_slot_count(group)
         L = Constants.get_local_slot_count(group)
 
@@ -262,9 +263,9 @@ class AuctionPage(Page):
         return highest, winner, distance
 
     @staticmethod
-    def get_winners_dynamic(group: Group) -> Result.Table:
+    def get_result_dynamic(player: Player) -> Result.Table:
         """Provide current winning bids for a static dynamic view."""
-        return Result(group).to_table()
+        return Result(player.group).to_table()
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
@@ -329,7 +330,7 @@ class AuctionPage(Page):
 
         if not payload:
             # Return latest auction state by default
-            payload = AuctionPage.get_winners(player.group)
+            payload = AuctionPage.get_result(player)
 
         if status == "success":
             # Successful bids send updates to everybody

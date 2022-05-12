@@ -149,13 +149,13 @@
            .on('update.countdown', function (event) {
                this.innerHTML = event.strftime('%-N:%S');
 
-               var remaining = event.offset.totalSeconds;
-               var percentage = 100.0 * remaining / js_vars.timeout_total;
+               let remaining = event.offset.totalSeconds;
+               let percentage = 100.0 * remaining / js_vars.timeout_total;
 
              {{ if group.treatment == "candle" }}
 
-               var percentage_normal = Math.max(percentage - js_vars.candle_percentage, 0);
-               var percentage_ending = Math.min(percentage, js_vars.candle_percentage);
+               let percentage_normal = Math.max(percentage - js_vars.candle_percentage, 0);
+               let percentage_ending = Math.min(percentage, js_vars.candle_percentage);
 
                $('#output-timer-bar-normal').css('width', percentage_normal + '%');
 
@@ -255,7 +255,7 @@
      function bid() {
          displayNone();
 
-         var slots = document.querySelector('input[name="slots"]:checked').value;
+         let slots = document.querySelector('input[name="slots"]:checked').value;
          liveSend({
              'price': inputPriceRangeDom.value,
              'slots': slots,
@@ -264,8 +264,8 @@
 
      /* Receive updated auction state from backend */
      function liveRecv(data) {
-       status = data[0];
-       payload = data[1];
+         let status = data[0];
+         let payload = data[1];
 
      {{ if group.treatment == "activity" }}
        /* Reset timer on successfull bid */
@@ -288,12 +288,12 @@
 	   /* Add one to get winning distance */
            var distance = payload[2] + 1;
 
-           for (var index = 0; index < highest.length; index++) {
-               var value = highest[index][0];
-               var player = highest[index][1];
-               var price = highest[index][2];
+           for (let index = 0; index < highest.length; index++) {
+               let value = highest[index][0];
+               let player = highest[index][1];
+               let price = highest[index][2];
 
-               var name = "{{ lexicon.player }} " + player;
+               let name = "{{ lexicon.player }} " + player;
                if (player == js_vars.id_in_group) {
                    name += " ({{ lexicon.player_me }})";
                }
@@ -338,12 +338,12 @@
 
          {{ else }}
 
-           var results = '';
+           let results = '';
 
-           for (var index = 0; index < payload.length; index++) {
-               var rank = index + 1;
-               var all_bids = payload[index][0];
-               var total = payload[index][1];
+           for (let index = 0; index < payload.length; index++) {
+               let rank = index + 1;
+               let all_bids = payload[index][0];
+               let total = payload[index][1];
 
                if (rank == 1) {
                    rank = "&#x1F451; " + rank;
@@ -351,14 +351,14 @@
 
                results += `<tr><td>${rank}</td>`
 
-               for (var column = 0; column < all_bids.length; column++) {
-                   var width = all_bids[column][0];
-                   var player = all_bids[column][1];
-                   var price = all_bids[column][2];
+               for (let column = 0; column < all_bids.length; column++) {
+                   let width = all_bids[column][0];
+                   let player = all_bids[column][1];
+                   let price = all_bids[column][2];
 
                    results += `<td colspan=${width}>`
                    if (player != 0) {
-                       var name = "{{ lexicon.player }} " + player;
+                       let name = "{{ lexicon.player }} " + player;
                        if (player == js_vars.id_in_group) {
                            name += " ({{ lexicon.player_me }})";
                        }

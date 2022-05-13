@@ -27,6 +27,14 @@ SESSION_CONFIGS = [
     ),
 
     dict(
+        name='more_auction',
+        display_name="Demo - Three Slot Auction",
+        app_sequence=['slot_auction'],
+        num_hard_participants=3,
+        num_global_slots=3,
+        num_local_slots=1,
+    ),
+    dict(
         name='complex_auction',
         display_name="Demo - Overlapping Slot Auction",
         app_sequence=['slot_auction'],

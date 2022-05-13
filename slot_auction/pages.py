@@ -213,16 +213,16 @@ class AuctionPage(Page):
         return choices
 
     @staticmethod
-    def get_result(player: Player):
+    def get_result(player: Player, **kwargs):
         """Retrieve winning bids and format them to be passed to frontend."""
         if Constants.use_static_result(player):
-            return AuctionPage.get_result_static(player)
+            return AuctionPage.get_result_static(player, **kwargs)
         else:
             return AuctionPage.get_result_dynamic(player)
 
     # TODO: Add NamedTupple and Typing
     @staticmethod
-    def get_result_static(player: Player):
+    def get_result_static(player: Player, all_players=False):
         """Provide current winning bids for a static view."""
         # Abbreviations to improve readability
         group = player.group
@@ -233,34 +233,49 @@ class AuctionPage(Page):
 
         # Retrieve highest bids for each possible combination of slots
         bid_global = Bid.highest(group, 2 ** N - 1)
-        bids_local = list(filter(None, [Bid.highest(group, 2 ** s) for s in range(N)]))
+        bids_local = [Bid.highest(group, 2 ** s) for s in range(N)]
+        bids_local_some = list(filter(None, bids_local))
 
         # Extract required data of highest bids
-        highest = [(b.slots, b.bidder, str(b.price)) for b in bids_local]
+        highest = [(b.slots, b.bidder, str(b.price)) for b in bids_local_some]
         if bid_global:
             highest.append((bid_global.slots, bid_global.bidder, str(bid_global.price)))
 
-        # Determine ranking and distance
-        total_global = bid_global.price if bid_global else 0
-        total_local = sum([b.price for b in bids_local])
+        # Determine total and ranking
+        total_global = bid_global.price if bid_global else Currency(0)
+        total_local = sum([b.price for b in bids_local_some], start=Currency(0))
 
-        distance = float(total_global - total_local)
-
-        # Resolve tie based on timestamps
         winner = "none"
-        if distance > 0:
+        if total_global > total_local:
             winner = "global"
-        elif distance < 0:
+        elif total_global < total_local:
             winner = "local"
-        elif bid_global and bids_local:
-            if bid_global.timestamp < max([b.timestamp for b in bids_local]):
+        elif bid_global and bids_local_some:
+            # Resolve tie based on timestamps
+            if bid_global.timestamp < max([b.timestamp for b in bids_local_some]):
                 winner = "global"
             else:
                 winner = "local"
 
-        distance = abs(distance)
+        # Determine target for each choice
+        target_max = max(total_global, total_local) + 1
 
-        return highest, winner, distance
+        def target_global(p: Player):
+            return 0 if bid_global and bid_global.player == p and total_global > total_local else target_max
+
+        def targets_local(p: Player):
+            return [0 if b and b.player == p and total_local > total_global else (target_max - total_local + (b.price if b else 0)) for b in bids_local]
+
+        def targets_all(p: Player):
+            return list(map(lambda t: str(t) if t else '', [target_global(p)] + targets_local(p)))
+
+        if all_players:
+            return {
+                p.id_in_group: (highest, winner, targets_all(p))
+                for p in group.get_players()
+            }
+
+        return highest, winner, targets_all(player)
 
     @staticmethod
     def get_result_dynamic(player: Player) -> Result.Table:
@@ -271,9 +286,11 @@ class AuctionPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         candle_percentage_normal = 100.0 * Constants.candle_duration_min / Constants.candle_duration_max
+        use_static_result = Constants.use_static_result(player)
 
         return DEFAULT_TEMPLATE_VARS("auction", player) | {
-            'use_static_result': Constants.use_static_result(player),
+            'use_static_result': use_static_result,
+            'use_dynamic_result': not use_static_result,
             'candle_percentage_ending': 100.0 - candle_percentage_normal,
             'candle_percentage_normal': candle_percentage_normal,
         }
@@ -330,12 +347,12 @@ class AuctionPage(Page):
 
         if not payload:
             # Return latest auction state by default
-            payload = AuctionPage.get_result(player)
+            payload = AuctionPage.get_result(player, all_players=(status == "success"))
 
         if status == "success":
             # Successful bids send updates to everybody
             return {
-                pid: (status if pid == player.id_in_group else "update", payload)
+                pid: (status if pid == player.id_in_group else "update", payload[pid])
                 for pid in range(1, Constants.players_per_group + 1)
             }
 

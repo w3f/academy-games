@@ -100,7 +100,7 @@
             <tr>
                 <td colspan="{{ num_global_slots }}">
                     <input type="radio" id="input-slots-global" class="btn-check" name="slots" value="{{ global_value }}" autocomplete="off"/>
-                    <label class="btn btn-outline-primary w-100" for="input-slots-global" onclick="select({{ global_valuation }})">{{ lexicon.all_slots }}<span class="badge bg-secondary ms-2">{{ global_valuation | cu }}</span></label>
+                    <label class="btn btn-outline-primary w-100" for="input-slots-global" onclick="select({{ global_value }},{{ global_valuation }})">{{ lexicon.all_slots }}<span class="badge bg-secondary ms-2">{{ global_valuation | cu }}</span></label>
                 </td>
             </tr>
             <!-- Rows with local choices -->
@@ -111,8 +111,8 @@
                 {{ endif }}
                 {{ for name, value, valuation in row}}
                 <td colspan="{{ num_local_slots }}">
-                    <input type="radio" id="input-slots-local-{{ value }}" class="btn-check" name="slots" value="{{ value }}" autocomplete="off" onclick="select({{ valuation }})"{{ if valuation == 0 }} disabled{{ endif }}/>
-                    <label class="btn btn-outline-primary w-100" for="input-slots-local-{{ value }}" onclick="select({{ valuation }})">{{ lexicon.slot }} {{ name }}<span class="badge bg-secondary ms-2">{{ valuation | cu }}</span></label>
+                    <input type="radio" id="input-slots-local-{{ value }}" class="btn-check" name="slots" value="{{ value }}" autocomplete="off"{{ if valuation == 0 }} disabled{{ endif }}/>
+                    <label class="btn btn-outline-primary w-100" for="input-slots-local-{{ value }}" onclick="select({{ value }},{{ valuation }})">{{ lexicon.slot }} {{ name }}<span class="badge bg-secondary ms-2">{{ valuation | cu }}</span></label>
                 </td>
                 {{ endfor }}
                 {{ if after != 0 }}
@@ -122,6 +122,8 @@
             {{ endfor }}
         </tbody>
     </table>
+
+    <p id="output-target">{{ lexicon.target_select }}</p>
 
     <!-- Row with price input, slider and bid button -->
     <div class="d-flex flex-wrap d-gap gap-3 align-items-center">
@@ -189,6 +191,8 @@
      const outputSuccessDom = document.querySelector('#output-success');
      const outputErrorDom = document.querySelector('#output-error');
 
+     const outputTargetDom = document.querySelector('#output-target');
+
      const inputPriceRangeDom = document.querySelector('#input-price-range');
      const inputPriceNumberDom = document.querySelector('#input-price-number');
 
@@ -206,6 +210,15 @@
          inputPriceRangeDom.value = this.value;
          buttonDom.disabled = !this.valueAsNumber;
      });
+
+     /* Helpers to easily access form data */
+     function getSelectedSlots() {
+         let inputCheckedDom = document.querySelector('input[name="slots"]:checked');
+         if (inputCheckedDom) {
+            return inputCheckedDom.value;
+         }
+         return 0;
+     }
 
      /* Helpers to easily display messages in alert section */
      function displayNone() {
@@ -232,8 +245,27 @@
          outputErrorDom.classList.remove("d-none");
      }
 
+     /* Last received bid target for each slot (static result only). */
+     let BID_TARGETS = undefined;
+
+     /* Update price target info if available. */
+     function updateTargetOutput(value) {
+         if (BID_TARGETS) {
+             if (value > 0) {
+                 let target = BID_TARGETS[value == {{ global_value }} ? 0 : Math.log2(value) + 1];
+                 if (target != "") {
+                     outputTargetDom.innerHTML = "{{ lexicon.target_some }}: " + target;
+                 } else {
+                     outputTargetDom.innerHTML = "{{ lexicon.target_none }}";
+                 }
+             } else {
+                 outputTargetDom.innerHTML = "{{ lexicon.target_select }}";
+             }
+         }
+     }
+
      /* Function called by input fields when selecting slots. */
-     function select(valuation) {
+     function select(value, valuation) {
          inputPriceRangeDom.max = valuation;
          inputPriceNumberDom.max = valuation;
 
@@ -241,6 +273,8 @@
          inputPriceNumberDom.disabled = !valuation;
 
          inputPriceNumberDom.value = inputPriceRangeDom.value;
+
+         updateTargetOutput(value);
      }
 
      /* Keyboard event handler that executes bid on enter. */
@@ -255,11 +289,15 @@
      function bid() {
          displayNone();
 
-         let slots = document.querySelector('input[name="slots"]:checked').value;
-         liveSend({
-             'price': inputPriceRangeDom.value,
-             'slots': slots,
-         });
+         let slots = getSelectedSlots();
+         if (slots) {
+             liveSend({
+                 'price': inputPriceRangeDom.value,
+                 'slots': slots,
+             });
+         } else {
+             displayError("{{ lexicon.slots_zero }}");
+         }
      }
 
      /* Receive updated auction state from backend */
@@ -282,11 +320,9 @@
 
          {{ if use_static_result }}
 
-           var highest = payload[0];
-           var winner = payload[1];
-			
-	   /* Add one to get winning distance */
-           var distance = payload[2] + 1;
+           let highest = payload[0];
+           let winner = payload[1];
+           let targets = payload[2];
 
            for (let index = 0; index < highest.length; index++) {
                let value = highest[index][0];
@@ -327,6 +363,9 @@
                $(local_row).removeClass('table-success');
                local_rank.innerHTML = "-";
            }
+
+           BID_TARGETS = targets;
+           updateTargetOutput(getSelectedSlots());
 
          {{ else }}
 

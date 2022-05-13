@@ -178,6 +178,18 @@ class Lexicon:
                 'en': "All periods",
                 'de': "Alle Perioden",
             },
+            'target_select': {
+                'en': "Please select a period to begin bidding.",
+                'de': "Bitte wählen Sie eine Periode um mit dem Bieten anzufangen.",
+            },
+            'target_some': {
+                'en': "Minimum bid to win this period",
+                'de': "Minimalgebot um diese Periode zu gewinnen",
+            },
+            'target_none': {
+                'en': "You are currently winning this period.",
+                'de': "Sie gewinnen momentan diese Periode.",
+            },
             'label_price': {
                 'en': "Amount",
                 'de': "Anzahl",
@@ -197,6 +209,10 @@ class Lexicon:
             'status_unknown': {
                 'en': "Unknown status returned",
                 'de': "Unbekannter Status empfangen",
+            },
+            'slots_zero': {
+                'en': "No period on which to bid selected.",
+                'de': "Keine Periode für ein Gebot ausgewählt.",
             },
         },
         'result': {

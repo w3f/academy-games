@@ -82,7 +82,7 @@ class Lexicon:
             },
             'num_global_local': {
                 'en': "There are always one local and two global bidders in an auction.",
-                'de': "Es gibt immer einen Spieler A und zwei Spieler B in einer Auktion.",
+                'de': "Es gibt immer einen lokalen Bieter und zwei globale Bieter in einer Auktion.",
             },
             'role_shuffle': {
                 'en': "The bidders role changes every round.",
@@ -100,41 +100,41 @@ class Lexicon:
             },
             'role_global': {
                 'en': "You are a <b>global</b> bidder.",
-                'de': "Sie sind <b>Bieter B</b>.",
+                'de': "Sie sind ein <b>globaler</b> Bieter.",
             },
             'role_local': {
                 'en': "You are a <b>local</b> bidder.",
-                'de': "Sie sind <b>Bieter A</b>.",
+                'de': "Sie sind ein <b>lokaler</b> Bieter.",
             },
             'treatment_hard': {
-                'en': "You are participating in an auction with hard ending.",
+                'en': "You are participating in an auction with a known ending time.",
                 'de': "Sie nehmen an einer Auktion mit festem Ende teil.",
             },
             'treatment_candle': {
-                'en': "You are participating in a candle auction.",
+                'en': "You are participating in an auction with unkown ending time.",
                 'de': "Sie nehmen an einer Auktion mit unbekanntem Ende teil.",
             },
             'treatment_activity': {
-                'en': "You are participating in an activity-rule auction.",
+                'en': "You are participating in an auction with activity-rule.",
                 'de': "Sie nehmen an einer Auktion mit Aktivitätsregel teil.",
             },
         },
         'chat': {
             'title': {
-                'en': "Pre-Auction Chat",
-                'de': "Phase 1: Kommunizieren",
+                'en': "Phase 1: Chat",
+                'de': "Phase 1: Chat",
             },
             'timer': {
                 'en': "Time left to chat with other players",
                 'de': "Verbleibende Zeit zum Kommunizieren mit anderen Bietern",
             },
             'subtitle_global': {
-                'en': "Chat will all players:",
+                'en': "Chat with all players:",
                 'de': "Alle Bieter:",
             },
             'subtitle_local': {
                 'en': "Chat only with local players:",
-                'de': "Nur Bieter A:",
+                'de': "Nur lokale Bieter:",
             },
             'button_off': {
                 'en': "End communication",
@@ -147,7 +147,7 @@ class Lexicon:
         },
         'auction': {
             'title': {
-                'en': "Auction",
+                'en': "Phase 2: Auction",
                 'de': "Phase 2: Auktion",
             },
             'timer': {
@@ -239,8 +239,8 @@ class Lexicon:
                 'de': "Vielen Dank für Ihre Teilnahme.",
             },
             'reward_round': {
-                'en': "Your payout will be based on your perfomance in round",
-                'de': "Ihre Bezahlung basiert auf Ihre Leistung in Runde",
+                'en': "Your payout will be based on the outcome in round",
+                'de': "Ihre Bezahlung basiert auf dem Ergebnis in Runde",
             },
             'player_payout': {
                 'en': "Your total payout will be",

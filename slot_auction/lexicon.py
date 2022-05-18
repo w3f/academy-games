@@ -222,7 +222,7 @@ class Lexicon:
             },
             'timer': {
                 'en': "Time left to view result:",
-                'de': "Verbleibende Zeit zum Betrachten des Ergebnisses:",
+                'de': "Verbleibende Zeit zum Betrachten der Ergebnisse:",
             },
             'duration_is': {
                 'en': "The auction ended after",

@@ -1,0 +1,35 @@
+{{ block title }}
+    Polkadot Academy Wallet
+{{ endblock }}
+{{ block content }}
+
+  {{ if wallet_open }}
+
+    <div class="card my-3 p-3">
+      {{ formfield 'phrase' label="Enter your seed phrase to continue playing under an existing wallet." }}
+
+      <div class="float-end mt-3">
+        <button class="btn btn-primary" name="enroll" value="False">Open existing wallet</button>
+      </div>
+    </div>
+
+  {{ endif }}
+
+
+  {{ if wallet_create }}
+
+    <div class="card my-3 p-3">
+      <p>You do not have a wallet yet? You can generate a new wallet right here.</p>
+
+      {{ if wallet_open }}
+        <p><b>This can not be undone, if you want to continue with an existing wallet, enter your seed phrase above!</b></p>
+      {{ endif }}
+
+      <div class="float-end mt-3">
+        <button class="btn btn-primary" name="enroll" value="True">Create new wallet</button>
+      </div>
+    </div>
+
+  {{ endif }}
+
+{{ endblock }}

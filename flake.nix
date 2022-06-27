@@ -19,7 +19,7 @@
       requirements = builtins.readFile ./requirements.txt;
       _.otree = {
         patches = [ ./.nix/otree-login-logging.patch ];
-        propagatedBuildInputs.mod = pyPkgs: _: old: old ++ [ pyPkgs.psycopg2 ];
+        propagatedBuildInputs.mod = pyPkgs: _: old: old ++ [ pyPkgs.psycopg2 pyPkgs.bip39 ];
       };
     };
 

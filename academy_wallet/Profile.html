@@ -1,0 +1,22 @@
+{{ block title }}
+    Polkadot Academy Wallet
+{{ endblock }}
+{{ block content }}
+
+{{ if player.enroll }}
+    <div class="alert alert-danger" role="alert">
+      <p><b>New account:</b> Please note down your <i>wallet seed phrase</i> (three words) and keep it somewhere safe!</p>
+    </div>
+{{ endif }}
+
+{{ include "global/wallet.html" }}
+
+{{ if player.wallet }}
+
+    <div class="float-end mt-3">
+      {{ next_button }}
+    </div>
+
+{{ endif }}
+
+{{ endblock }}

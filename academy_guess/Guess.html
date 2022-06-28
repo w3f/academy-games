@@ -1,0 +1,19 @@
+{{ block title }}{{ C.TITLE_PREFIX }}Prediction {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
+{{ block content }}
+
+    {{ if player.round_number > 1 }}
+        <p>
+            Here were the two-thirds-average values in previous rounds:
+            {{ group.history }}
+        </p>
+    {{ endif }}
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+    <hr/>
+
+    {{ include C.INSTRUCTIONS_TEMPLATE }}
+
+{{ endblock }}

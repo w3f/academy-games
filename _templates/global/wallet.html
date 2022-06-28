@@ -1,35 +1,39 @@
 {{ if player.wallet }}
-    <div class="card my-3 p-3">
+    <div class="card my-3">
+        <h5 class="card-header">Your Wallet</h5>
+        <div class="card-body">
 
-        <p>You wallet seed phrase is <b>{{ player.wallet.phrase }}</b>.</p>
+            <p>Seed phrase: <b>{{ player.wallet.phrase }}</b></p>
 
-        <table class="table table-sm table-bordered align-middle text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>Participant Code</th>
-                    <th>Balance</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{ for code, payoff, finished in player.wallet.transactions }}
-                <tr>
-                    <td>{{ code }}</td>
-                    <td>{{ payoff }}</td>
-                    <td>{{ if finished }}Completed{{ else }}In progress{{ endif }}</td>
-                </tr>
-                {{ endfor }}
-            </tbody>
-        </table>
+            <table class="table table-sm table-bordered align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Participant Code</th>
+                        <th>Balance</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ for code, payoff, finished in player.wallet.transactions }}
+                    <tr>
+                        <td>{{ code }}</td>
+                        <td>{{ payoff }}</td>
+                        <td>{{ if finished }}{{ if payoff }}Payed Out{{ else }}Closed{{ endif }}{{ else }}Available{{ endif }}</td>
+                    </tr>
+                    {{ endfor }}
+                </tbody>
+            </table>
 
-        <p>You currently have a total of <b>{{ player.wallet.balance }}</b>.</p>
+            <p>You currently have a total of <b>{{ player.wallet.balance }}</b> available.</p>
 
+        </div>
     </div>
 
 {{ else }}
 
-    <div class="alert alert-warning" role="alert">
-        <p><b>Failed to associate wallet with participant.</b></p>
+    <div class="alert alert-danger" role="alert">
+        <h5 class="alert-heading">No wallet found</h5>
+        <p>Failed to associate wallet with participant.</p>
     </div>
 
 {{ endif }}

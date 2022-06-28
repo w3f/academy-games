@@ -9,21 +9,13 @@ from otree.database import (
     IntegerField,
     FloatField,
     CurrencyField,
-    StringField,
-    LongStringField,
-    MixinSessionFK,
 )
-from otree.models import BaseSubsession, BaseGroup, BasePlayer
-
-from typing import Tuple, List, Union, Optional
-
-import math
-import time
-import json
-
-from functools import cmp_to_key
-
+from otree.models import BaseSubsession, BaseGroup
 from wallet import WalletPlayer
+
+from typing import List, Optional
+
+import time
 
 
 # DEFAULT MODELS
@@ -42,6 +34,7 @@ class Constants(BaseConstants):
 
 class Subsession(BaseSubsession):
     """One round of auction."""
+
     pass
 
 
@@ -108,6 +101,7 @@ class Player(WalletPlayer):
     # Track if player left page of the auction before its end
     auction_skipped = BooleanField(initial=False)
 
+
 # EXTRA MODELS
 class Bid(ExtraModel):
     """Additional model to track and process all bids."""
@@ -122,17 +116,17 @@ class Bid(ExtraModel):
     timestamp = FloatField()
 
     @property
-    def bidder(self):
+    def bidder(self) -> int:
         """Return unique bidder id within his bidding group."""
         return self.player.id_in_group
 
     @property
-    def valuation(self):
+    def valuation(self) -> Currency:
         """Return how bidder valuates this bid."""
         return self.player.valuation
 
     @property
-    def profit(self):
+    def profit(self) -> Currency:
         """Return difference between valuation and price of bid."""
         valuation = self.valuation
 
@@ -146,7 +140,7 @@ class Bid(ExtraModel):
         """Failure to create valid bid with supplied data."""
 
         @classmethod
-        def from_format(cls, templ: str, *args, **kwargs):
+        def from_format(cls, templ: str, *args, **kwargs) -> "Bid.SubmissionFailure":
             """Create error message from formatted string."""
             return cls(templ.format(*args, **kwargs))
 
@@ -187,7 +181,7 @@ class Bid(ExtraModel):
         return Bid.objects_filter(group=group).count()
 
     @staticmethod
-    def for_player(player: Player):
+    def for_player(player: Player) -> List["Bid"]:
         """Return all bids of a certain player."""
         return Bid.objects_filter(group=player.group, player=player).order_by('timestamp').all()
 

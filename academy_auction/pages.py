@@ -3,11 +3,10 @@
 from otree.currency import Currency
 from otree.views import Page, WaitPage
 
-from typing import Tuple, List
+from typing import Tuple
 
 from .models import Constants, Player, Group, Bid
 
-# PAGES
 
 class IntroPage(Page):
     """Introduction page explaining auction mechanics."""
@@ -177,3 +176,12 @@ class ResultPage(Page):
             'best': best,
             'reward': reward,
         }
+
+
+page_sequence = [
+    IntroPage,
+    AuctionWaitPage,
+    AuctionPage,
+    ResultWaitPage,
+    ResultPage,
+]

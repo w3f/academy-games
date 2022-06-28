@@ -4,9 +4,13 @@
 
 {{ block content }}
 
+
+{{ if player.valuation > 0 }}
+
   <!-- Auction duration -->
   <p>Auction ended after {{ group.duration_final | to0 }} / {{ Constants.candle_duration_max | to0 }} seconds.
 
+  <!-- Player outcome and reward -->
   {{ if best }}
 
     {{ if best.bidder == player.id_in_group }}
@@ -24,6 +28,20 @@
 
   {{ endif }}
 
+  <!-- Final wallet state -->
   {{ include "global/wallet.html" }}
+
+{{ else }}
+
+  <!-- Empty and negative wallet can not participate. -->
+  <div class="alert alert-danger" role="alert">
+      <p>Your wallet did not contain sufficient funds to participate in the auction or to receive any rewards. Thank you for your participation.</p>
+
+      {{ if player.valuation < 0 }}
+          <p>You accumlated <strong>{{ reward }}</strong> of debt during your participation.</p>
+      {{ endif }}
+  </div>
+
+{{ endif }}
 
 {{ endblock }}

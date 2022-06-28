@@ -38,6 +38,11 @@ class AuctionPage(Page):
     """Main auction page with live updated of auction state."""
 
     @staticmethod
+    def is_displayed(player: Player):
+        """Display auction only if you have points with which to bid."""
+        return player.valuation > 0
+
+    @staticmethod
     def get_result(player: Player) -> Tuple[int, Currency]:
         """Retrieve winning bid to be passed to frontend."""
         highest = Bid.highest(player.group)
@@ -130,6 +135,11 @@ class AuctionPage(Page):
 
 class ResultWaitPage(WaitPage):
     """Wait page at end of auction to trigger result calculation."""
+
+    @staticmethod
+    def is_displayed(player: Player):
+        """Force wait only if you participated in auction."""
+        return player.valuation > 0
 
     @staticmethod
     def after_all_players_arrive(group: Group):

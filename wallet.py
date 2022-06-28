@@ -188,3 +188,8 @@ class WalletPlayer(BasePlayer):
     def wallet(self) -> Optional[Wallet]:
         """Retrieve wallet associated with participant."""
         return Wallet.current(self.participant)
+
+    @property
+    def balance(self) -> Currency:
+        """Return current balance in wallet."""
+        return self.wallet.balance if self.wallet else Currency(0)

@@ -3,12 +3,22 @@
 {{ endblock }}
 {{ block content }}
 
-  <p>As the last game in our course you are going to bid on an NFT with the points you made so far.</p>
+  {{ if player.balance > 0 }}
 
-  <p>Please click the button as soon you are ready.</p>
+    <p>As the final game in our course you are going to bid on an NFT with the <strong>{{ player.balance }}</strong> you earned so far.</p>
 
-  <div class="float-end mt-3">
-    {{ next_button }}
-  </div>
+    <p>This is a candle auction.</p>
+
+    <p>Please click the button as soon you are ready.</p>
+
+  {{ else }}
+
+    <p>Your wallet does not contain enough balance to participate in the auction.</p>
+
+  {{ endif }}
+
+<div class="float-end mt-3">
+  {{ next_button }}
+</div>
 
 {{ endblock }}

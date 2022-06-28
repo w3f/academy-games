@@ -15,21 +15,28 @@ class IntroPage(Page):
     timeout_seconds = 30
 
     @staticmethod
-    def vars_for_template(player: Player) -> dict:
-        """Return additional data to pass to page template."""
-        return {}
+    def before_next_page(player, timeout_happened):
+        """Determine valuation and reconcile player that can not participate."""
+        player.valuation = player.balance
+
+        if player.valuation <= 0:
+            player.payoff = Currency(0)
+
+            if player.wallet:
+                player.wallet.reconciliate()
 
 
 class AuctionWaitPage(WaitPage):
     """Wait page before auction to determine auction start time."""
 
     @staticmethod
-    def after_all_players_arrive(group: Group):
-        """Determine valuations and start time of auction."""
-        # Import valuation from wallet
-        for p in group.get_players():
-            p.valuation = p.wallet.balance if p.wallet else Currency(0)
+    def is_displayed(player: Player):
+        """Force wait only if you participated in auction."""
+        return player.valuation > 0
 
+    @staticmethod
+    def after_all_players_arrive(group: Group):
+        """Determine start time of auction."""
         # Record server side start time
         group.timer_start()
 
@@ -43,11 +50,11 @@ class AuctionPage(Page):
         return player.valuation > 0
 
     @staticmethod
-    def get_result(player: Player) -> Tuple[int, Currency]:
+    def get_highest(group: Group) -> Tuple[int, Currency]:
         """Retrieve winning bid to be passed to frontend."""
-        highest = Bid.highest(player.group)
+        highest = Bid.highest(group)
         if highest:
-                return highest.bidder, str(highest.price)
+            return highest.bidder, str(highest.price)
 
         return 0, str(Currency(0))
 
@@ -111,7 +118,7 @@ class AuctionPage(Page):
 
         if not payload:
             # Return latest auction state by default
-            payload = AuctionPage.get_result(player)
+            payload = AuctionPage.get_highest(player.group)
 
         if status == "success":
             # Successful bids send updates to everybody
@@ -161,7 +168,8 @@ class ResultPage(Page):
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
-        best = Bid.result(player.group)
+        best = Bid.result(player.group) if player.valuation > 0 else None
+
         reward = player.participant.payoff_plus_participation_fee()
 
         return {

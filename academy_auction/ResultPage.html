@@ -1,47 +1,56 @@
 {{ block title }}
-  {{ Constants.TITLE_PREFIX }}Results
+  {{ Constants.TITLE_PREFIX }}Result
 {{ endblock }}
 
 {{ block content }}
 
+  {{ if player.valuation > 0 }}
 
-{{ if player.valuation > 0 }}
+    <!-- Auction duration -->
+    <p>Auction ended after {{ group.duration_final | to0 }} / {{ Constants.candle_duration_max | to0 }} seconds.
 
-  <!-- Auction duration -->
-  <p>Auction ended after {{ group.duration_final | to0 }} / {{ Constants.candle_duration_max | to0 }} seconds.
+    <!-- Player outcome and reward -->
+    {{ if best }}
 
-  <!-- Player outcome and reward -->
-  {{ if best }}
+      {{ if best.bidder == player.id_in_group }}
 
-    {{ if best.bidder == player.id_in_group }}
+        <!-- Player has won the auction. -->
+        <p>&#x1F451; <b>Congratulations, you won the auction with your bid of {{ best.price }}!</b>. This leaves you with an additional reward of <b>{{ reward }}</b> from the previous games.</p>
 
-      <p>&#x1F451; <b>Congratulations, you won the auction with your bid of {{ best.price }}!</b>. This leaves you with an additional reward of <b>{{ reward }}</b> from the previous games.</p>
+      {{ else }}
+
+        <!-- Player has lost the auction. -->
+        <p>&#x1F921; You lost the auction to <i>bidder {{ best.bidder }}</i> and his winning bid of <i>{{ best.price }}</i>, however you will be receiving the reward of <b>{{ reward }}</b> from the previous games.</p>
+
+      {{ endif }}
 
     {{ else }}
-      <p>&#x1F921; You lost the auction to <i>bidder {{ best.bidder }}</i> and his winning bid of <i>{{ best.price }}</i>, however you will be receiving the reward of <b>{{ reward }}</b> from the previous games.</p>
+
+      <!-- Nobody participated in the auction. -->
+      <p>There were no bids and the object was not sold. You will be receiving a reward of <b>{{ reward }}</b> from the previous games.</p>
 
     {{ endif }}
 
   {{ else }}
 
-      <p>There were no bids and the object was not sold. You will be receiving a reward of <b>{{ reward }}</b> from the previous games.</p>
+    <!-- Empty and negative wallet did not participate. -->
+    <div class="alert alert-warning text-center" role="alert">
+
+      <h4 class="alert-heading">Insufficient funds</h4>
+
+      <p>Your wallet did not contain sufficient funds to participate in the auction and will not receive any rewards.</p>
+
+      {{ if player.valuation < 0 }}
+        <p>Furthermore, you accumlated <strong>{{ reward }}</strong> of debt.</p>
+      {{ endif }}
+
+      <p class="mb-0"><strong>Thank you for your participation.</strong></p>
+
+    </div>
 
   {{ endif }}
 
   <!-- Final wallet state -->
   {{ include "global/wallet.html" }}
-
-{{ else }}
-
-  <!-- Empty and negative wallet can not participate. -->
-  <div class="alert alert-danger" role="alert">
-      <p>Your wallet did not contain sufficient funds to participate in the auction or to receive any rewards. Thank you for your participation.</p>
-
-      {{ if player.valuation < 0 }}
-          <p>You accumlated <strong>{{ reward }}</strong> of debt during your participation.</p>
-      {{ endif }}
-  </div>
-
-{{ endif }}
 
 {{ endblock }}

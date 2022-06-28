@@ -1,0 +1,183 @@
+{{ block title }}
+  {{ Constants.TITLE_PREFIX }}Auction
+{{ endblock }}
+
+
+{{ block content }}
+    <div id="output-timer-alert" class="alert alert-warning">
+        <p>Time left in auction: <span id="output-timer-label" class="fw-bold">-:--</span></p>
+
+        <div class="progress">
+            <div id="output-timer-bar-ending" class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{ candle_percentage_ending }}%"></div>
+            <div id="output-timer-bar-normal" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: {{ candle_percentage_normal }}%"></div>
+        </div>
+    </div>
+
+    <p>You are bidding on the following NFT:</p>
+
+    <figure class="figure w-50">
+        <img src="{{ static image_url }}" class="figure-img img-fluid img-thumbnail">
+        <figcaption class="figure-caption text-end">Random Placeholder - Unsplash</figcaption>
+    </figure>
+
+    <p>&#x1F451; Highest price: <b id="output-highest-price">-</b></p>
+    <p>&#x1F451; Highest bidder: <b id="output-highest-bidder">-</b></p>
+
+    <br/>
+
+    <h3>Participate in the auction:</h3>
+
+    <p>You are Bidder {{ player.id_in_group }}.</p>
+
+    <!-- Hidden alerts to display success and error messages -->
+    <div id="output-success" class="alert alert-success d-none"></div>
+    <div id="output-error" class="alert alert-danger d-none"></div>
+
+    <!-- Row with price input, slider and bid button -->
+    <div class="d-flex flex-wrap d-gap gap-3 align-items-center">
+        <div class="form-floating">
+            <input type="number" name="price-number" id="input-price-number" class="form-control" size="7" value="0" min="0" max="{{ valuation }}" onkeydown="bidOnEnter(event)"/>
+            <label for="input-price-number">Amount:</label>
+        </div>
+
+        <input type="range" name="price-range" id="input-price-range" class="flex-fill" value="0" min="0" max="{{ valuation }}" onkeydown="bidOnEnter(event)"/>
+
+        <button type="button" id="button-submit" class="btn btn-primary" onclick="bid()" disabled>Send Bid</button>
+    </div>
+{% endblock %}
+
+
+{% block scripts %}
+    <!-- Countdown JS library used by timeout -->
+    <script src="{% static 'otree/js/jquery.countdown.min.js' %}"></script>
+
+    <!-- Custom JS to handle live updates and uses inputs -->
+    <script>
+     window.addEventListener('DOMContentLoaded', (event) => {
+         /* Run countdown timer and progress bar */
+         $('#output-timer-label').countdown(Date.now() + js_vars.timeout_remaining_ms)
+           .on('update.countdown', function (event) {
+               this.innerHTML = event.strftime('%-N:%S');
+
+               let remaining = event.offset.totalSeconds;
+               let percentage = 100.0 * remaining / js_vars.timeout_total;
+
+               let percentage_normal = Math.max(percentage - js_vars.candle_percentage, 0);
+               let percentage_ending = Math.min(percentage, js_vars.candle_percentage);
+
+               $('#output-timer-bar-normal').css('width', percentage_normal + '%');
+
+               /* Change alert color once candle auction could end */
+               if(percentage_normal <= 0) {
+                   $('#output-timer-alert').addClass('alert-danger');
+               }
+
+               $('#output-timer-bar-ending').css('width', percentage_ending + '%');
+           })
+           .on('finish.countdown', function (event) {
+               $('<input>').attr({
+                   type: 'hidden',
+                   name: 'timeout_happened',
+                   value: '1'
+               }).appendTo('form');
+               $('#form').submit();
+           });
+
+         /* Request current auction state once page is loaded */
+         liveSend({});
+     });
+
+     /* Initialize needed DOM objects. */
+     const outputSuccessDom = document.querySelector('#output-success');
+     const outputErrorDom = document.querySelector('#output-error');
+
+     const outputHighestPriceDom = document.querySelector('#output-highest-price');
+     const outputHighestBidderDom = document.querySelector('#output-highest-bidder');
+
+     const inputPriceRangeDom = document.querySelector('#input-price-range');
+     const inputPriceNumberDom = document.querySelector('#input-price-number');
+
+     const buttonDom = document.querySelector('#button-submit');
+
+     /* Callbacks to link price input and slider. */
+     inputPriceRangeDom.addEventListener('input', function() {
+         inputPriceNumberDom.value = this.value;
+         buttonDom.disabled = !this.valueAsNumber;
+     });
+
+     inputPriceNumberDom.addEventListener('input', function() {
+	       this.value = Math.min(Math.max(this.value, this.min), this.max);
+
+         inputPriceRangeDom.value = this.value;
+         buttonDom.disabled = !this.valueAsNumber;
+     });
+
+     /* Helpers to easily display messages in alert section */
+     function displayNone() {
+         outputSuccessDom.classList.add("d-none");
+         outputSuccessDom.innerHTML = "";
+
+         outputErrorDom.classList.add("d-none");
+         outputErrorDom.innerHTML = "";
+     }
+
+     function displaySuccess(message) {
+         outputErrorDom.classList.add("d-none");
+         outputErrorDom.innerHTML = "";
+
+         outputSuccessDom.innerHTML = message;
+         outputSuccessDom.classList.remove("d-none");
+     }
+
+     function displayError(message) {
+         outputSuccessDom.classList.add("d-none");
+         outputSuccessDom.innerHTML = "";
+
+         outputErrorDom.innerHTML = message;
+         outputErrorDom.classList.remove("d-none");
+     }
+
+     /* Keyboard event handler that executes bid on enter. */
+     function bidOnEnter(event) {
+         if (event.key === "Enter") {
+             event.preventDefault();
+             bid();
+         }
+     }
+
+     /* Submit currently selected bid */
+     function bid() {
+         displayNone();
+
+         liveSend({
+             'price': inputPriceRangeDom.value,
+         });
+     }
+
+     /* Receive updated auction state from backend */
+     function liveRecv(data) {
+         let status = data[0];
+         let payload = data[1];
+
+         if (status == "success") {
+             displaySuccess("Bid was successfullt submitted.");
+         }
+
+         if (status == "success" || status == "update" || status == "init" ) {
+
+             let bidder = payload[0];
+             let price = payload[1];
+
+             if (bidder) {
+                 outputHighestBidderDom.innerHTML = `Player ${bidder}`;
+                 outputHighestPriceDom.innerHTML = price;
+             }
+
+         } else if (status == "error") {
+             displayError(payload);
+         } else {
+             displayError(`Unknown status returned: ${status}`);
+         }
+     }
+    </script>
+{{ endblock }}

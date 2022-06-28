@@ -1,0 +1,29 @@
+{{ block title }}
+  {{ Constants.TITLE_PREFIX }}Results
+{{ endblock }}
+
+{{ block content }}
+
+  <!-- Auction duration -->
+  <p>Auction ended after {{ group.duration_final | to0 }} / {{ Constants.candle_duration_max | to0 }} seconds.
+
+  {{ if best }}
+
+    {{ if best.bidder == player.id_in_group }}
+
+      <p>&#x1F451; <b>Congratulations, you won the auction with your bid of {{ best.price }}!</b>. This leaves you with an additional reward of <b>{{ reward }}</b> from the previous games.</p>
+
+    {{ else }}
+      <p>&#x1F921; You lost the auction to <i>bidder {{ best.bidder }}</i> and his winning bid of <i>{{ best.price }}</i>, however you will be receiving the reward of <b>{{ reward }}</b> from the previous games.</p>
+
+    {{ endif }}
+
+  {{ else }}
+
+      <p>There were no bids and the object was not sold. You will be receiving a reward of <b>{{ reward }}</b> from the previous games.</p>
+
+  {{ endif }}
+
+  {{ include "global/wallet.html" }}
+
+{{ endblock }}

@@ -1,13 +1,15 @@
 """A Cournot competition where unit sell price depends on total units produced."""
 
-from otree.models import BaseConstants, BaseSubsession, BaseGroup, BasePlayer
-from otree.models import CurrencyField, IntegerField
+from otree.constants import BaseConstants
+from otree.models import BaseSubsession, BaseGroup, BasePlayer
+from otree.database import CurrencyField, IntegerField
 
 from otree.views import Page, WaitPage
 
 doc = __doc__
 
 
+# MODELS
 class C(BaseConstants):
     """Default app constants."""
 
@@ -49,7 +51,7 @@ class Player(BasePlayer):
         return self.group.total_units - self.units
 
 
-# PAGES
+# VIEWS
 class IntroPage(Page):
     """Into page displaying introduction."""
 

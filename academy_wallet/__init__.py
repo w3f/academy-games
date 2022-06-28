@@ -18,7 +18,8 @@ doc = __doc__
 
 
 class C(BaseConstants):
-    """Basic single player app, use config to control provided functionalities."""
+    """Single player app, use config to control provided functionalities."""
+
     NAME_IN_URL = 'academy_wallet'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
@@ -34,16 +35,22 @@ class C(BaseConstants):
 
 
 class Subsession(BaseSubsession):
+    """Default base subsession."""
+
     pass
 
 
 class Group(BaseGroup):
+    """Default base group."""
+
     pass
 
 
 class Player(WalletPlayer):
     """Authentication via form input, with optional phrase if not enrollment."""
+
     enroll = BooleanField()
+
     phrase = StringField(blank=True)
 
 

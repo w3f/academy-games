@@ -3,9 +3,10 @@
 {{ endblock }}
 {{ block content }}
 
-{{ if player.enroll }}
+{{ if player.wallet and player.enroll }}
     <div class="alert alert-danger" role="alert">
-      <p><b>New account:</b> Please note down your <i>wallet seed phrase</i> (three words) and keep it somewhere safe!</p>
+      <h5 class="alert-heading">New wallet created</h5>
+      <p class="mb-0">It is important that you note down your <strong>wallet seed phrase</strong> and keep it somewhere safe!</p>
     </div>
 {{ endif }}
 

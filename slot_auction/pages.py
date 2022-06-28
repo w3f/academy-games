@@ -45,9 +45,10 @@ class QuizPage(Page):
         "quiz_role_shuffle",
     ]
 
-    def is_displayed(self):
+    @staticmethod
+    def is_displayed(player: Player):
         """Display page only during the first round."""
-        return self.subsession.round_number == 1
+        return player.round_number == 1
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
@@ -409,9 +410,10 @@ class ResultPage(Page):
 class RewardPage(Page):
     """Final page displaying overall result."""
 
-    def is_displayed(self):
+    @staticmethod
+    def is_displayed(player: Player):
         """Display page on during the last round."""
-        return self.subsession.round_number == Constants.num_rounds
+        return player.round_number == Constants.num_rounds
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:

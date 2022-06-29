@@ -1,4 +1,4 @@
-"""Contains the Polkadot Academy Auction Experiment."""
+"""An adaption of our auction experiment for the academy."""
 
 from .models import Constants, Subsession, Group, Player
 from .pages import page_sequence

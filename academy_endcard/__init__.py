@@ -1,4 +1,4 @@
-"""Cross session and app wallet to track particopant progress."""
+"""End-of-session app that displays participants progress."""
 
 from otree.constants import BaseConstants
 from otree.models import BaseSubsession, BaseGroup

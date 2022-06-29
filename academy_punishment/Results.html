@@ -1,0 +1,36 @@
+{{ block title }}{{ C.TITLE_PREFIX }}Result {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
+{{ block content }}
+
+    <table class="table">
+        <tr>
+            <th>Your endowment</th>
+            <td>{{ C.ENDOWMENT }}</td>
+        </tr>
+        <tr>
+            <th>Your contribution</th>
+            <td>{{ player.contribution }}</td>
+        </tr>
+        <tr>
+            <th>Individual group share</th>
+            <td>{{ group.individual_share }} ({{ group.total_contribution }} / {{ C.PLAYERS_PER_GROUP }} players)</td>
+        <tr>
+            <th>Punishment loss</th>
+            <td>{{ player.punishment_loss }} ({{ percentage }}%)</td>
+        </tr>
+        <tr>
+            <th>Cost of punishment sent</th>
+            <td>{{ player.punishment_cost }}</td>
+        </tr>
+        <tr>
+            <th>Your payoff</th>
+            <td><strong>{{ player.payoff }}</strong></td>
+        </tr>
+    </table>
+
+    {{ next_button }}
+
+    <hr/>
+
+    {{ include C.INSTRUCTIONS_TEMPLATE }}
+
+{{ endblock }}

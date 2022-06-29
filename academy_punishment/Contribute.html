@@ -1,0 +1,12 @@
+{{ block title }}{{ C.TITLE_PREFIX }}Contribution {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
+{{ block content }}
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+    <hr/>
+
+    {{ include C.INSTRUCTIONS_TEMPLATE }}
+
+{{ endblock }}

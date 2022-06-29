@@ -1,0 +1,27 @@
+{{ block title }}{{ C.TITLE_PREFIX }}Punishment {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
+{{ block content }}
+
+    <p>
+        You contributed {{ player.contribution }}.
+        Here are the other players' contributions:
+    </p>
+    <table class="table">
+        {{ for p in other_players }}
+            <tr>
+                <td>Player {{ p.id_in_group }}</td>
+                <td>{{ p.contribution }}</td>
+            </tr>
+        {{ endfor }}
+    </table>
+
+    <p>Please select the punishment you want to give to each player:</p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+    <hr/>
+
+    {{ include C.INSTRUCTIONS_TEMPLATE }}
+
+{{ endblock }}

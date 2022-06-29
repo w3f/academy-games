@@ -78,12 +78,33 @@ def phrase_to_seed32(phrase: str) -> int:
     return seed
 
 
+def to_unsigned32(value: int) -> int:
+    """Convert signed to unsigned int."""
+    return int.from_bytes(value.to_bytes(4, 'big', signed=True), 'big')
+
+
+def to_signed32(value: int) -> int:
+    """Convert unsigned to signed int."""
+    return int.from_bytes(value.to_bytes(4, 'big'), 'big', signed=True)
+
+
 # Quick lookup index for wallet associations
 class Wallet(ExtraModel):
     """Cross-session tracker of participant progress."""
 
     id = OTreeColumn(st.Integer, ForeignKey('otree_participant.id'), primary_key=True)
-    seed = IntegerField()
+
+    _seed = IntegerField()
+
+    @property
+    def seed(self) -> int:
+        """Return seed by converting it back to unsigned."""
+        return to_unsigned32(self._seed)
+
+    @seed.setter
+    def seed(self, value) -> None:
+        """Encode seed as signed integer, for improved SQL compliance."""
+        self._seed = to_signed32(value)
 
     # Static user-facing API to control wallet associations
 
@@ -93,9 +114,11 @@ class Wallet(ExtraModel):
         if Wallet.objects_exists(id=owner.id):
             raise WalletError("Participant is already associated with wallet.")
 
+        seed = secrets.randbits(32)
+
         return Wallet.create(
             id=owner.id,
-            seed=secrets.randbits(32),
+            _seed=to_signed32(seed),
         )
 
     @staticmethod
@@ -112,17 +135,19 @@ class Wallet(ExtraModel):
                 # Different/Incorrect phrase
                 raise WalletError("Participant can only have one wallet.")
 
+        seed_sql = to_signed32(seed)
+
         # Check that wallet exists at all
-        if not Wallet.objects_filter(seed=seed).count():
+        if not Wallet.objects_filter(_seed=seed_sql).count():
             raise WalletError("No wallet associated with phrase.")
 
         # Check that wallet has not been claimed for this session
         for other in owner.session.pp_set:
-            if Wallet.objects_exists(id=other.id,seed=seed):
+            if Wallet.objects_exists(id=other.id, _seed=seed_sql):
                 raise WalletError("Wallet already associated with other session participant.")
 
         # Register the existing wallet with the current participant
-        return Wallet.create(id=owner.id, seed=seed)
+        return Wallet.create(id=owner.id, _seed=seed_sql)
 
     @staticmethod
     def current(owner: Participant) -> Optional["Wallet"]:
@@ -164,7 +189,7 @@ class Wallet(ExtraModel):
     @property
     def participants(self) -> List[Participant]:
         """Return all participants associated with wallet."""
-        return [w.owner for w in Wallet.objects_filter(seed=self.seed)]
+        return [w.owner for w in Wallet.objects_filter(_seed=self._seed)]
 
     @property
     def balance(self) -> Currency:

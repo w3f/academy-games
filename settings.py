@@ -1,7 +1,5 @@
 from os import environ
 
-# Shared wallet library
-#import wallet
 
 # Shared defaults between all auction sessions
 AUCTION_CONFIG_DEFAULTS = dict(
@@ -14,6 +12,11 @@ AUCTION_CONFIG_DEFAULTS = dict(
     shuffle_groups=False,
 )
 
+# Shared defaults to improve UI when creating academy sessions
+ACADEMY_CONFIG_DEFAULTS = dict(
+    academy_wallet_open=True,
+    academy_wallet_create=True,
+)
 
 SESSION_CONFIGS = [
 
@@ -24,7 +27,7 @@ SESSION_CONFIGS = [
     ),
 
     # Configs used to run academy sessions
-    dict(
+    ACADEMY_CONFIG_DEFAULTS | dict(
         name='academy_one',
         display_name="Academy Day 1",
         app_sequence=[
@@ -36,7 +39,7 @@ SESSION_CONFIGS = [
         academy_wallet_open=False
     ),
 
-    dict(
+    ACADEMY_CONFIG_DEFAULTS | dict(
         name='academy_two',
         display_name="Academy Day 2",
         app_sequence=[
@@ -49,7 +52,7 @@ SESSION_CONFIGS = [
         num_demo_participants=4,
     ),
 
-    dict(
+    ACADEMY_CONFIG_DEFAULTS | dict(
         name='academy_final',
         display_name="Academy Auction Final",
         app_sequence=[

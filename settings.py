@@ -1,43 +1,120 @@
 from os import environ
 
+# Shared wallet library
+#import wallet
+
+# Shared defaults between all auction sessions
+AUCTION_CONFIG_DEFAULTS = dict(
+    app_sequence=['slot_auction'],
+    real_world_currency_per_point=2.00, participation_fee=10.00,
+    doc="Please ensure adjustment of participants per treatment in 'Configure session' section.",
+    num_demo_participants=3,
+    num_hard_participants=0, num_candle_participants=0, num_activity_participants=0,
+    num_global_slots=2, num_local_slots=1,
+    shuffle_groups=False,
+)
+
+
 SESSION_CONFIGS = [
-    dict(
-        name='custom_auction',
+
+    # Configs to run actual studies
+    AUCTION_CONFIG_DEFAULTS | dict(
+        name='auction_custom',
         display_name="Auction Experiment",
-        app_sequence=['slot_auction'],
+    ),
+
+    # Configs used to run academy sessions
+    dict(
+        name='academy_one',
+        display_name="Academy Day 1",
+        app_sequence=[
+            'academy_wallet',
+            'academy_cournot',
+            'academy_endcard',
+        ],
+        num_demo_participants=2,
+        academy_wallet_open=False
     ),
 
     dict(
-        name='hard_auction',
+        name='academy_two',
+        display_name="Academy Day 2",
+        app_sequence=[
+            'academy_wallet',
+            'academy_guess',
+            'academy_prisoner',
+            'academy_punishment',
+            'academy_endcard',
+        ],
+        num_demo_participants=4,
+    ),
+
+    dict(
+        name='academy_final',
+        display_name="Academy Auction Final",
+        app_sequence=[
+            'academy_wallet',
+            'academy_auction',
+        ],
+        real_world_currency_per_point=0.01,
+        num_demo_participants=4,
+        academy_wallet_create=False
+    ),
+
+    # Demos of academy games
+    dict(
+        name='cournot_demo',
+        app_sequence=['academy_cournot'],
+        display_name="Demo - Cournot Game",
+        num_demo_participants=2,
+    ),
+    dict(
+        name='guess_demo',
+        app_sequence=['academy_guess'],
+        display_name="Demo - Guess 2/3 Average",
+        num_demo_participants=4,
+    ),
+    dict(
+        name='prisoner_demo',
+        app_sequence=['academy_prisoner'],
+        display_name="Demo - Prisoner's Dilemma",
+        num_demo_participants=2,
+    ),
+    dict(
+        name='punishment_demo',
+        app_sequence=['academy_punishment'],
+        display_name="Demo - Common Goods with Punishment",
+        num_demo_participants=4,
+    ),
+
+    # Demo of auction treatments
+    AUCTION_CONFIG_DEFAULTS | dict(
+        name='auction_hard',
         display_name="Demo - Hard Ending Auction",
-        app_sequence=['slot_auction'],
         num_hard_participants=3,
     ),
-    dict(
-        name='candle_auction',
+    AUCTION_CONFIG_DEFAULTS | dict(
+        name='auction_candle',
         display_name="Demo - Candle Auction",
-        app_sequence=['slot_auction'],
         num_candle_participants=3,
     ),
-    dict(
-        name='activity_auction',
+    AUCTION_CONFIG_DEFAULTS | dict(
+        name='auction_activity',
         display_name="Demo - Activity Rule Auction",
-        app_sequence=['slot_auction'],
         num_activity_participants=3,
     ),
 
-    dict(
-        name='more_auction',
+    # Demo of complex auction logic
+    AUCTION_CONFIG_DEFAULTS | dict(
+        name='auction_more',
         display_name="Demo - Three Slot Auction",
-        app_sequence=['slot_auction'],
         num_hard_participants=3,
         num_global_slots=3,
         num_local_slots=1,
     ),
-    dict(
-        name='complex_auction',
+    AUCTION_CONFIG_DEFAULTS | dict(
+        name='auction_complex',
         display_name="Demo - Overlapping Slot Auction",
-        app_sequence=['slot_auction'],
         num_hard_participants=3,
         num_global_slots=9,
         num_local_slots=3,
@@ -50,11 +127,7 @@ SESSION_CONFIGS = [
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = dict(
-    real_world_currency_per_point=2.00, participation_fee=0.00,
-    doc="Please ensure adjustment of participants per treatment in 'Configure session' section.",
-    num_hard_participants=0, num_candle_participants=0, num_activity_participants=0,
-    num_demo_participants=3, num_global_slots=2, num_local_slots=1, 
-    shuffle_groups=False,
+    real_world_currency_per_point=0.00, participation_fee=0.00, num_demo_participants=0,
 )
 
 PARTICIPANT_FIELDS = ['role', 'treatment', 'finished']
@@ -80,5 +153,9 @@ ROOMS = [
     dict(
         name='testing',
         display_name='Testing & Development',
+    ),
+    dict(
+        name='academy',
+        display_name='Blockchain Academy 2022',
     ),
 ]

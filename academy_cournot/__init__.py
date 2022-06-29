@@ -55,6 +55,8 @@ class Player(BasePlayer):
 class IntroPage(Page):
     """Into page displaying introduction."""
 
+    timeout_seconds = 30
+
     def is_displayed(self):
         """Display page on during the first round."""
         return self.subsession.round_number == 1

@@ -51,7 +51,7 @@ class Player(BasePlayer):
     @property
     def choice(self) -> str:
         """Return players choice as string."""
-        return self.field_display('cooperate'),
+        return self.field_display('cooperate')
 
     @property
     def opponent(self) -> "Player":

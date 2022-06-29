@@ -3,14 +3,14 @@
 
     <p>
         {{ if player.cooperate == player.opponent.cooperate }}
-            Both of you chose to {{ player.choice }}.
+            Both of you chose to <strong>{{ player.choice }}</strong>.
         {{ else }}
-            You chose to {{ player.choice }} and the other participant chose to {{ player.opponent.choice }}.
+        You chose to <strong>{{ player.choice }}</strong> and the other participant chose to <strong>{{ player.opponent.choice }}</strong>.
         {{ endif }}
     </p>
 
     <p>
-        As a result, you earned {{ player.payoff }}.
+        As a result, you earned <strong>{{ player.payoff }}</strong>.
     </p>
 
     {{ next_button }}

@@ -21,6 +21,11 @@
                         <td>{{ if finished }}Completed{{ else }}In progress...{{ endif }}</td>
                     </tr>
                     {{ endfor }}
+                    {{ if not player.wallet.transactions }}
+                    <tr>
+                        <td colspan="3">You have not participated in any game yet.</td>
+                    </tr>
+                    {{ endif }}
                 </tbody>
             </table>
 

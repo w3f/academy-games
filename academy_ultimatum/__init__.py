@@ -19,7 +19,6 @@ doc = __doc__
 # Models
 class Constants(BaseConstants):
     name_in_url = 'academy_ultimatum'
-    display_name = "Ultimatum Game"
     title_prefix = "Lesson 2.1: "
     players_per_group = 2
     num_rounds = 2

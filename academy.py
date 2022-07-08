@@ -9,33 +9,41 @@ ACADEMY_GAME_CONFIGS = {
         num_demo_participants=1,
         academy_game_name="Wallet App",
         academy_wallet_create=True,
-        academy_endcard_reward=None,
     ),
     'ultimatum': dict(
         num_demo_participants=2,
         academy_game_name="Ultimatum Game",
+        academy_wallet_open=True,
+        academy_endcard_reward=400,
     ),
     'cournot': dict(
         num_demo_participants=2,
         academy_game_name="Cournot Game",
+        academy_wallet_open=True,
+        academy_endcard_reward=400,
     ),
     'guess': dict(
         num_demo_participants=2,
         academy_game_name="Guessing Game",
+        academy_wallet_open=True,
         academy_endcard_reward=200,
     ),
     'prisoner': dict(
         num_demo_participants=2,
         academy_game_name="Prisoner's Dilemma",
+        academy_wallet_open=True,
+        academy_endcard_reward=400,
     ),
     'publicgood': dict(
         num_demo_participants=4,
         academy_game_name="Public Good Game",
+        academy_wallet_open=True,
+        academy_endcard_reward=400,
     ),
     'auction': dict(
         num_demo_participants=4,
         academy_game_name="NFT Auction",
-        academy_endcard_reward=None,
+        academy_wallet_open=True,
     ),
 }
 
@@ -80,9 +88,10 @@ class AcademyGame:
             display_name=self.display_name,
             app_sequence=self.app_sequence,
             academy_game_id=self.id,
-            academy_wallet_open=True,
+            academy_wallet_open=False,
             academy_wallet_create=False,
-            academy_endcard_reward=400,
+            academy_wallet_endowment=0,
+            academy_endcard_reward=0,
         ) | self.config
 
     def room(self) -> dict:

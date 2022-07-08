@@ -9,6 +9,7 @@ ACADEMY_GAME_CONFIGS = {
         num_demo_participants=1,
         academy_game_name="Wallet App",
         academy_wallet_create=True,
+        academy_endcard_reward=None,
     ),
     'ultimatum': dict(
         num_demo_participants=2,
@@ -34,6 +35,7 @@ ACADEMY_GAME_CONFIGS = {
     'auction': dict(
         num_demo_participants=4,
         academy_game_name="NFT Auction",
+        academy_endcard_reward=None,
     ),
 }
 

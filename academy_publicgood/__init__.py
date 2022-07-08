@@ -40,11 +40,11 @@ PERCENT_PER_PUNISHMENT = 10
 class C(BaseConstants):
     """Cournot game constants."""
 
-    NAME_IN_URL = 'academy_punishment'
+    NAME_IN_URL = 'academy_publicgood'
     PLAYERS_PER_GROUP = 4
     NUM_ROUNDS = 2
     TITLE_PREFIX = "Lesson 2.2: "
-    INSTRUCTIONS_TEMPLATE = 'academy_punishment/instructions.html'
+    INSTRUCTIONS_TEMPLATE = 'academy_publicgood/instructions.html'
     ENDOWMENT = Currency(20)
     MULTIPLIER = 1.6
     MAX_PUNISHMENT = 10

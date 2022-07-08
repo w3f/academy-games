@@ -8,7 +8,7 @@ from otree.database import (
     BooleanField,
     IntegerField,
     FloatField,
-    CurrencyField,
+    RealWorldCurrencyField,
 )
 from otree.models import BaseSubsession, BaseGroup
 from wallet import WalletPlayer
@@ -96,7 +96,7 @@ class Player(WalletPlayer):
     """Bidder in an auction."""
 
     # Players valuations, determines how high they can bid
-    valuation = CurrencyField()
+    valuation = RealWorldCurrencyField()
 
     # Track if player left page of the auction before its end
     auction_skipped = BooleanField(initial=False)
@@ -111,7 +111,7 @@ class Bid(ExtraModel):
     # Who bid?
     player = Link(Player)
     # How much?
-    price = CurrencyField()
+    price = RealWorldCurrencyField()
     # And when?
     timestamp = FloatField()
 

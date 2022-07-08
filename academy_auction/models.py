@@ -1,7 +1,7 @@
 """Collection of all database models."""
 
 from otree.constants import BaseConstants
-from otree.currency import Currency
+from otree.currency import RealWorldCurrency
 from otree.database import (
     ExtraModel,
     Link,
@@ -121,12 +121,12 @@ class Bid(ExtraModel):
         return self.player.id_in_group
 
     @property
-    def valuation(self) -> Currency:
+    def valuation(self) -> RealWorldCurrency:
         """Return how bidder valuates this bid."""
         return self.player.valuation
 
     @property
-    def profit(self) -> Currency:
+    def profit(self) -> RealWorldCurrency:
         """Return difference between valuation and price of bid."""
         valuation = self.valuation
 
@@ -145,7 +145,7 @@ class Bid(ExtraModel):
             return cls(templ.format(*args, **kwargs))
 
     @staticmethod
-    def submit(player: Player, price: Currency, timestamp: float) -> None:
+    def submit(player: Player, price: RealWorldCurrency, timestamp: float) -> None:
         """Check and submit bid to database."""
         # Some simple sanity checks
         if not price > 0:

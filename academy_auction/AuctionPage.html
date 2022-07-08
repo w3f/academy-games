@@ -36,11 +36,11 @@
     <!-- Row with price input, slider and bid button -->
     <div class="d-flex flex-wrap d-gap gap-3 align-items-center">
         <div class="form-floating">
-            <input type="number" name="price-number" id="input-price-number" class="form-control" size="7" value="0" min="0" max="{{ valuation }}" onkeydown="bidOnEnter(event)"/>
+            <input type="number" name="price-number" id="input-price-number" class="form-control" size="7" value="0" min="0" max="{{ valuation }}" step="0.01" onkeydown="bidOnEnter(event)"/>
             <label for="input-price-number">Amount:</label>
         </div>
 
-        <input type="range" name="price-range" id="input-price-range" class="flex-fill" value="0" min="0" max="{{ valuation }}" onkeydown="bidOnEnter(event)"/>
+        <input type="range" name="price-range" id="input-price-range" class="flex-fill" value="0" min="0" max="{{ valuation }}" step="0.01" onkeydown="bidOnEnter(event)"/>
 
         <button type="button" id="button-submit" class="btn btn-primary" onclick="bid()" disabled>Send Bid</button>
     </div>

@@ -1,6 +1,6 @@
 """Collection of all views."""
 
-from otree.currency import Currency
+from otree.currency import RealWorldCurrency
 from otree.views import Page, WaitPage
 
 from typing import Tuple
@@ -14,15 +14,13 @@ class IntroPage(Page):
     timeout_seconds = 30
 
     @staticmethod
-    def before_next_page(player, timeout_happened):
+    def before_next_page(player: Player, timeout_happened: bool):
         """Determine valuation and reconcile player that can not participate."""
         player.valuation = player.balance
 
         if player.valuation <= 0:
-            player.payoff = Currency(0)
-
-            if player.wallet:
-                player.wallet.reconciliate()
+            player.payoff = RealWorldCurrency(0)
+            player.participant.finished = True
 
 
 class AuctionWaitPage(WaitPage):
@@ -49,13 +47,13 @@ class AuctionPage(Page):
         return player.valuation > 0
 
     @staticmethod
-    def get_highest(group: Group) -> Tuple[int, Currency]:
+    def get_highest(group: Group) -> Tuple[int, RealWorldCurrency]:
         """Retrieve winning bid to be passed to frontend."""
         highest = Bid.highest(group)
         if highest:
             return highest.bidder, str(highest.price)
 
-        return 0, str(Currency(0))
+        return 0, str(RealWorldCurrency(0))
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:
@@ -100,7 +98,7 @@ class AuctionPage(Page):
         # Try to parse data if provided
         if data:
             try:
-                price = Currency(data['price'])
+                price = RealWorldCurrency(data['price'])
                 Bid.submit(player, price, timestamp)
                 status = "success"
             except Bid.SubmissionFailure as error:
@@ -156,9 +154,7 @@ class ResultWaitPage(WaitPage):
             if best and best.player == player:
                 player.payoff = -best.price
             else:
-                player.payoff = Currency(0)
-
-            player.wallet.reconciliate()
+                player.payoff = RealWorldCurrency(0)
 
 
 class ResultPage(Page):

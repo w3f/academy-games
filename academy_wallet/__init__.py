@@ -1,6 +1,7 @@
 """Cross-session participant wallet to track and encourage progress."""
 
 from otree.constants import BaseConstants
+from otree.currency import Currency
 from otree.database import (
     BooleanField,
     StringField,
@@ -33,6 +34,11 @@ class C(BaseConstants):
     def get_wallet_open(model: MixinSessionFK) -> bool:
         """Return if app should allow users to open existing wallets."""
         return model.session.config.get('academy_wallet_open', True)
+
+    @staticmethod
+    def get_wallet_endowment(model: MixinSessionFK) -> Currency:
+        """Return if app should allow users to open existing wallets."""
+        return Currency(model.session.config.get('academy_wallet_endowment', 0))
 
 
 class Subsession(BaseSubsession):
@@ -85,7 +91,7 @@ class Authenticate(Page):
     @staticmethod
     def before_next_page(player: Player, timeout_happened: bool):
         """Make sure authentication was successful."""
-        wallet = Wallet.current(player.participant)
+        wallet = player.wallet
 
         if not wallet:
             # TODO: Handle or fail!
@@ -93,6 +99,8 @@ class Authenticate(Page):
         elif player.enroll:
             # Add phrase to database for new enrolled
             player.phrase = wallet.phrase
+
+        player.payoff = C.get_wallet_endowment(player)
 
 
 class Profile(Page):

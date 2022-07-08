@@ -23,7 +23,7 @@ class Constants(BaseConstants):
     """Collection of configuration constants."""
 
     name_in_url = 'academy_auction'
-    players_per_group = 4
+    players_per_group = 3
     num_rounds = 1
     TITLE_PREFIX = "Lesson 2.3: "
 

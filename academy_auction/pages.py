@@ -11,7 +11,7 @@ from .models import Constants, Player, Group, Bid
 class IntroPage(Page):
     """Introduction page explaining auction mechanics."""
 
-    timeout_seconds = 30
+    timeout_seconds = 120
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened: bool):

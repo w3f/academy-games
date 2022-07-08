@@ -115,7 +115,7 @@ class Player(BasePlayer):
 class Introduction(Page):
     """Display introduction to players."""
 
-    timeout_seconds = 30
+    timeout_seconds = 120
 
     @staticmethod
     def is_displayed(player: Player):

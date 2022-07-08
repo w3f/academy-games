@@ -70,7 +70,8 @@ class PageWithInstructions(Page):
         }
 
 class Introduction(PageWithInstructions):
-    timeout_seconds = 60
+
+    timeout_seconds = 120
 
     @staticmethod
     def is_displayed(player: Player):

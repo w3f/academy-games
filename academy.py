@@ -32,7 +32,7 @@ ACADEMY_GAME_CONFIGS = {
         academy_game_name="Public Good Game",
     ),
     'auction': dict(
-        num_demo_participants=3,
+        num_demo_participants=4,
         academy_game_name="NFT Auction",
     ),
 }

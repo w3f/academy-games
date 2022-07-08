@@ -42,7 +42,7 @@ class C(BaseConstants):
 
     NAME_IN_URL = 'academy_publicgood'
     PLAYERS_PER_GROUP = 4
-    NUM_ROUNDS = 2
+    NUM_ROUNDS = 10
     TITLE_PREFIX = "Lesson 2.2: "
     INSTRUCTIONS_TEMPLATE = 'academy_publicgood/instructions.html'
     ENDOWMENT = Currency(20)

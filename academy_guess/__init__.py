@@ -19,7 +19,7 @@ class C(BaseConstants):
 
     NAME_IN_URL = 'academy_guess'
     PLAYERS_PER_GROUP = 4
-    NUM_ROUNDS = 2
+    NUM_ROUNDS = 10
     TITLE_PREFIX = "Lesson 2.2: "
     JACKPOT = Currency(100)
     GUESS_MAX = 100

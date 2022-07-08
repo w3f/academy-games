@@ -156,6 +156,8 @@ class ResultWaitPage(WaitPage):
             else:
                 player.payoff = RealWorldCurrency(0)
 
+            player.participant.finished = True
+
 
 class ResultPage(Page):
     """Page to display results at end of auction."""
@@ -164,6 +166,8 @@ class ResultPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         best = Bid.result(player.group) if player.valuation > 0 else None
+
+        ResultWaitPage.after_all_players_arrive(player.group)
 
         return {
             'id_in_group': player.id_in_group,

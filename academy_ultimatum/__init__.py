@@ -21,7 +21,7 @@ class Constants(BaseConstants):
     name_in_url = 'academy_ultimatum'
     title_prefix = "Lesson 2.1: "
     players_per_group = 2
-    num_rounds = 10
+    num_rounds = 1
 
     instructions_template = 'academy_ultimatum/instructions.html'
 

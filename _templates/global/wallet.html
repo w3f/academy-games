@@ -8,17 +8,15 @@
             <table class="table table-sm table-bordered align-middle text-center">
                 <thead class="table-dark">
                     <tr>
-                        <th>Participant Code</th>
+                        <th>Academy Game</th>
                         <th>Balance</th>
-                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{ for code, payoff, finished in player.wallet.transactions }}
+                    {{ for name, payoff in player.wallet.transactions }}
                     <tr>
-                        <td>{{ code }}</td>
+                        <td>{{ name }}</td>
                         <td>{{ payoff }}</td>
-                        <td>{{ if finished }}{{ if payoff }}Payed Out{{ else }}Closed{{ endif }}{{ else }}Available{{ endif }}</td>
                     </tr>
                     {{ endfor }}
                 </tbody>

@@ -1,6 +1,6 @@
 """Minimal otree cross-session wallet implementation."""
 
-from otree.currency import Currency
+from otree.currency import RealWorldCurrency
 from otree.database import (
     ExtraModel,
     OTreeColumn,
@@ -154,21 +154,6 @@ class Wallet(ExtraModel):
         """Get wallet associated with certain participant."""
         return Wallet.objects_first(id=owner.id)
 
-    # Association-specific methods for reward calculation
-
-    def reconciliate(self):
-        """Consolidate payout to current owner and lock all participants."""
-        if self.owner._get_finished():
-            return
-
-        participants = self.participants
-        balance = sum([p.payoff for p in participants if not p._get_finished()], start=Currency(0))
-
-        for p in participants:
-            if not p._get_finished():
-                p.payoff = balance if p.id == self.id else Currency(0)
-                p.vars['finished'] = True
-
     # Shorthand properties mostly for readable logic and templates
 
     @property
@@ -177,14 +162,19 @@ class Wallet(ExtraModel):
         return seed_to_phrase32(self.seed)
 
     @property
+    def owner(self) -> Participant:
+        """Return associated participant."""
+        return Participant.objects_get(id=self.id)
+
+    @property
     def code(self) -> str:
         """Return participant code of current association."""
         return self.owner.code
 
     @property
-    def owner(self) -> Participant:
-        """Return associated participant."""
-        return Participant.objects_get(id=self.id)
+    def game_name(self):
+        """Return session display name of current association."""
+        return self.owner.session.config['academy_game_name']
 
     @property
     def participants(self) -> List[Participant]:
@@ -192,16 +182,18 @@ class Wallet(ExtraModel):
         return [w.owner for w in Wallet.objects_filter(_seed=self._seed)]
 
     @property
-    def balance(self) -> Currency:
+    def balance(self) -> RealWorldCurrency:
         """Sum of all payoffs associated with wallet."""
-        return sum([p.payoff for p in self.participants if not p._get_finished()], start=Currency(0))
+        return sum([
+            p.payoff_plus_participation_fee() for p in self.participants
+        ], start=RealWorldCurrency(0))
 
     @property
-    def transactions(self) -> List[Tuple[str, Currency, bool]]:
+    def transactions(self) -> List[Tuple[str, RealWorldCurrency, bool]]:
         """List of all sessions and payouts associated with wallet."""
-        code = self.code
-        return [(p.code + " (current)" if p.code == code else p.code, p.payoff, p._get_finished())
-                for p in self.participants]
+        return [(p.session.config['academy_game_name'] + (" (current)" if p.id == self.id else ""),
+                 p.payoff_plus_participation_fee(),
+                 ) for p in self.participants]
 
 
 class WalletPlayer(BasePlayer):
@@ -215,6 +207,6 @@ class WalletPlayer(BasePlayer):
         return Wallet.current(self.participant)
 
     @property
-    def balance(self) -> Currency:
+    def balance(self) -> RealWorldCurrency:
         """Return current balance in wallet."""
-        return self.wallet.balance if self.wallet else Currency(0)
+        return self.wallet.balance if self.wallet else RealWorldCurrency(0)

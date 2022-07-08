@@ -1,13 +1,13 @@
 """Classic Prisoner's Dilemma game with chat for coordination."""
 
-from otree.currency import Currency
-
 from otree.constants import BaseConstants
+from otree.currency import Currency
 from otree.models import BaseSubsession, BaseGroup, BasePlayer
 from otree.database import BooleanField
 
 from otree.views import Page, WaitPage
 from otree.forms import widgets
+
 
 doc = __doc__
 
@@ -19,7 +19,7 @@ class C(BaseConstants):
     NAME_IN_URL = 'academy_prisoner'
     PLAYERS_PER_GROUP = 2
     NUM_ROUNDS = 2
-    TITLE_PREFIX = "Session II 2/3: "
+    TITLE_PREFIX = "Lesson 2.2: "
     INSTRUCTIONS_TEMPLATE = 'academy_prisoner/instructions.html'
     PAYOFF_A = Currency(300)
     PAYOFF_B = Currency(200)

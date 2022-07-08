@@ -29,6 +29,7 @@ class C(BaseConstants):
         """Return if app should allow user to create new wallets."""
         return model.session.config.get('academy_wallet_create', True)
 
+    @staticmethod
     def get_wallet_open(model: MixinSessionFK) -> bool:
         """Return if app should allow users to open existing wallets."""
         return model.session.config.get('academy_wallet_open', True)

@@ -3,9 +3,8 @@
 from settings import REAL_WORLD_CURRENCY_CODE, USE_POINTS
 import settings
 
-from otree.currency import Currency
-
 from otree.constants import BaseConstants
+from otree.currency import Currency
 from otree.models import BaseSubsession, BaseGroup, BasePlayer
 from otree.database import CurrencyField, IntegerField
 
@@ -14,6 +13,7 @@ from otree.views import Page, WaitPage
 from otree.i18n import CURRENCY_SYMBOLS
 
 from typing import List
+
 
 doc = __doc__
 
@@ -36,13 +36,14 @@ def PUNISHMENT_COST_FUNCTION(points: int) -> Currency:
 PERCENT_PER_PUNISHMENT = 10
 
 
+# Models
 class C(BaseConstants):
     """Cournot game constants."""
 
     NAME_IN_URL = 'academy_punishment'
     PLAYERS_PER_GROUP = 4
     NUM_ROUNDS = 2
-    TITLE_PREFIX = "Session II 3/3: "
+    TITLE_PREFIX = "Lesson 2.2: "
     INSTRUCTIONS_TEMPLATE = 'academy_punishment/instructions.html'
     ENDOWMENT = Currency(20)
     MULTIPLIER = 1.6

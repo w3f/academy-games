@@ -9,6 +9,7 @@ from otree.views import Page, WaitPage
 
 from typing import List
 
+
 doc = __doc__
 
 
@@ -16,10 +17,10 @@ doc = __doc__
 class C(BaseConstants):
     """Constants used across the app."""
 
+    NAME_IN_URL = 'academy_guess'
     PLAYERS_PER_GROUP = 4
     NUM_ROUNDS = 2
-    NAME_IN_URL = 'academy_guess'
-    TITLE_PREFIX = "Session II 1/3: "
+    TITLE_PREFIX = "Lesson 2.2: "
     JACKPOT = Currency(100)
     GUESS_MAX = 100
     INSTRUCTIONS_TEMPLATE = 'academy_guess/instructions.html'

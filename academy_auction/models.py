@@ -25,7 +25,7 @@ class Constants(BaseConstants):
     name_in_url = 'academy_auction'
     players_per_group = 4
     num_rounds = 1
-    TITLE_PREFIX = "Final Session: "
+    TITLE_PREFIX = "Lesson 2.3: "
 
     # Duration config
     candle_duration_max = 120

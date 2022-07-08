@@ -94,6 +94,8 @@ class Wallet(ExtraModel):
 
     id = OTreeColumn(st.Integer, ForeignKey('otree_participant.id'), primary_key=True)
 
+    # TODO: Add owner link to participant
+
     _seed = IntegerField()
 
     @property
@@ -172,6 +174,11 @@ class Wallet(ExtraModel):
         return Participant.objects_get(id=self.id)
 
     @property
+    def value(self) -> RealWorldCurrency:
+        """Return the value of an association."""
+        self.owner.payoff_plus_participation_fee()
+
+    @property
     def code(self) -> str:
         """Return participant code of current association."""
         return self.owner.code
@@ -184,7 +191,17 @@ class Wallet(ExtraModel):
     @property
     def participants(self) -> List[Participant]:
         """Return all participants associated with wallet."""
+        return [w.owner for w in Wallet.objects_filter(_seed=self._seed)]
+
+    @property
+    def games(self) -> List[Participant]:
+        """List all endowments on account."""
         return [w.owner for w in Wallet.objects_filter(_seed=self._seed) if w.is_game]
+
+    @property
+    def endowments(self) -> List[Participant]:
+        """List all endowments on account."""
+        return [w.owner for w in Wallet.objects_filter(_seed=self._seed) if not w.is_game]
 
     @property
     def balance(self) -> RealWorldCurrency:
@@ -193,13 +210,21 @@ class Wallet(ExtraModel):
             p.payoff_plus_participation_fee() for p in self.participants
         ], start=RealWorldCurrency(0))
 
+    Transaction = Tuple[str, RealWorldCurrency, bool]
+
     @property
-    def transactions(self) -> List[Tuple[str, RealWorldCurrency, bool]]:
+    def transactions(self) -> List[Transaction]:
         """List of all sessions and payouts associated with wallet."""
-        return [(p.session.config['academy_game_name'] + (" (current)" if p.id == self.id else ""),
-                 p.payoff_plus_participation_fee(),
-                 p._get_finished()
-                 ) for p in self.participants]
+        values = [(p, p.payoff_plus_participation_fee()) for p in self.endowments]
+        endowments = [(("Endowment" if v > 0 else "Debt"), v, p._get_finished()) for p, v in values if v != 0]
+
+        games = [
+            (p.session.config['academy_game_name'] + (" (current)" if p.id == self.id else ""),
+             p.payoff_plus_participation_fee(),
+             p._get_finished()
+             ) for p in self.games]
+
+        return endowments + games
 
 
 class WalletPlayer(BasePlayer):

@@ -18,7 +18,7 @@ from typing import List, Optional
 import time
 
 
-# DEFAULT MODELS
+# MODELS
 class Constants(BaseConstants):
     """Collection of configuration constants."""
 

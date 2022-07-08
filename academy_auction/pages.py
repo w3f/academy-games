@@ -165,12 +165,10 @@ class ResultPage(Page):
         """Return additional data to pass to page template."""
         best = Bid.result(player.group) if player.valuation > 0 else None
 
-        reward = player.participant.payoff_plus_participation_fee()
-
         return {
             'id_in_group': player.id_in_group,
             'best': best,
-            'reward': reward,
+            'reward': player.balance,
         }
 
 

@@ -162,6 +162,11 @@ class Wallet(ExtraModel):
         return seed_to_phrase32(self.seed)
 
     @property
+    def is_game(self) -> bool:
+        """Return true if association is a game, i.e. not a wallet."""
+        return self.owner.session.config['academy_game_id'] != "wallet"
+
+    @property
     def owner(self) -> Participant:
         """Return associated participant."""
         return Participant.objects_get(id=self.id)
@@ -179,7 +184,7 @@ class Wallet(ExtraModel):
     @property
     def participants(self) -> List[Participant]:
         """Return all participants associated with wallet."""
-        return [w.owner for w in Wallet.objects_filter(_seed=self._seed)]
+        return [w.owner for w in Wallet.objects_filter(_seed=self._seed) if w.is_game]
 
     @property
     def balance(self) -> RealWorldCurrency:
@@ -193,6 +198,7 @@ class Wallet(ExtraModel):
         """List of all sessions and payouts associated with wallet."""
         return [(p.session.config['academy_game_name'] + (" (current)" if p.id == self.id else ""),
                  p.payoff_plus_participation_fee(),
+                 p._get_finished()
                  ) for p in self.participants]
 
 

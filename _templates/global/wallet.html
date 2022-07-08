@@ -10,13 +10,15 @@
                     <tr>
                         <th>Academy Game</th>
                         <th>Balance</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{ for name, payoff in player.wallet.transactions }}
+                    {{ for name, payoff, finished in player.wallet.transactions }}
                     <tr>
                         <td>{{ name }}</td>
                         <td>{{ payoff }}</td>
+                        <td>{{ if finished }}Completed{{ else }}In progress...{{ endif }}</td>
                     </tr>
                     {{ endfor }}
                 </tbody>

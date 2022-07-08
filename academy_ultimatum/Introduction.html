@@ -1,0 +1,15 @@
+{{ block title }}{{ Constants.title_prefix }}Introduction{{ endblock }}
+
+{% block content %}
+
+    {% include Constants.instructions_template %}
+
+    <p>
+
+            The instructions will remain on your screen for future reference.
+
+    </p>
+
+    {% next_button %}
+
+{% endblock %}

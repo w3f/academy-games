@@ -1,0 +1,87 @@
+<div class="card bg-light my-3">
+
+    <h5 class="card-header">Instructions</h5>
+
+    <div class="card-body">
+
+        <p>
+            First, every player will be randomly paired with another player. In
+            other words, you will have a counterpart, but you will not be told
+            who it is.
+            Your identity will also remain hidden from your counterpart.
+        </p>
+
+        <p>
+            The two participants in a pair will have two different roles: the
+            <strong>proposer</strong> and the <strong>responder</strong>.
+            You will be assigned randomly to a role, and it will be displayed
+            on the next page.
+        </p>
+
+        <p>
+            The two of you will together receive {{ Constants.endowment }}. The
+            experiment is about how to divide this amount.
+            The proposer will make the responder a take-it-or-leave-it offer,
+            which the responder can accept or reject.
+            If the offer is rejected, both will
+            receive {{ Constants.payoff_if_rejected }}.
+
+        </p>
+
+
+        <h4>
+            Proposer's role
+        </h4>
+
+        <p>
+            The proposer has the following {{ Constants.num_offers }}
+            options on how to divide the {{ Constants.endowment }} between the
+            two players.
+        </p>
+
+        <table class="table table-sm table-borderd bg-body caption-top">
+            <caption>Options for Proposer</caption>
+            <tr>
+                <th>Reward Responder</th>
+                {{ for o in offers }}
+                <td>{{ o }}</td>
+                {{ endfor }}
+            </tr>
+            <tr>
+                <th>Reward Proposer</th>
+                {{ for r in reward }}
+                <td>{{ r }}</td>
+                {{ endfor }}
+            </tr>
+        </table>
+
+
+        <h4>
+            Responder's role
+        </h4>
+
+        <p>
+                The responder can either accept or reject the offer.
+        </p>
+
+        <h4>
+            Results
+        </h4>
+
+        <p>
+                In the end, when both players have made their decision, a
+                results page will be displayed.
+                Here the offer will be displayed once more, and whether it was
+                accepted or rejected.
+        </p>
+
+        Furthermore, one of the following two payoffs will be displayed:
+        <ul>
+            <li>If the offer is accepted, the players will receive a payoff
+                accordingly
+            </li>
+            <li>If the offer is rejected, both players will
+                receive {{ Constants.payoff_if_rejected }}</li>
+        </ul>
+    </div>
+</div>

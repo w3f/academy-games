@@ -24,9 +24,9 @@ class C(BaseConstants):
     NUM_ROUNDS = 1
 
     @staticmethod
-    def get_reward(model: MixinSessionFK) -> bool:
+    def get_reward(model: MixinSessionFK) -> RealWorldCurrency:
         """Return if app should allow user to create new wallets."""
-        return model.session.config.get('academy_endcard_reward', None)
+        return RealWorldCurrency(model.session.config.get('academy_endcard_reward', 0))
 
 
 class Subsession(BaseSubsession):
@@ -62,10 +62,23 @@ class EndWaitPage(WaitPage):
 
         if reward:
             participants = [p.participant for p in subsession.get_players()]
-            total = sum(p.payoff for p in participants)
+            points = [p.payoff for p in participants]
+            points_min = min(points)
+            points_offset = 0
+
+            if points_min < 0:
+                points_offset = -points_min
+
+                for p in subsession.get_players():
+                    p.payoff = points_offset
+
+            points_total = sum(points) + len(points) * points_offset
+            reward_per_point = float(reward) / float(points_total)
+
+            logger.info(f"reward: '{subsession.session.code}' payoff ratio is {reward_per_point}")
 
             config = subsession.session.config.copy()
-            config['real_world_currency_per_point'] = reward / total
+            config['real_world_currency_per_point'] = reward_per_point
             subsession.session.config = config
 
             payoff_total = RealWorldCurrency(0)

@@ -3,6 +3,8 @@
 from .models import Constants, Subsession, Group, Player
 from .pages import page_sequence
 
+from typing import List
+
 import random
 
 
@@ -40,3 +42,38 @@ def creating_session(subsession: Subsession) -> None:
             g.candle_duration = random.randint(
                 Constants.candle_duration_min, Constants.candle_duration_max
             )
+
+
+# CUSTOM EXPORTER
+def custom_export(all_players: List[Player]):
+    """Export auctions bids as custom exporter."""
+    # Export header row
+    yield [
+        'session_code',
+        'participant_code',
+        'participant_treatment',
+        'group_id',
+        'group_duration',
+        'player_id',
+        'player_valuation',
+        'bid_timestamp',
+        'bid_price',
+    ]
+
+    for player in all_players:
+        session_code = player.session.code
+        participant = player.participant
+        group = player.group
+
+        for bid in Bid.for_player(player):
+            yield [
+                session_code,
+                participant.code,
+                participant.treatment,
+                group.id_in_subsession,
+                group.duration_final,
+                player.id_in_group,
+                player.valuation,
+                bid.timestamp,
+                bid.price,
+            ]

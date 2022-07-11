@@ -25,7 +25,7 @@ class Constants(BaseConstants):
     name_in_url = 'academy_auction'
     players_per_group = 3
     num_rounds = 1
-    TITLE_PREFIX = "Lesson 2.3: "
+    title_prefix = "Lesson 2.3: "
 
     # Duration config
     hard_duration = 60.0

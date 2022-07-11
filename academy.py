@@ -2,6 +2,28 @@
 
 import importlib
 
+# Default config for all games
+ACADEMY_GAME_DEFAULTS = dict(
+    academy_wallet_create=False,
+    academy_wallet_phrase=False,
+    academy_wallet_code=False,
+    academy_wallet_endowment=0,
+    academy_endcard_reward=0,
+)
+
+# Default config for all auctions
+ACADEMY_AUCTION_DEFAULTS = dict(
+    num_demo_participants=3,
+    academy_game_name="NFT Auction",
+    academy_wallet_phrase=True,
+    academy_wallet_code=True,
+    num_hard_participants=0,
+    num_candle_participants=0,
+    num_activity_participants=0,
+)
+
+# List of auction varients
+ACADEMY_AUCTION_TREATMENTS = [ 'hard', 'candle', 'activity' ]
 
 # List of all game identifiers
 ACADEMY_GAME_CONFIGS = {
@@ -45,14 +67,10 @@ ACADEMY_GAME_CONFIGS = {
         academy_wallet_code=True,
         academy_endcard_reward=400,
     ),
-    'auction': dict(
-        num_demo_participants=4,
-        academy_game_name="NFT Auction",
-        academy_wallet_phrase=True,
-        academy_wallet_code=True,
+    'auction' : ACADEMY_AUCTION_DEFAULTS | dict(
+        num_candle_participants=3,
     ),
 }
-
 
 # Helper class
 class AcademyGame:
@@ -84,21 +102,18 @@ class AcademyGame:
         """Determine app sequence of game."""
         if self.id == "wallet":
             return [self.name, "academy_endcard"]
+        elif self.id == "auction":
+            return ['academy_wallet', self.name]
         else:
             return ['academy_wallet', self.name, 'academy_endcard']
 
     def session(self) -> dict:
         """Return game as otree session config."""
-        return dict(
+        return ACADEMY_GAME_DEFAULTS | dict(
             name=self.name,
             display_name=self.display_name,
             app_sequence=self.app_sequence,
             academy_game_id=self.id,
-            academy_wallet_create=False,
-            academy_wallet_phrase=False,
-            academy_wallet_code=False,
-            academy_wallet_endowment=0,
-            academy_endcard_reward=0,
         ) | self.config
 
     def room(self) -> dict:
@@ -109,11 +124,33 @@ class AcademyGame:
         )
 
 
+def MAKE_AUCTION_SESSION(treatment: str) -> dict:
+    """Alter default config for specific treatment."""
+    num_key = f"num_{treatment}_participants"
+    num_value = ACADEMY_AUCTION_DEFAULTS['num_demo_participants']
+
+    config = ACADEMY_AUCTION_DEFAULTS | { num_key: num_value }
+
+    session = AcademyGame("auction", config).session()
+
+    name = f"academy_auction_{treatment}"
+
+    suffix = f" - {treatment.capitalize()} Ending"
+    display_name = session['display_name'] + suffix
+
+    return session | {
+        "name": name,
+        "display_name": display_name,
+    }
+
 # Cache modules for each game
 ACADEMY_GAMES = [AcademyGame.make(*kv) for kv in ACADEMY_GAME_CONFIGS.items()]
 
+# Configs for treatment specific auctions
+ACADEMY_AUCTIONS = list(map(MAKE_AUCTION_SESSION, ACADEMY_AUCTION_TREATMENTS))
+
 # Generate session config for each game
-SESSION_CONFIGS = list(map(AcademyGame.session, ACADEMY_GAMES))
+SESSION_CONFIGS = list(map(AcademyGame.session, ACADEMY_GAMES)) + ACADEMY_AUCTIONS
 
 # Generate room config for each game
 ROOMS = list(map(AcademyGame.room, ACADEMY_GAMES))

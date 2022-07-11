@@ -13,7 +13,7 @@ from otree.views import Page
 
 from wallet import Wallet, WalletError, WalletPlayer
 
-from typing import Optional
+from typing import List, Optional
 
 import logging
 
@@ -182,3 +182,30 @@ class Profile(Page):
 
 # App authenticates and displays result
 page_sequence = [Authenticate, Profile]
+
+
+# CUSTOM EXPORTER
+def custom_export(all_players: List[Player]):
+    """Export all wallet transactions and their details."""
+    # Export header row
+    yield [
+        'wallet_session',
+        'wallet_name'
+        'wallet_participant',
+        'wallet_public',
+        'wallet_private',
+        'wallet_payoff'
+    ]
+    for player in all_players:
+        session = player.session
+        participant = player.participant
+        wallet = Wallet.current(participant)
+
+        yield [
+            session.code,
+            session.config.get['academy_game_name'],
+            participant.code,
+            wallet.public if wallet else None,
+            wallet.private if wallet else None,
+            participant.payoff_plus_participation_fee(),
+        ]

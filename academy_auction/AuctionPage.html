@@ -8,8 +8,12 @@
         <p>Time left in auction: <span id="output-timer-label" class="fw-bold">-:--</span></p>
 
         <div class="progress">
+          {{ if group.treatment == "candle" }}
             <div id="output-timer-bar-ending" class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: {{ candle_percentage_ending }}%"></div>
             <div id="output-timer-bar-normal" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: {{ candle_percentage_normal }}%"></div>
+          {{ else }}
+            <div id="output-timer-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
+          {{ endif }}
         </div>
     </div>
 
@@ -53,131 +57,146 @@
 
     <!-- Custom JS to handle live updates and uses inputs -->
     <script>
-     window.addEventListener('DOMContentLoaded', (event) => {
-         /* Run countdown timer and progress bar */
-         $('#output-timer-label').countdown(Date.now() + js_vars.timeout_remaining_ms)
-           .on('update.countdown', function (event) {
-               this.innerHTML = event.strftime('%-N:%S');
+      window.addEventListener('DOMContentLoaded', (event) => {
+        /* Run countdown timer and progress bar */
+        $('#output-timer-label').countdown(Date.now() + js_vars.timeout_remaining_ms)
+          .on('update.countdown', function (event) {
+              this.innerHTML = event.strftime('%-N:%S');
 
-               let remaining = event.offset.totalSeconds;
-               let percentage = 100.0 * remaining / js_vars.timeout_total;
+              let remaining = event.offset.totalSeconds;
+              let percentage = 100.0 * remaining / js_vars.timeout_total;
 
-               let percentage_normal = Math.max(percentage - js_vars.candle_percentage, 0);
-               let percentage_ending = Math.min(percentage, js_vars.candle_percentage);
+          {{ if group.treatment == "candle" }}
 
-               $('#output-timer-bar-normal').css('width', percentage_normal + '%');
+              let percentage_normal = Math.max(percentage - js_vars.candle_percentage, 0);
+              let percentage_ending = Math.min(percentage, js_vars.candle_percentage);
 
-               /* Change alert color once candle auction could end */
-               if(percentage_normal <= 0) {
-                   $('#output-timer-alert').addClass('alert-danger');
-               }
+              $('#output-timer-bar-normal').css('width', percentage_normal + '%');
 
-               $('#output-timer-bar-ending').css('width', percentage_ending + '%');
-           })
-           .on('finish.countdown', function (event) {
-               $('<input>').attr({
-                   type: 'hidden',
-                   name: 'timeout_happened',
-                   value: '1'
-               }).appendTo('form');
-               $('#form').submit();
-           });
+              /* Change alert color once candle auction could end */
+              if(percentage_normal <= 0) {
+                $('#output-timer-alert').addClass('alert-danger');
+              }
 
-         /* Request current auction state once page is loaded */
-         liveSend({});
-     });
+              $('#output-timer-bar-ending').css('width', percentage_ending + '%');
 
-     /* Initialize needed DOM objects. */
-     const outputSuccessDom = document.querySelector('#output-success');
-     const outputErrorDom = document.querySelector('#output-error');
+            {{ else }}
 
-     const outputHighestPriceDom = document.querySelector('#output-highest-price');
-     const outputHighestBidderDom = document.querySelector('#output-highest-bidder');
+              $('#output-timer-bar').css('width', percentage + '%');
 
-     const inputPriceRangeDom = document.querySelector('#input-price-range');
-     const inputPriceNumberDom = document.querySelector('#input-price-number');
+            {{ endif }}
+          })
+          .on('finish.countdown', function (event) {
+              $('<input>').attr({
+                  type: 'hidden',
+                  name: 'timeout_happened',
+                  value: '1'
+              }).appendTo('form');
+              $('#form').submit();
+          });
 
-     const buttonDom = document.querySelector('#button-submit');
+        /* Request current auction state once page is loaded */
+        liveSend({});
+      });
 
-     /* Callbacks to link price input and slider. */
-     inputPriceRangeDom.addEventListener('input', function() {
-         inputPriceNumberDom.value = this.value;
-         buttonDom.disabled = !this.valueAsNumber;
-     });
+      /* Initialize needed DOM objects. */
+      const outputSuccessDom = document.querySelector('#output-success');
+      const outputErrorDom = document.querySelector('#output-error');
 
-     inputPriceNumberDom.addEventListener('input', function() {
-	       this.value = Math.min(Math.max(this.value, this.min), this.max);
+      const outputHighestPriceDom = document.querySelector('#output-highest-price');
+      const outputHighestBidderDom = document.querySelector('#output-highest-bidder');
 
-         inputPriceRangeDom.value = this.value;
-         buttonDom.disabled = !this.valueAsNumber;
-     });
+      const inputPriceRangeDom = document.querySelector('#input-price-range');
+      const inputPriceNumberDom = document.querySelector('#input-price-number');
 
-     /* Helpers to easily display messages in alert section */
-     function displayNone() {
-         outputSuccessDom.classList.add("d-none");
-         outputSuccessDom.innerHTML = "";
+      const buttonDom = document.querySelector('#button-submit');
 
-         outputErrorDom.classList.add("d-none");
-         outputErrorDom.innerHTML = "";
-     }
+      /* Callbacks to link price input and slider. */
+      inputPriceRangeDom.addEventListener('input', function() {
+          inputPriceNumberDom.value = this.value;
+          buttonDom.disabled = !this.valueAsNumber;
+      });
 
-     function displaySuccess(message) {
-         outputErrorDom.classList.add("d-none");
-         outputErrorDom.innerHTML = "";
+      inputPriceNumberDom.addEventListener('input', function() {
+          this.value = Math.min(Math.max(this.value, this.min), this.max);
 
-         outputSuccessDom.innerHTML = message;
-         outputSuccessDom.classList.remove("d-none");
-     }
+          inputPriceRangeDom.value = this.value;
+          buttonDom.disabled = !this.valueAsNumber;
+      });
 
-     function displayError(message) {
-         outputSuccessDom.classList.add("d-none");
-         outputSuccessDom.innerHTML = "";
+      /* Helpers to easily display messages in alert section */
+      function displayNone() {
+          outputSuccessDom.classList.add("d-none");
+          outputSuccessDom.innerHTML = "";
 
-         outputErrorDom.innerHTML = message;
-         outputErrorDom.classList.remove("d-none");
-     }
+          outputErrorDom.classList.add("d-none");
+          outputErrorDom.innerHTML = "";
+      }
 
-     /* Keyboard event handler that executes bid on enter. */
-     function bidOnEnter(event) {
-         if (event.key === "Enter") {
-             event.preventDefault();
-             bid();
-         }
-     }
+      function displaySuccess(message) {
+          outputErrorDom.classList.add("d-none");
+          outputErrorDom.innerHTML = "";
 
-     /* Submit currently selected bid */
-     function bid() {
-         displayNone();
+          outputSuccessDom.innerHTML = message;
+          outputSuccessDom.classList.remove("d-none");
+      }
 
-         liveSend({
-             'price': inputPriceRangeDom.value,
-         });
-     }
+      function displayError(message) {
+          outputSuccessDom.classList.add("d-none");
+          outputSuccessDom.innerHTML = "";
 
-     /* Receive updated auction state from backend */
-     function liveRecv(data) {
-         let status = data[0];
-         let payload = data[1];
+          outputErrorDom.innerHTML = message;
+          outputErrorDom.classList.remove("d-none");
+      }
 
-         if (status == "success") {
-             displaySuccess("Bid was successfullt submitted.");
-         }
+      /* Keyboard event handler that executes bid on enter. */
+      function bidOnEnter(event) {
+          if (event.key === "Enter") {
+              event.preventDefault();
+              bid();
+          }
+      }
 
-         if (status == "success" || status == "update" || status == "init" ) {
+      /* Submit currently selected bid */
+      function bid() {
+          displayNone();
 
-             let bidder = payload[0];
-             let price = payload[1];
+          liveSend({
+              'price': inputPriceRangeDom.value,
+          });
+      }
 
-             if (bidder) {
-                 outputHighestBidderDom.innerHTML = `Player ${bidder}`;
-                 outputHighestPriceDom.innerHTML = price;
-             }
+      /* Receive updated auction state from backend */
+      function liveRecv(data) {
+          let status = data[0];
+          let payload = data[1];
 
-         } else if (status == "error") {
-             displayError(payload);
-         } else {
-             displayError(`Unknown status returned: ${status}`);
-         }
-     }
+        {{ if group.treatment == "activity" }}
+          /* Reset timer on successfull bid */
+          if (status == "success" || status == "update" )  {
+              $('#output-timer-label').countdown(Date.now() + js_vars.timeout_total_ms);
+          }
+        {{ endif }}
+
+          if (status == "success") {
+              displaySuccess("Bid was successfullt submitted.");
+          }
+
+          if (status == "success" || status == "update" || status == "init" ) {
+
+              let bidder = payload[0];
+              let price = payload[1];
+
+              if (bidder) {
+                  outputHighestBidderDom.innerHTML = `Player ${bidder}`;
+                  outputHighestPriceDom.innerHTML = price;
+              }
+
+          } else if (status == "error") {
+              displayError(payload);
+          } else {
+              displayError(`Unknown status returned: ${status}`);
+          }
+      }
     </script>
 {{ endblock }}

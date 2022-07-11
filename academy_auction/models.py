@@ -28,8 +28,13 @@ class Constants(BaseConstants):
     TITLE_PREFIX = "Lesson 2.3: "
 
     # Duration config
+    hard_duration = 60.0
+
     candle_duration_max = 120
     candle_duration_min = 60
+
+    activity_duration = 60.0
+    activity_reset = 15.0
 
 
 class Subsession(BaseSubsession):
@@ -42,11 +47,31 @@ class Group(BaseGroup):
     """Group of players in the same auction."""
 
     candle_duration = IntegerField()
+
     timestamp_start = FloatField()
+    timestamp_reset = FloatField()
+
+    _treatment = IntegerField(
+        choices=[
+            (0, 'hard'),
+            (1, 'candle'),
+            (2, 'activity')
+        ]
+    )
+
+    @property
+    def treatment(self) -> str:
+        """Return treatment from underlying participant."""
+        return self.field_display('_treatment')
 
     def timer_start(self) -> None:
         """Start auction timer of group."""
         self.timestamp_start = time.monotonic()
+        self.timestamp_reset = self.timestamp_start
+
+    def timer_reset(self) -> None:
+        """Reset auction timer of group."""
+        self.timestamp_reset = time.monotonic()
 
     def timestamp(self) -> float:
         """Get timestamp in s relative to start of auction."""
@@ -55,7 +80,17 @@ class Group(BaseGroup):
     @property
     def timeout_total(self) -> float:
         """Return the initial page timeout in s based on auction format."""
-        return float(Constants.candle_duration_max)
+        if self.treatment == "hard":
+            return Constants.hard_duration
+        elif self.treatment == "candle":
+            return float(Constants.candle_duration_max)
+        elif self.treatment == "activity":
+            if self.timestamp_reset - self.timestamp_start > Constants.activity_duration:
+                return Constants.activity_reset
+            else:
+                return Constants.activity_duration
+        else:
+            raise Exception("Unknown treatment: ", self.treatment)
 
     @property
     def timeout_total_ms(self) -> int:
@@ -65,12 +100,15 @@ class Group(BaseGroup):
     @property
     def timeout_final(self) -> float:
         """Return the final auction timeout in s based on auction format."""
-        return float(self.candle_duration)
+        if self.treatment == "candle":
+            return float(self.candle_duration)
+
+        return self.timeout_total
 
     @property
     def timeout_remaining(self) -> float:
         """Return remaining timeout in s since last reset or start."""
-        return self.timestamp_start + self.timeout_total - time.monotonic()
+        return self.timestamp_reset + self.timeout_total - time.monotonic()
 
     @property
     def timeout_remaining_ms(self) -> int:
@@ -80,12 +118,16 @@ class Group(BaseGroup):
     @property
     def duration_max(self) -> float:
         """Return maximum auction length considering max candle ending and timer resets."""
-        return self.timeout_total
+        return self.timestamp_reset - self.timestamp_start + self.timeout_total
 
     @property
     def duration_final(self) -> float:
         """Return auction length considering actual candle ending and timer resets."""
-        return self.timeout_final
+        # Allow access to this field even if round was not started for exports
+        if self.field_maybe_none('timestamp_start') is None:
+            return self.timeout_final
+
+        return self.timestamp_reset - self.timestamp_start + self.timeout_final
 
     def is_valid_timestamp(self, timestamp: float) -> bool:
         """Check if provided timestamp falls within the auction period."""
@@ -175,6 +217,11 @@ class Bid(ExtraModel):
             timestamp=timestamp
         )
 
+        # Reset auction time if activity rule is used
+        if player.group.treatment == "activity":
+            player.group.timer_reset()
+
+
     @staticmethod
     def count(group: Group) -> int:
         """Return number of bids in group."""
@@ -206,5 +253,8 @@ class Bid(ExtraModel):
     @staticmethod
     def result(group: Group) -> Optional["Bid"]:
         """Return highest bid for a certain group based on candle duration."""
-        timestamp = float(group.candle_duration)
+        timestamp = None
+        if group.treatment == "candle":
+            timestamp = float(group.candle_duration)
+
         return Bid.highest(group, timestamp)

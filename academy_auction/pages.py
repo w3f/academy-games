@@ -148,13 +148,15 @@ class ResultWaitPage(WaitPage):
     @staticmethod
     def after_all_players_arrive(group: Group):
         """Determine valuations and start time of auction."""
+        currency_ratio = group.session.config['real_world_currency_per_point']
+
         best = Bid.result(group)
 
         for player in group.get_players():
             if best and best.player == player:
-                player.payoff = -best.price
+                player.payoff = -best.price / currency_ratio
             else:
-                player.payoff = RealWorldCurrency(0)
+                player.payoff = None
 
             player.participant.finished = True
 
@@ -166,8 +168,6 @@ class ResultPage(Page):
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         best = Bid.result(player.group) if player.valuation > 0 else None
-
-        ResultWaitPage.after_all_players_arrive(player.group)
 
         return {
             'wallet_private': False,

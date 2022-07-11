@@ -17,9 +17,10 @@ ACADEMY_AUCTION_DEFAULTS = dict(
     academy_game_name="NFT Auction",
     academy_wallet_phrase=True,
     academy_wallet_code=True,
-    num_hard_participants=0,
-    num_candle_participants=0,
-    num_activity_participants=0,
+    real_world_currency_per_point=0.01,
+    num_groups_hard=0,
+    num_groups_candle=0,
+    num_groups_activity=0,
 )
 
 # List of auction varients
@@ -68,11 +69,12 @@ ACADEMY_GAME_CONFIGS = {
         academy_endcard_reward=400,
     ),
     'auction' : ACADEMY_AUCTION_DEFAULTS | dict(
-        num_candle_participants=3,
+        num_groups_candle=1,
     ),
 }
 
-# Helper class
+
+# Helper class to generate session from config
 class AcademyGame:
     """Caches metadata to generate otree configs."""
 
@@ -126,22 +128,16 @@ class AcademyGame:
 
 def MAKE_AUCTION_SESSION(treatment: str) -> dict:
     """Alter default config for specific treatment."""
-    num_key = f"num_{treatment}_participants"
-    num_value = ACADEMY_AUCTION_DEFAULTS['num_demo_participants']
-
-    config = ACADEMY_AUCTION_DEFAULTS | { num_key: num_value }
-
+    # Generate session for treatment
+    config = ACADEMY_AUCTION_DEFAULTS | { f"num_groups_{treatment}": 1 }
     session = AcademyGame("auction", config).session()
 
-    name = f"academy_auction_{treatment}"
+    # Extend default names of session
+    name = f"{session['name']}_{treatment}"
+    display_name = f"{session['display_name']} - {treatment.capitalize()} Ending"
 
-    suffix = f" - {treatment.capitalize()} Ending"
-    display_name = session['display_name'] + suffix
+    return session | dict(name=name, display_name=display_name)
 
-    return session | {
-        "name": name,
-        "display_name": display_name,
-    }
 
 # Cache modules for each game
 ACADEMY_GAMES = [AcademyGame.make(*kv) for kv in ACADEMY_GAME_CONFIGS.items()]

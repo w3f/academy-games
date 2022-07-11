@@ -23,20 +23,30 @@ class WalletError(Exception):
     pass
 
 
-# Quick and dirty 32-bit seed <->three word mnemonic phrase (32bit + 1bit CS)
+# Quick and dirty 32-bit signed seed to/from three word mnemonic phrase (32bit + 1bit CS)
+# Uses signed ints to work with otree IntegerColumn on PostgesSQL
+def random_seed32() -> int:
+    """Generate a random 32-bit signed seed."""
+    unsigned = secrets.randbits(32)
+    return int.from_bytes(unsigned.to_bytes(4, 'big'), 'big', signed=True)
+
+
 def seed_to_checksum32(seed: int):
-    """Compute 1-bit checksum of 32-bit seed."""
-    bytes = seed.to_bytes(4, byteorder='big')
+    """Compute 1-bit checksum of 32-bit signed seed."""
+    bytes = seed.to_bytes(4, byteorder='big', signed=True)
     return sha256(bytes).digest()[0] >> 7
 
 
 def seed_to_phrase32(seed: int) -> str:
-    """Turn a 32-bit seed into a three word mnemonic phrase."""
+    """Turn a 32-bit signed seed into a three word mnemonic phrase."""
     # Checksum is first bit of sha256
     checksum = seed_to_checksum32(seed)
 
+    # TODO: Check if this is necessary or make it work on signed ints
+    unsigned = int.from_bytes(seed.to_bytes(4, 'big', signed=True), 'big')
+
     # Append checksum to seed
-    raw = (seed << 1) | checksum
+    raw = (unsigned << 1) | checksum
 
     # Convert each 11 bit chunk into a word.
     words: List[str] = []
@@ -69,23 +79,13 @@ def phrase_to_seed32(phrase: str) -> int:
             raise WalletError("Phrase contains unknown word '{}'.".format(word))
 
     # Retrieve and check checksum
-    seed = raw >> 1
+    seed = int.from_bytes((raw >> 1).to_bytes(4, 'big'), 'big', signed=True)
     checksum = raw & 0x1
 
     if checksum != seed_to_checksum32(seed):
         raise WalletError("Phrase has invalid checksum.")
 
     return seed
-
-
-def to_unsigned32(value: int) -> int:
-    """Convert signed to unsigned int."""
-    return int.from_bytes(value.to_bytes(4, 'big', signed=True), 'big')
-
-
-def to_signed32(value: int) -> int:
-    """Convert unsigned to signed int."""
-    return int.from_bytes(value.to_bytes(4, 'big'), 'big', signed=True)
 
 
 # Quick lookup index for wallet associations
@@ -96,82 +96,107 @@ class Wallet(ExtraModel):
 
     # TODO: Add owner link to participant
 
-    _seed = IntegerField()
-
-    @property
-    def seed(self) -> int:
-        """Return seed by converting it back to unsigned."""
-        return to_unsigned32(self._seed)
-
-    @seed.setter
-    def seed(self, value) -> None:
-        """Encode seed as signed integer, for improved SQL compliance."""
-        self._seed = to_signed32(value)
+    _public = IntegerField()
+    _private = IntegerField()
 
     # Static user-facing API to control wallet associations
+    @classmethod
+    def create(cls, owner: Participant, public: int, private: int) -> "Wallet":
+
+        wallet = cls.current(owner)
+        if wallet:
+                # Different/Incorrect phrase
+                raise WalletError("Participant can only have one wallet.")
+
+        # Check that wallet has not been claimed for this session
+        for other in owner.session.pp_set:
+            if cls.objects_exists(id=other.id, _private=private):
+                raise WalletError("Wallet already associated with other session participant.")
+
+        super().create(id=owner.id, _public=public, _private=private)
 
     @staticmethod
     def generate(owner: Participant) -> str:
         """Generate a new wallet associate with participant."""
-        if Wallet.objects_exists(id=owner.id):
-            raise WalletError("Participant is already associated with wallet.")
 
-        seed = secrets.randbits(32)
+        # Collision avoidacance ;-)
+        while True:
+            public = random_seed32()
 
-        return Wallet.create(
-            id=owner.id,
-            _seed=to_signed32(seed),
-        )
+            if Wallet.objects_exists(_public=public):
+                continue
+            if Wallet.objects_exists(_private=public):
+                continue
+            break
+
+        while True:
+            private = random_seed32()
+
+            if Wallet.objects_exists(_public=private):
+                continue
+            if Wallet.objects_exists(_private=private):
+                continue
+            break
+
+        return Wallet.create(owner, public, private)
 
     @staticmethod
     def open(owner: Participant, phrase: str) -> "Wallet":
         """Associate a participant with a certain wallet."""
-        seed = phrase_to_seed32(phrase)
-
-        wallet = Wallet.current(owner)
-        if wallet:
-            if wallet.seed == seed:
-                # Reopen existing association
-                raise WalletError("Participant has opened wallet already.")
-            else:
-                # Different/Incorrect phrase
-                raise WalletError("Participant can only have one wallet.")
-
-        seed_sql = to_signed32(seed)
+        private = phrase_to_seed32(phrase)
 
         # Check that wallet exists at all
-        if not Wallet.objects_filter(_seed=seed_sql).count():
+        wallet = Wallet.objects_first(_private=private)
+        if not wallet:
             raise WalletError("No wallet associated with phrase.")
 
-        # Check that wallet has not been claimed for this session
-        for other in owner.session.pp_set:
-            if Wallet.objects_exists(id=other.id, _seed=seed_sql):
-                raise WalletError("Wallet already associated with other session participant.")
-
         # Register the existing wallet with the current participant
-        return Wallet.create(id=owner.id, _seed=seed_sql)
+        return Wallet.create(owner, wallet._public, private)
+
+    @staticmethod
+    def open_with_code(owner: Participant, code: str) -> "Wallet":
+        """Associate a participant with the wallet of a certain participant."""
+        other = Participant.objects_first(code=code)
+        if not other:
+            raise WalletError("No participant associated with code.")
+
+        wallet = Wallet.current(other)
+        if not wallet:
+            raise WalletError("No wallet associated with code.")
+
+        return Wallet.create(owner, wallet._public, wallet._private)
 
     @staticmethod
     def current(owner: Participant) -> Optional["Wallet"]:
         """Get wallet associated with certain participant."""
         return Wallet.objects_first(id=owner.id)
 
+    @staticmethod
+    def current_by_code(code: str) -> Optional["Wallet"]:
+        """Get wallet associated with certain code."""
+        owner = Participant.objects_first(code=code)
+        return Wallet.current(owner) if owner else None
+
     # Shorthand properties mostly for readable logic and templates
-
     @property
-    def phrase(self) -> str:
+    def public(self) -> str:
         """Generate mnemonic phrase from wallet seed."""
-        return seed_to_phrase32(self.seed)
+        return seed_to_phrase32(self._public)
 
     @property
-    def is_game(self) -> bool:
-        """Return true if association is a game, i.e. not a wallet."""
-        return self.owner.session.config['academy_game_id'] != "wallet"
+    def private(self) -> str:
+        """Generate mnemonic phrase from wallet seed."""
+        return seed_to_phrase32(self._private)
 
     @property
     def owner(self) -> Participant:
         """Return associated participant."""
         return Participant.objects_get(id=self.id)
+
+    @property
+    def is_game(self) -> bool:
+        """Return true if association is a game, i.e. not a wallet."""
+        return self.owner.session.config['academy_game_id'] != "wallet"
 
     @property
     def value(self) -> RealWorldCurrency:
@@ -189,19 +214,24 @@ class Wallet(ExtraModel):
         return self.owner.session.config['academy_game_name']
 
     @property
+    def wallet_set(self):
+        """Return set of all wallet associated with seed."""
+        return Wallet.objects_filter(_private=self._private)
+
+    @property
     def participants(self) -> List[Participant]:
         """Return all participants associated with wallet."""
-        return [w.owner for w in Wallet.objects_filter(_seed=self._seed)]
+        return [w.owner for w in self.wallet_set]
 
     @property
     def games(self) -> List[Participant]:
         """List all endowments on account."""
-        return [w.owner for w in Wallet.objects_filter(_seed=self._seed) if w.is_game]
+        return [w.owner for w in self.wallet_set if w.is_game]
 
     @property
     def endowments(self) -> List[Participant]:
         """List all endowments on account."""
-        return [w.owner for w in Wallet.objects_filter(_seed=self._seed) if not w.is_game]
+        return [w.owner for w in self.wallet_set if not w.is_game]
 
     @property
     def balance(self) -> RealWorldCurrency:
@@ -218,11 +248,10 @@ class Wallet(ExtraModel):
         values = [(p, p.payoff_plus_participation_fee()) for p in self.endowments]
         endowments = [(("Endowment" if v > 0 else "Debt"), v, p._get_finished()) for p, v in values if v != 0]
 
-        games = [
-            (p.session.config['academy_game_name'] + (" (current)" if p.id == self.id else ""),
-             p.payoff_plus_participation_fee(),
-             p._get_finished()
-             ) for p in self.games]
+        games = [(p.session.config['academy_game_name'] + (" (current)" if p.id == self.id else ""),
+                  p.payoff_plus_participation_fee(),
+                  p._get_finished()
+                  ) for p in self.games]
 
         return endowments + games
 

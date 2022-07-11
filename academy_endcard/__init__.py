@@ -23,6 +23,8 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
 
+    TITLE_PREFIX = "Lesson 2: "
+
     @staticmethod
     def get_reward(model: MixinSessionFK) -> RealWorldCurrency:
         """Return if app should allow user to create new wallets."""
@@ -54,6 +56,11 @@ class EndWaitPage(WaitPage):
     body_text = "Waiting for remaining players to calculate reward..."
 
     wait_for_all_groups = True
+
+    @staticmethod
+    def is_displayed(player: Player):
+        """Only display page if reward needs distribution."""
+        return C.get_reward(player)
 
     @staticmethod
     def after_all_players_arrive(subsession: BaseSubsession):
@@ -98,7 +105,12 @@ class EndWaitPage(WaitPage):
 class EndCard(Page):
     """Single page to display current status."""
 
-    pass
-
+    @staticmethod
+    def vars_for_template(player: Player) -> dict:
+        """Return additional data to pass to page template."""
+        return dict(
+            reward=C.get_reward(player),
+            wallet_private=False,
+        )
 
 page_sequence = [EndWaitPage, EndCard]

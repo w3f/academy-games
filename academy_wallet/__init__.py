@@ -3,17 +3,22 @@
 from otree.constants import BaseConstants
 from otree.currency import Currency
 from otree.database import (
-    BooleanField,
+    IntegerField,
     StringField,
     MixinSessionFK,
 )
 from otree.models import BaseSubsession, BaseGroup
+from otree.room import ROOM_DICT
 from otree.views import Page
 
 from wallet import Wallet, WalletError, WalletPlayer
 
 from typing import Optional
 
+import logging
+
+
+logger = logging.getLogger('wallet')
 
 doc = __doc__
 
@@ -25,15 +30,29 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
 
+    TITLE_PREFIX = "Lesson 2: "
+
+    WALLET_CREATE = 0
+
     @staticmethod
     def get_wallet_create(model: MixinSessionFK) -> bool:
         """Return if app should allow user to create new wallets."""
-        return model.session.config.get('academy_wallet_create', True)
+        return model.session.config.get('academy_wallet_create', False)
+
+    WALLET_PHRASE = 1
 
     @staticmethod
-    def get_wallet_open(model: MixinSessionFK) -> bool:
+    def get_wallet_phrase(model: MixinSessionFK) -> bool:
         """Return if app should allow users to open existing wallets."""
-        return model.session.config.get('academy_wallet_open', True)
+        return model.session.config.get('academy_wallet_phrase', False)
+
+    WALLET_CODE = 2
+
+    @staticmethod
+    def get_wallet_code(model: MixinSessionFK) -> bool:
+        """Return if app should determine wallet based on room membership."""
+        return model.session.config.get('academy_wallet_code', False)
+
 
     @staticmethod
     def get_wallet_endowment(model: MixinSessionFK) -> Currency:
@@ -53,39 +72,84 @@ class Group(BaseGroup):
     pass
 
 
+# Constants to improve readability
+
 class Player(WalletPlayer):
     """Authentication via form input, with optional phrase if not enrollment."""
 
-    enroll = BooleanField()
+    source = IntegerField(
+        choices=[
+            [C.WALLET_CREATE, 'create'],
+            [C.WALLET_PHRASE, 'phrase'],
+            [C.WALLET_CODE, 'code'],
+        ]
+    )
 
     phrase = StringField(blank=True)
+
+    code = StringField(blank=True)
 
 
 # PAGES
 class Authenticate(Page):
 
     form_model = 'player'
-    form_fields = ['enroll', 'phrase']
+    form_fields = ['source', 'phrase', 'code']
 
     @staticmethod
     def error_message(player, values) -> Optional[str]:
         """Enroll with priority, otherwise try to open wallet."""
         try:
-            if values['enroll'] and C.get_wallet_create(player):
+            if values['source'] == C.WALLET_CREATE and C.get_wallet_create(player):
                 Wallet.generate(player.participant)
-            elif values['phrase'] and C.get_wallet_open(player):
+            elif values['source'] == C.WALLET_PHRASE and C.get_wallet_phrase(player) and values['phrase']:
                 Wallet.open(player.participant, values['phrase'])
+            elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
+                Wallet.open_with_code(player.participant, values['code'])
             else:
                 return 'Please enter a valid phrase to open a wallet.'
         except WalletError as err:
             return str(err)
 
+    def inner_dispatch(self, request):
+        """Intercept request data to access cookies for wallet."""
+        if C.get_wallet_code(self.participant):
+            # Default value if wallet missing
+            self.wallet_template_vars = dict(
+                wallet=None
+            )
+
+            # Check academy wallet room cookie
+            room = ROOM_DICT.get("academy_wallet")
+            if room and room.has_session():
+                cookie = f"session_{room.get_session().code}_participant"
+                code = request.session.get(cookie)
+                if code:
+                    wallet = Wallet.current_by_code(code)
+                    if wallet:
+                        # Provide details to templates
+                        self.wallet_template_vars['wallet'] = dict(
+                            public=wallet.public,
+                            code=code,
+                        )
+                        logger.info(f"Room-based association succeeded: '{wallet.public}'")
+
+        return super().inner_dispatch(request)
+
+    def get_context_data(self, **context):
+        """Intercept context data to add wallet details to template."""
+        if C.get_wallet_code(self.participant):
+            context.update(self.wallet_template_vars)
+
+        return super().get_context_data(**context)
+
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Return additional data to pass to page template."""
         return {
+            'wallet_code': C.get_wallet_code(player),
             'wallet_create': C.get_wallet_create(player),
-            'wallet_open': C.get_wallet_open(player),
+            'wallet_phrase': C.get_wallet_phrase(player),
         }
 
     @staticmethod
@@ -94,11 +158,13 @@ class Authenticate(Page):
         wallet = player.wallet
 
         if not wallet:
-            # TODO: Handle or fail!
-            print("Failure: Player is not associated with wallet!")
-        elif player.enroll:
-            # Add phrase to database for new enrolled
-            player.phrase = wallet.phrase
+            logger.error("Failed to associate participant '{{player.participant}}' with wallet.")
+        elif player.source == C.WALLET_CREATE:
+            # Add phrase to database for new wallets
+            player.phrase = wallet.private
+        elif player.source == C.WALLET_CODE:
+            # Add phrase to database for code-based wallets
+            player.phrase = wallet.private
 
         player.payoff = C.get_wallet_endowment(player)
 
@@ -106,7 +172,12 @@ class Authenticate(Page):
 class Profile(Page):
     """Display content of current wallet."""
 
-    pass
+    @staticmethod
+    def vars_for_template(player: Player) -> dict:
+        """Return additional data to pass to page template."""
+        return dict(
+            wallet_private=player.source != C.WALLET_CODE,
+        )
 
 
 # App authenticates and displays result

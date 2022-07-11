@@ -1,16 +1,37 @@
 {{ block title }}
-    Polkadot Academy Wallet
+    {{ C.TITLE_PREFIX }}Setup Wallet
 {{ endblock }}
 {{ block content }}
 
-  {{ if wallet_open }}
+  {{ if wallet_code }}
+
+    <div class="card my-3 p-3">
+
+    {{ if wallet }}
+
+      <p>Continue with wallet from previous session: <strong>{{ wallet.public }}</strong></p>
+
+      <input type="hidden" name="code" value="{{ wallet.code }}"/>
+
+      <button class="btn btn-primary" name="source" value="{{ C.WALLET_CODE }}">Continue with previous wallet</button>
+
+    {{ else }}
+
+      <p class="mb-0">Unable to associate with wallet from previous session.</p>
+
+    {{ endif }}
+
+    </div>
+
+  {{ endif }}
+
+
+  {{ if wallet_phrase }}
 
     <div class="card my-3 p-3">
       {{ formfield 'phrase' label="Enter your seed phrase to continue playing under an existing wallet." }}
 
-      <div class="float-end mt-3">
-        <button class="btn btn-primary" name="enroll" value="False">Open existing wallet</button>
-      </div>
+      <button class="btn btn-primary" name="source" value="{{ C.WALLET_PHRASE }}">Open existing wallet</button>
     </div>
 
   {{ endif }}
@@ -21,13 +42,11 @@
     <div class="card my-3 p-3">
       <p>You do not have a wallet yet? You can generate a new wallet right here.</p>
 
-      {{ if wallet_open }}
+      {{ if wallet_phrase }}
         <p><strong>This can not be undone, if you want to continue with an existing wallet, enter your seed phrase above!</strong></p>
       {{ endif }}
 
-      <div class="float-end mt-3">
-        <button class="btn btn-primary" name="enroll" value="True">Create new wallet</button>
-      </div>
+      <button class="btn btn-primary" name="source" value="{{ C.WALLET_CREATE }}">Generate new wallet</button>
     </div>
 
   {{ endif }}

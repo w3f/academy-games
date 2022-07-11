@@ -1,12 +1,12 @@
 {{ block title }}
-    Polkadot Academy Wallet
+    {{ C.TITLE_PREFIX }}Your Wallet
 {{ endblock }}
 {{ block content }}
 
-{{ if player.wallet and player.enroll }}
+{{ if player.wallet and player.source == C.WALLET_CREATE }}
     <div class="alert alert-danger" role="alert">
-      <h5 class="alert-heading">New wallet created</h5>
-      <p class="mb-0">It is important that you note down your <strong>wallet seed phrase</strong> and keep it somewhere safe!</p>
+      <h5 class="alert-heading">New wallet generated</h5>
+      <p class="mb-0">It is important that you write down your wallet's <strong>private phrase</strong> and keep in a safe place! Without your phrase, your funds might not be recovered.</p>
     </div>
 {{ endif }}
 
@@ -15,7 +15,19 @@
 {{ if player.wallet }}
 
     <div class="float-end mt-3">
+
+    {{ if player.source == C.WALLET_CREATE }}
+
+      <p>
+        <button class="otree-btn-next btn btn-primary" onclick="return confirm('Did you write down your private phrase safely?');">Next</button>
+      </p>
+
+    {{ else  }}
+
       {{ next_button }}
+
+    {{ endif }}
+
     </div>
 
 {{ endif }}

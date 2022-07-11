@@ -170,6 +170,7 @@ class ResultPage(Page):
         ResultWaitPage.after_all_players_arrive(player.group)
 
         return {
+            'wallet_private': False,
             'id_in_group': player.id_in_group,
             'best': best,
             'reward': player.balance,

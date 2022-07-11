@@ -1,12 +1,14 @@
 {{ block title }}
-    To be continued...
+    {{ C.TITLE_PREFIX }}Latest Results
 {{ endblock }}
 
 {{ block content }}
 
-<div class="alert alert-success" role="alert">
-  Thank you for your participation! We are looking forward to seeing you again in the next session.
-</div>
+{{ if reward }}
+  <div class="alert alert-success" role="alert">
+    Thank you for your participation! Please find your updated rewards below.
+  </div>
+{{ endif }}
 
 {{ include "global/wallet.html" }}
 

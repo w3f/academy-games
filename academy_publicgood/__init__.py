@@ -156,7 +156,7 @@ class Contribute(Page):
     def vars_for_template(player: Player) -> dict:
         """Provide endowment details."""
         return dict(
-            total = player.participant.payoff + C.ENDOWMENT_ROUND,
+            balance_before=player.participant.payoff + C.ENDOWMENT_ROUND,
         )
 
 

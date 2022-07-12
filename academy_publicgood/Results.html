@@ -1,30 +1,63 @@
 {{ block title }}{{ C.TITLE_PREFIX }}Result {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
 {{ block content }}
 
-    <table class="table">
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
         <tr>
-            <th>Your endowment</th>
-            <td>{{ C.ENDOWMENT }}</td>
+            <td></td>
+            <th colspan=2 class="text-center">Round</th>
+            <th class="text-center">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+            <th>Balance:</th>
+            <td class="text-center"><strong>{{ C.ENDOWMENT_ROUND }}</strong></td>
+            <td></td>
+            <td class="text-center"><strong>{{ player.total }}</strong></td>
         </tr>
         <tr>
-            <th>Your contribution</th>
-            <td>{{ player.contribution }}</td>
+            <th>Your contribution:</th>
+            <td class="text-center">&minus; {{ player.contribution }}</td>
+            <td></td>
         </tr>
         <tr>
-            <th>Individual group share</th>
-            <td>{{ group.individual_share }} ({{ group.total_contribution }} / {{ C.PLAYERS_PER_GROUP }} players)</td>
-        <tr>
-            <th>Punishment loss</th>
-            <td>{{ player.punishment_loss }} ({{ percentage }}%)</td>
+            <th>Individual share:</th>
+            <td class="text-center">+ {{ group.individual_share }}</td>
+            <td></td>
+            <td></td>
         </tr>
         <tr>
-            <th>Cost of punishment sent</th>
-            <td>{{ player.punishment_cost }}</td>
+            <th>Punishable payout:</th>
+            <td class="text-center"><strong>{{ player.punishment_base }}</strong></td>
+            <td></td>
+            <td></td>
+         </tr>
+         <tr>
+            <th>Loss from punishment:</th>
+            <td class="text-center">&minus; {{ player.punishment_loss }}</td>
+            <td class="text-center">{{ percentage }}%</td>
+            <td></td>
         </tr>
         <tr>
-            <th>Your payoff</th>
-            <td><strong>{{ player.payoff }}</strong></td>
+            <th>Cost of punishment:</th>
+            <td class="text-center">&minus; {{ player.punishment_cost }}</td>
+            <td></td>
+            <td></td>
         </tr>
+        <tr>
+            <th>Round subtotal:</th>
+            <td class="text-center"><strong>{{ player.payoff }}</strong></td>
+            <td></td>
+            <td class="text-center"><strong>{{ player.payoff }}</strong></td>
+        </tr>
+        <tr>
+            <th>New total balance:</th>
+            <td></td>
+            <td></td>
+            <td class="text-center"><strong>{{ participant.payoff }}</strong></td>
+        </tr>
+      </tbody>
     </table>
 
     {{ next_button }}

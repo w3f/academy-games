@@ -3,29 +3,30 @@
     <h5 class="card-header">Instructions</h5>
 
     <div class="card-body">
-
         <p>
-            This is a public goods game with
-            {{ C.PLAYERS_PER_GROUP }} players per group,
-            an endowment of {{ C.ENDOWMENT }},
-            and an efficiency factor of {{ C.MULTIPLIER }}.
+            This is a public goods game with <strong>{{ C.PLAYERS_PER_GROUP }} players</strong>
+            per group, an efficiency factor of <strong>{{ C.MULTIPLIER }}</strong>
+            and an endowment of <strong>{{ C.ENDOWMENT_ROUND }}</strong> per round.
         </p>
 
         <p>
-            You can punish each player up to {{ C.MAX_PUNISHMENT }} points.
-            Each punishment point will reduce the player's payoff by {{ C.PERCENT_PER_PUNISHMENT }}%,
-            but will incur a cost to you, in accordance with the following table.
+            Additionally, an initial endowment of <strong>{{ C.ENDOWMENT_INITIAL }}</strong> is provided at the start of the game.
+        </p>
+
+        <p>
+            In the first phase, each player chooses how much of their round's endowment they would like to contribute
+            to the shared pot of public good. The value of this good is the multiplied by the efficiency factor. The resulting
+            points are divided equally among all players.
+        </p>
+
+        <p>
+            In the second phase, each player can decide to destroy up to <strong>{{ C.PUNISHMENT_MAX }}%</strong> of the other players payoff
+            from the previous phase at a cost to the player itself, in accordance with the following table:
         </p>
 
         <table class="table table-sm table-borderd bg-body caption-top">
             <caption>The Effect and Cost of Punishment</caption>
-            <tr>
-                <th>Punishment</th>
-                {{ for points in C.COST_TABLE.points }}
-                    <td>{{ points }}</td>
-                {{ endfor }}
-            </tr>
-            <tr>
+           <tr>
                 <th>Reduction</th>
                 {{ for percentage in C.COST_TABLE.percentage }}
                     <td>{{ percentage }}</td>
@@ -39,12 +40,8 @@
             </tr>
         </table>
 
-        <p>Even though the punishment a player receives from their peers is summed together, the overall reduction is capped at {{ C.MAX_PUNISHMENT}} points.</p>
+        <p>Even though the punishment a player receives from their peers is summed together, the overall reduction is capped to <strong>{{ C.PUNISHMENT_MAX }}%</strong>.</p>
 
         <p>This game will be played for <strong>{{ C.NUM_ROUNDS }} rounds</strong>.</p>
-
-        <p>
-            For your convenience, these instructions will remain available to you on all subsequent screens of this study.
-        </p>
     </div>
 </div>

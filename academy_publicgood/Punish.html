@@ -1,27 +1,155 @@
 {{ block title }}{{ C.TITLE_PREFIX }}Punishment {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
 {{ block content }}
 
-    <p>
-        You contributed {{ player.contribution }}.
-        Here are the other players' contributions:
-    </p>
-    <table class="table">
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+            <td></td>
+            <th colspan=2 class="text-center">Round</th>
+            <th class="text-center">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+            <th>Balance:</th>
+            <td class="text-center"><strong>{{ C.ENDOWMENT_ROUND }}</strong></td>
+            <td></td>
+            <td class="text-center"><strong>{{ player.total }}</strong></td>
+        </tr>
+        <tr>
+            <th>Your contribution:</th>
+            <td class="text-center"><strong>&minus; {{ player.contribution }}</strong></td>
+            <td></td>
+            <td></td>
+        </tr>
         {{ for p in other_players }}
             <tr>
-                <td>Player {{ p.id_in_group }}</td>
-                <td>{{ p.contribution }}</td>
+                <td>&ndash; Contribution Player {{ p.id_in_group }}:</td>
+                <td class="text-center">{{ p.contribution }}</td>
+                <td></td>
+                <td></td>
             </tr>
         {{ endfor }}
+        <tr>
+            <th>Total public good value:</th>
+            <td class="text-center">{{ group.total_public_good }}</td>
+            <td class="text-center">{{ group.total_contribution }} x {{ C.MULTIPLIER }}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Individual share per member:</th>
+            <td class="text-center"><strong>+ {{ group.individual_share }}</strong></td>
+            <td class="text-center">{{ group.total_public_good }} / {{ C.PLAYERS_PER_GROUP }} players</td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Subtotal:</th>
+            <td class="text-center"><strong>{{ player.punishment_base }}</strong></td>
+            <td></td>
+            <td class="text-center"><strong>+ {{ player.punishment_base }}</strong></td>
+        </tr>
+        <tr>
+            <th colspan=2>Total balance available for punishment:</th>
+            <td></td>
+            <td></td>
+            <td class="text-center"><strong>{{ player.punishment_budget }}</strong></td>
+        </tr>
+      </tbody>
     </table>
 
-    <p>Please select the punishment you want to give to each player:</p>
+    <div class="row">
+        <div class="col-8"></div>
+        <div class="col-2 text-center">
+            <strong>Loss to player</strong>
+        </div>
+        <div class="col-2 text-center">
+            <strong>Cost to you</strong>
+        </div>
+    </div>
 
-    {{ formfields }}
+    {{ for p in other_players }}
+    <label for="number-punishment-player{{ p.id_in_group }}" class="form-label">Punishment for Player {{ p.id_in_group }}:</label>
+    {{ formfield_errors p.punishment_field }}
+    <div class="row">
+        <div class="col-6 d-flex">
+            <input type="range" id="range-punishment-player{{ p.id_in_group }}" class="flex-fill" value="0" min="0" max="{{ C.PUNISHMENT_MAX }}" step="{{ C.PUNISHMENT_STEP }}" />
+        </div>
 
-    {{ next_button }}
+        <div class="col-2">
+            <div class="input-group">
+                <input type="number" name="punishment_player{{ p.id_in_group }}" id="number-punishment-player{{ p.id_in_group }}" class="form-control" value="0" min="0" max="{{ C.PUNISHMENT_MAX }}" step="{{ C.PUNISHMENT_STEP }}" />
+                <span class="input-group-text">%</span>
+            </div>
+        </div>
+
+        <div class="col-2">
+            <div class="input-group">
+                <output for="number-punishment-player{{ p.id_in_group }}" id="output-loss-player{{ p.id_in_group }}" class="form-control" readonly>0</output>
+                <span class="input-group-text">{{ C.CURRENCY_SYMBOL }}</span>
+            </div>
+        </div>
+
+        <div class="col-2">
+            <div class="input-group">
+                <output for="number-punishment-player{{ p.id_in_group }}" id="output-cost-player{{ p.id_in_group }}" class="form-control" readonly>0</output>
+                <span class="input-group-text">{{ C.CURRENCY_SYMBOL }}</span>
+            </div>
+        </div>
+    </div>
+    {{ endfor }}
+
+    <div class="mt-3">
+      {{ next_button }}
+    </div>
 
     <hr/>
 
     {{ include C.INSTRUCTIONS_TEMPLATE }}
 
+{{ endblock }}
+
+{{ block scripts }}
+    <script>
+     window.addEventListener('DOMContentLoaded', (event) => {
+
+         for(let index = 0; index < {{ C.PLAYERS_PER_GROUP }} - 1; index++) {
+
+             const player_id = js_vars.player_ids[index];
+
+             const outputLoss = document.querySelector(`#output-loss-player${player_id}`);
+             const outputCost = document.querySelector(`#output-cost-player${player_id}`);
+
+             /* Update predicted loss and cost. */
+             function updateOutput(value) {
+                 const base = js_vars.punishment_bases[index];
+                 outputLoss.innerHTML = Math.round(base * (value / 100));
+                 outputCost.innerHTML = Math.round(0.25 * Math.pow((value / 10) + 1, 2));
+             }
+
+             const inputRange = document.querySelector(`#range-punishment-player${player_id}`);
+             const inputNumber = document.querySelector(`#number-punishment-player${player_id}`);
+
+             /* Callbacks to link slider to input. */
+             inputRange.addEventListener('input', function() {
+                 inputNumber.value = this.value;
+                 updateOutput(this.value);
+             });
+
+             /* Callbacks to link input to slider. */
+             inputNumber.addEventListener('input', function() {
+                 this.value = Math.min(Math.max(this.value, this.min), this.max);
+                 value = Math.round(this.value / {{ C.PUNISHMENT_STEP }}) * {{ C.PUNISHMENT_STEP }};
+                 inputRange.value = value;
+                 updateOutput(value);
+             });
+
+             inputNumber.addEventListener('change', function() {
+                 this.value = Math.min(Math.max(this.value, this.min), this.max);
+                 this.value = Math.round(this.value / {{ C.PUNISHMENT_STEP }}) * {{ C.PUNISHMENT_STEP }};
+                 inputRange.value = this.value;
+                 updateOutput(this.value);
+             });
+         }
+     });
+    </script>
 {{ endblock }}

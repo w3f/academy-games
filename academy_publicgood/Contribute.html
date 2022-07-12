@@ -1,6 +1,35 @@
 {{ block title }}{{ C.TITLE_PREFIX }}Contribution {{ group.round_number }} / {{ C.NUM_ROUNDS }}{{ endblock }}
 {{ block content }}
 
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+            <td></td>
+            <th class="text-center">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+            {{ if group.round_number == 1 }}
+            <th>Initial balance:</th>
+            {{ else }}
+            <th>Current balance:</th>
+            {{ endif }}
+            <td class="text-center"><strong>{{ participant.payoff }}</strong></td>
+        </tr>
+        <tr>
+            <th>Endowment per round:</th>
+            <td class="text-center">+ {{ C.ENDOWMENT_ROUND }}</td>
+        </tr>
+        <tr>
+            <th>Total balance before contribution:</th>
+            <td class="text-center"><strong>{{ total }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>You can contribute up to {{ C.ENDOWMENT_ROUND }}</p>
+
     {{ formfields }}
 
     {{ next_button }}

@@ -12,7 +12,7 @@ from otree.views import Page, WaitPage
 
 from otree.i18n import CURRENCY_SYMBOLS
 
-from typing import List
+from typing import List, Optional
 
 
 doc = __doc__
@@ -28,12 +28,9 @@ def GET_CURRENCY_SYMBOL():
         return CURRENCY_SYMBOLS.get(code, code)
 
 
-def PUNISHMENT_COST_FUNCTION(points: int) -> Currency:
+def PUNISHMENT_COST_FUNCTION(percentage: int) -> Currency:
     """Return cost of punishment, model by a quartered quadratic function."""
-    return Currency(round(0.25 * (points + 1)**2))
-
-
-PERCENT_PER_PUNISHMENT = 10
+    return Currency(round(0.25 * ((percentage / 10) + 1)**2))
 
 
 # Models
@@ -45,17 +42,17 @@ class C(BaseConstants):
     NUM_ROUNDS = 10
     TITLE_PREFIX = "Lesson 2.2: "
     INSTRUCTIONS_TEMPLATE = 'academy_publicgood/instructions.html'
-    ENDOWMENT = Currency(20)
+    ENDOWMENT_INITIAL = Currency(80)
+    ENDOWMENT_ROUND = Currency(20)
     MULTIPLIER = 1.6
-    MAX_PUNISHMENT = 10
-    PERCENT_PER_PUNISHMENT = PERCENT_PER_PUNISHMENT
+    PUNISHMENT_STEP = 10
+    PUNISHMENT_MAX = 100
 
     cost = staticmethod(PUNISHMENT_COST_FUNCTION)
     COST_TABLE = {
-        'columns': MAX_PUNISHMENT + 2,
-        'points': range(MAX_PUNISHMENT + 1),
-        'percentage': ["{}%".format(p * PERCENT_PER_PUNISHMENT) for p in range(MAX_PUNISHMENT + 1)],
-        'cost': [int(PUNISHMENT_COST_FUNCTION(p)) for p in range(MAX_PUNISHMENT + 1)],
+        'columns': PUNISHMENT_MAX / PUNISHMENT_STEP + 2,
+        'percentage': [f"{p}%" for p in range(0, PUNISHMENT_MAX + 1, PUNISHMENT_STEP)],
+        'cost': [int(PUNISHMENT_COST_FUNCTION(p)) for p in range(0, PUNISHMENT_MAX + 1, PUNISHMENT_STEP)],
     }
     CURRENCY_SYMBOL = GET_CURRENCY_SYMBOL()
 
@@ -72,11 +69,16 @@ class Group(BaseGroup):
     total_contribution = CurrencyField()
     individual_share = CurrencyField()
 
+    @property
+    def total_public_good(self) -> int:
+        """Return total contribution after multiplier was applied."""
+        return self.total_contribution * C.MULTIPLIER
+
 
 def PunishmentField(id_in_group):
     """Create player id specific punishment fields."""
     return IntegerField(
-        min=0, max=C.MAX_PUNISHMENT,
+        min=0, max=C.PUNISHMENT_MAX,
         label="Punishment for Player {}".format(id_in_group)
     )
 
@@ -84,9 +86,12 @@ def PunishmentField(id_in_group):
 class Player(BasePlayer):
     """Tracks contribution and punishments chosen by players."""
 
+    # Track balance at the begging of round
+    total = CurrencyField()
+
     # Track common good contribution
     contribution = CurrencyField(
-        min=0, max=C.ENDOWMENT, label="How much will you contribute?"
+        min=0, max=C.ENDOWMENT_ROUND, label="How much will you contribute?"
     )
 
     # Track punishments between players
@@ -102,14 +107,27 @@ class Player(BasePlayer):
     punishment_cost = CurrencyField()
 
     @property
+    def remainder(self) -> int:
+        return C.ENDOWMENT_ROUND - self.contribution
+
+    @property
     def punishment_field(self) -> str:
         """Return name of field containing player's punishment."""
         return f"punishment_player{self.id_in_group}"
 
+    @property
+    def punishment_budget(self) -> int:
+        """Return the points available for punishment."""
+        return self.total + self.punishment_base
+
+    @property
+    def punishment_base(self) -> int:
+        """Return base point used to compute punishment."""
+        return C.ENDOWMENT_ROUND - self.contribution + self.group.individual_share
+
     def punishment_for(self, player: "Player") -> int:
         """Return punishment directed at specific player."""
         return getattr(self, player.punishment_field)
-
 
 # PAGES
 class Introduction(Page):
@@ -122,6 +140,11 @@ class Introduction(Page):
         """Only displayed during first round."""
         return player.round_number == 1
 
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        """Provide participant with initial endowment."""
+        player.participant.payoff = C.ENDOWMENT_INITIAL
+
 
 class Contribute(Page):
     """Collect contributions from players."""
@@ -129,13 +152,23 @@ class Contribute(Page):
     form_model = 'player'
     form_fields = ['contribution']
 
+    @staticmethod
+    def vars_for_template(player: Player) -> dict:
+        """Provide endowment details."""
+        return dict(
+            total = player.participant.payoff + C.ENDOWMENT_ROUND,
+        )
+
 
 class ContributeWait(WaitPage):
     """Wait for all players to choose contribution."""
 
     @staticmethod
     def after_all_players_arrive(group: Group) -> None:
-        """Determine individual shares based on contributions."""
+        """Determine endowment and individual shares based on contributions."""
+        for p in group.get_players():
+            p.total = p.participant.payoff
+
         group.total_contribution = sum(p.contribution for p in group.get_players())
         group.individual_share = (
             group.total_contribution * C.MULTIPLIER / C.PLAYERS_PER_GROUP
@@ -153,10 +186,28 @@ class Punish(Page):
         return [p.punishment_field for p in player.get_others_in_group()]
 
     @staticmethod
+    def error_message(player: Player, values: dict) -> Optional[str]:
+        punishments = [values[field] for field in Punish.get_form_fields(player)]
+        cost = sum(C.cost(p) for p in punishments)
+        budget = player.punishment_budget
+
+        if cost and cost > budget:
+            return f"Total cost of punishment ({cost}) exceeds available funds ({budget})."
+
+
+    @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Provide other players and punishment schedule."""
         return dict(
             other_players=player.get_others_in_group(),
+        )
+
+    @staticmethod
+    def js_vars(player: Player) -> dict:
+        """Return player ids and punishment bases for js calculation."""
+        return dict(
+            player_ids=[p.id_in_group for p in player.get_others_in_group()],
+            punishment_bases=[p.punishment_base for p in player.get_others_in_group()],
         )
 
 
@@ -166,22 +217,20 @@ class PunishWait(WaitPage):
     def after_all_players_arrive(group: Group) -> None:
         """Determine reward based on punishment."""
         for player in group.get_players():
-            payoff_base = C.ENDOWMENT - player.contribution + group.individual_share
-
             others = player.get_others_in_group()
 
             player.punishment_received = sum(
                 [o.punishment_for(player) for o in others]
             )
 
-            percentage = min(player.punishment_received, C.MAX_PUNISHMENT) * C.PERCENT_PER_PUNISHMENT
-            player.punishment_loss = payoff_base * (percentage / 100.0)
+            percentage = min(player.punishment_received, C.PUNISHMENT_MAX)
+            player.punishment_loss = round(player.punishment_base * (percentage / 100.0))
 
             player.punishment_cost = sum(
                 [C.cost(player.punishment_for(o)) for o in others]
             )
 
-            player.payoff = payoff_base - player.punishment_loss - player.punishment_cost
+            player.payoff = player.punishment_base - player.punishment_loss - player.punishment_cost
 
 
 class Results(Page):
@@ -190,10 +239,9 @@ class Results(Page):
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Provide other players and punishment schedule."""
-        percentage = min(player.punishment_received, C.MAX_PUNISHMENT) * C.PERCENT_PER_PUNISHMENT
-        return dict(
-            percentage=percentage,
-        )
+        percentage = min(player.punishment_received, C.PUNISHMENT_MAX)
+
+        return dict(percentage=percentage)
 
 
 page_sequence = [

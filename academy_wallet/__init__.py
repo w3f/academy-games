@@ -54,12 +54,6 @@ class C(BaseConstants):
         return model.session.config.get('academy_wallet_code', False)
 
 
-    @staticmethod
-    def get_wallet_endowment(model: MixinSessionFK) -> Currency:
-        """Return if app should allow users to open existing wallets."""
-        return Currency(model.session.config.get('academy_wallet_endowment', 0))
-
-
 class Subsession(BaseSubsession):
     """Default base subsession."""
 
@@ -165,8 +159,6 @@ class Authenticate(Page):
         elif player.source == C.WALLET_CODE:
             # Add phrase to database for code-based wallets
             player.phrase = wallet.private
-
-        player.payoff = C.get_wallet_endowment(player)
 
 
 class Profile(Page):

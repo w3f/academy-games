@@ -7,7 +7,6 @@ ACADEMY_GAME_DEFAULTS = dict(
     academy_wallet_create=False,
     academy_wallet_phrase=False,
     academy_wallet_code=False,
-    academy_wallet_endowment=0,
     academy_endcard_reward=0,
 )
 

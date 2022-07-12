@@ -1,10 +1,13 @@
 """otree session and room configs for blockchain academy."""
 
-import importlib
+from os import environ
+
+# Determine and configure demo mode
+IN_DEMO_MODE = (environ.get('OTREE_AUTH_LEVEL') == "DEMO")
 
 # Default config for all games
 ACADEMY_GAME_DEFAULTS = dict(
-    academy_wallet_create=False,
+    academy_wallet_create=IN_DEMO_MODE,
     academy_wallet_phrase=False,
     academy_wallet_code=False,
     academy_endcard_reward=0,

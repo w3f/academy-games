@@ -188,7 +188,11 @@
               let price = payload[1];
 
               if (bidder) {
-                  outputHighestBidderDom.innerHTML = `Player ${bidder}`;
+                  let name = `Bidder ${bidder}`;
+                  if (bidder == js_vars.id_in_group) {
+                      name += " (Me)";
+                  }
+                  outputHighestBidderDom.innerHTML = name;
                   outputHighestPriceDom.innerHTML = price;
               }
 

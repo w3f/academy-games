@@ -236,6 +236,8 @@ class PunishWait(WaitPage):
 class Results(Page):
     """Display result to players."""
 
+    timeout_seconds = 45
+
     @staticmethod
     def vars_for_template(player: Player) -> dict:
         """Provide other players and punishment schedule."""

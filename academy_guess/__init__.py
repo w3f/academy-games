@@ -98,7 +98,7 @@ class ResultsWaitPage(WaitPage):
 class Results(Page):
     """Display result to players."""
 
-    pass
+    timeout_seconds = 45
 
 
 page_sequence = [Introduction, Guess, ResultsWaitPage, Results]

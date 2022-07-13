@@ -106,7 +106,7 @@ class ResultsWait(WaitPage):
 class Results(Page):
     """Display result to player."""
 
-    pass
+    timeout_seconds = 45
 
 
 page_sequence = [Introduction, DecisionWait, Decision, ResultsWait, Results]

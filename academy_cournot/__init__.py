@@ -89,6 +89,8 @@ class ResultWaitPage(WaitPage):
 class ResultPage(Page):
     """Page to display result to players."""
 
+    timeout_seconds = 45
+
     @staticmethod
     def vars_for_template(player: Player):
         """Return additional data for page template."""

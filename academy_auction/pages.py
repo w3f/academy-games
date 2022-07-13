@@ -63,7 +63,6 @@ class AuctionPage(Page):
         return {
             'valuation': int(player.valuation),
             'id_in_group': player.id_in_group,
-            'image_url': "academy/item_{:02d}.jpg".format(player.group.id % 10),
             'candle_percentage_ending': 100.0 - candle_percentage_normal,
             'candle_percentage_normal': candle_percentage_normal,
         }

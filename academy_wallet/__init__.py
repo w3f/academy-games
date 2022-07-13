@@ -90,28 +90,11 @@ class Authenticate(Page):
     form_model = 'player'
     form_fields = ['source', 'phrase', 'code']
 
-    @staticmethod
-    def error_message(player, values) -> Optional[str]:
-        """Enroll with priority, otherwise try to open wallet."""
-        try:
-            if values['source'] == C.WALLET_CREATE and C.get_wallet_create(player):
-                Wallet.generate(player.participant)
-            elif values['source'] == C.WALLET_PHRASE and C.get_wallet_phrase(player) and values['phrase']:
-                Wallet.open(player.participant, values['phrase'])
-            elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
-                Wallet.open_with_code(player.participant, values['code'])
-            else:
-                return 'Please enter a valid phrase to open a wallet.'
-        except WalletError as err:
-            return str(err)
-
     def inner_dispatch(self, request):
         """Intercept request data to access cookies for wallet."""
         if C.get_wallet_code(self.participant):
             # Default value if wallet missing
-            self.wallet_template_vars = dict(
-                wallet=None
-            )
+            self.wallet_template_vars = dict(wallet=None)
 
             # Check academy wallet room cookie
             room = ROOM_DICT.get("academy_wallet")
@@ -136,6 +119,21 @@ class Authenticate(Page):
             context.update(self.wallet_template_vars)
 
         return super().get_context_data(**context)
+
+    @staticmethod
+    def error_message(player, values) -> Optional[str]:
+        """Enroll with priority, otherwise try to open wallet."""
+        try:
+            if values['source'] == C.WALLET_CREATE and C.get_wallet_create(player):
+                Wallet.generate(player.participant)
+            elif values['source'] == C.WALLET_PHRASE and C.get_wallet_phrase(player) and values['phrase']:
+                Wallet.open(player.participant, values['phrase'])
+            elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
+                Wallet.open_with_code(player.participant, values['code'])
+            else:
+                return 'Please enter a valid phrase to open a wallet.'
+        except WalletError as err:
+            return str(err)
 
     @staticmethod
     def vars_for_template(player: Player) -> dict:

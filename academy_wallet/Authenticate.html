@@ -3,6 +3,18 @@
 {{ endblock }}
 {{ block content }}
 
+  {{ if wallet_phrase }}
+
+    <div class="card my-3 p-3">
+      {{ formfield 'phrase' label="Enter your seed phrase to continue playing under an existing wallet." }}
+
+
+      <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_PHRASE }}">Open existing wallet</button>
+    </div>
+
+  {{ endif }}
+
+
   {{ if wallet_code }}
 
     <div class="card my-3 p-3">
@@ -13,7 +25,7 @@
 
       <input type="hidden" name="code" value="{{ wallet.code }}"/>
 
-      <button class="btn btn-primary" name="source" value="{{ C.WALLET_CODE }}">Continue with previous wallet</button>
+      <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_CODE }}">Continue with previous wallet</button>
 
     {{ else }}
 
@@ -21,17 +33,6 @@
 
     {{ endif }}
 
-    </div>
-
-  {{ endif }}
-
-
-  {{ if wallet_phrase }}
-
-    <div class="card my-3 p-3">
-      {{ formfield 'phrase' label="Enter your seed phrase to continue playing under an existing wallet." }}
-
-      <button class="btn btn-primary" name="source" value="{{ C.WALLET_PHRASE }}">Open existing wallet</button>
     </div>
 
   {{ endif }}
@@ -46,7 +47,7 @@
         <p><strong>This can not be undone, if you want to continue with an existing wallet, enter your seed phrase above!</strong></p>
       {{ endif }}
 
-      <button class="btn btn-primary" name="source" value="{{ C.WALLET_CREATE }}">Generate new wallet</button>
+      <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_CREATE }}">Generate new wallet</button>
     </div>
 
   {{ endif }}

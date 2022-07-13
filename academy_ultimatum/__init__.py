@@ -1,9 +1,4 @@
-"""
-Ultimatum game with two treatments: direct response and strategy method.
-In the former, one player makes an offer and the other either accepts or rejects.
-It comes in two flavors, with and without hypothetical questions about the second player's response to offers other than the one that is made.
-In the latter treatment, the second player is given a list of all possible offers, and is asked which ones to accept or reject.
-"""
+"""Ultimatum game with direct response: one player makes an offer and the other either accepts or rejects."""
 
 from otree.constants import BaseConstants
 
@@ -18,6 +13,7 @@ doc = __doc__
 
 # Models
 class Constants(BaseConstants):
+    """Various base constants used throughout."""
     name_in_url = 'academy_ultimatum'
     title_prefix = "Lesson 2.1: "
     players_per_group = 2
@@ -34,10 +30,14 @@ class Constants(BaseConstants):
 
 
 class Subsession(BaseSubsession):
+    """Default base subsession."""
+
     pass
 
 
 class Group(BaseGroup):
+    """Track offers and responses during round."""
+
     amount_offered = models.CurrencyField(choices=Constants.offer_choices)
 
     offer_accepted = models.BooleanField()
@@ -54,6 +54,8 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    """Default base player."""
+
     pass
 
 
@@ -69,7 +71,9 @@ class PageWithInstructions(Page):
             'reward': [Constants.endowment - o for o in Constants.offer_choices],
         }
 
+
 class Introduction(PageWithInstructions):
+    """Display intructions to users."""
 
     timeout_seconds = 120
 
@@ -79,13 +83,15 @@ class Introduction(PageWithInstructions):
         return player.round_number == 1
 
 
-
 class Offer(PageWithInstructions):
+    """Collect offer from first player."""
+
     form_model = 'group'
     form_fields = ['amount_offered']
 
     @staticmethod
     def is_displayed(player: Player):
+        """Only display response page second player."""
         return player.id_in_group == 1
 
 
@@ -94,17 +100,22 @@ class WaitForProposer(WaitPage):
 
 
 class Respond(PageWithInstructions):
+    """Collect responds to offer from second player."""
+
     form_model = 'group'
     form_fields = ['offer_accepted']
 
     @staticmethod
     def is_displayed(player: Player):
+        """Only display response page second player."""
         return player.id_in_group == 2
 
 
 class ResultsWaitPage(WaitPage):
+    """Display result to players."""
 
     def after_all_players_arrive(self):
+        """Trigger payoff calculation at end of round."""
         self.group.set_payoffs()
 
 

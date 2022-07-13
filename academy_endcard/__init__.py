@@ -53,7 +53,8 @@ class Player(WalletPlayer):
 class EndWaitPage(WaitPage):
     """Session wide wait page to distribute any reward."""
 
-    body_text = "Waiting for remaining players to calculate reward..."
+    title_text = "Reward Calculation"
+    body_text = "The game has ended. Waiting for all remaining players to calculate reward..."
 
     wait_for_all_groups = True
 

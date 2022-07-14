@@ -8,6 +8,8 @@ from otree.models import BaseSubsession, BaseGroup, BasePlayer
 
 from otree.views import Page, WaitPage
 
+import json
+
 
 doc = __doc__
 
@@ -133,3 +135,27 @@ page_sequence = [
     ResultsWaitPage,
     Results,
 ]
+
+
+def vars_for_admin_report(subsession):
+    accept = [0] * Constants.num_offers
+    reject = [0] * Constants.num_offers
+
+    for group in subsession.get_groups():
+        offer = group.field_maybe_none("amount_offered")
+        accepted = group.field_maybe_none("offer_accepted")
+
+        if offer is None or accepted is None:
+            continue
+
+        index = int(offer / Constants.offer_increment)
+
+        if accepted:
+            accept[index] += 1
+        else:
+            reject[index] += 1
+
+    return dict(
+        accept=json.dumps(accept),
+        reject=json.dumps(reject),
+    )

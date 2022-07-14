@@ -1,0 +1,63 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="container"></div>
+</figure>
+
+<script>
+Highcharts.chart('container', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Acceptance vs. Rejection by Offer'
+    },
+    xAxis: {
+        categories: [
+            "0%",
+            "10%",
+            "20%",
+            "30%",
+            "40%",
+            "50%",
+            "60%",
+            "70%",
+            "80%",
+            "90",
+            "100%",
+        ],
+        title: {
+            text: 'Offer'
+        },
+        crosshair: true
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: 'Count'
+        }
+    },
+    tooltip: {
+        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y}</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+    },
+    plotOptions: {
+        column: {
+            pointPadding: 0.1,
+            borderWidth: 0
+        }
+    },
+    series: [{
+        name: 'Accepted',
+        data: {{ accept }},
+    }, {
+        name: 'Rejected',
+        data: {{ reject }},
+    }],
+    colors: [ '#84d633', '#d63333' ]
+});
+</script>

@@ -9,6 +9,7 @@ from otree.views import Page, WaitPage
 
 from typing import List
 
+import math
 import json
 
 doc = __doc__

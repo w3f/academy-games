@@ -155,7 +155,15 @@ def vars_for_admin_report(subsession):
         else:
             reject[index] += 1
 
+    ratio = []
+    for a, r in zip(accept, reject):
+        try:
+            ratio += [100.0 * a / (a+r)]
+        except:
+            ratio += [None]
+
     return dict(
+        ratio=json.dumps(ratio),
         accept=json.dumps(accept),
         reject=json.dumps(reject),
     )

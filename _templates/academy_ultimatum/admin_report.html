@@ -1,17 +1,25 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 
 <figure class="highcharts-figure">
-    <div id="container"></div>
+    <div id="ratio"></div>
 </figure>
 
 <script>
-Highcharts.chart('container', {
-    chart: {
-        type: 'column'
-    },
+Highcharts.chart('ratio', {
+
     title: {
-        text: 'Acceptance vs. Rejection by Offer'
+        text: 'Acceptance Rate'
     },
+
+    yAxis: {
+        title: {
+            text: 'Percentage Accepted'
+        },
+        labels: {
+            format: '{value}%'
+        },
+    },
+
     xAxis: {
         categories: [
             "0%",
@@ -29,12 +37,73 @@ Highcharts.chart('container', {
         title: {
             text: 'Offer'
         },
-        crosshair: true
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+        }
+    },
+
+    series: [{
+        name: 'Acceptance Rate',
+        data: {{ ratio }}
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+
+});
+</script>
+
+<figure class="highcharts-figure">
+    <div id="histogram"></div>
+</figure>
+
+<script>
+Highcharts.chart('histogram', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Accepted vs. Rejected by Offer Amount'
+    },
+    xAxis: {
+        categories: [
+            "0%",
+            "10%",
+            "20%",
+            "30%",
+            "40%",
+            "50%",
+            "60%",
+            "70%",
+            "80%",
+            "90%",
+            "100%",
+        ],
+        title: {
+            text: 'Offer'
+        },
     },
     yAxis: {
         min: 0,
         title: {
-            text: 'Count'
+            text: 'Number Accepted'
         }
     },
     tooltip: {
@@ -52,12 +121,8 @@ Highcharts.chart('container', {
         }
     },
     series: [{
-        name: 'Accepted',
+        name: 'Acceptance Count',
         data: {{ accept }},
-    }, {
-        name: 'Rejected',
-        data: {{ reject }},
-    }],
-    colors: [ '#84d633', '#d63333' ]
+    }]
 });
 </script>

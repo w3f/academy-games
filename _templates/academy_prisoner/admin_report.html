@@ -1,0 +1,53 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="coop"></div>
+</figure>
+
+<script>
+Highcharts.chart('coop', {
+
+    title: {
+        text: 'Percentage of Cooperation per Round'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Percentage Cooperation'
+        },
+        labels: {
+            format: '{value}%'
+        },
+    },
+
+    xAxis: {
+        title: {
+            text: 'Round'
+        },
+    },
+
+    tooltip: {
+        headerFormat: 'Round {point.key}</br>',
+    },
+
+    plotOptions: {
+        series: {
+            pointStart: 1
+        }
+    },
+
+     series: [{
+        name: 'Cooperation',
+        data: {{ coop }}
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+        }]
+    }
+
+});
+</script>

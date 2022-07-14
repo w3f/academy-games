@@ -8,6 +8,8 @@ from otree.database import BooleanField
 from otree.views import Page, WaitPage
 from otree.forms import widgets
 
+import json
+
 
 doc = __doc__
 
@@ -110,3 +112,32 @@ class Results(Page):
 
 
 page_sequence = [Introduction, DecisionWait, Decision, ResultsWait, Results]
+
+
+def vars_for_admin_report(subsession):
+    session = subsession.session
+
+    ratio = []
+    for round in range(1, C.NUM_ROUNDS + 1):
+        subsession = Subsession.objects_get(session=session, round_number=round)
+
+        coop_yes = 0
+        coop_no = 0
+        for group in subsession.get_groups():
+            c1, c2 = [p.field_maybe_none('cooperate') for p in group.get_players()]
+
+            if c1 is not None and c2 is not None:
+                if c1 and c2:
+                    coop_yes += 1
+                else:
+                    coop_no += 1
+
+        try:
+            ratio += [100.0 * coop_yes / (coop_no + coop_yes)]
+        except:
+            ratio += [None]
+
+
+    return dict(
+        coop=json.dumps(ratio),
+    )

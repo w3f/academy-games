@@ -180,7 +180,7 @@ def custom_export(all_players: List[Player]):
     # Export header row
     yield [
         'wallet_session',
-        'wallet_name'
+        'wallet_name',
         'wallet_participant',
         'wallet_public',
         'wallet_private',
@@ -193,7 +193,7 @@ def custom_export(all_players: List[Player]):
 
         yield [
             session.code,
-            session.config.get['academy_game_name'],
+            session.config.get('academy_game_name'),
             participant.code,
             wallet.public if wallet else None,
             wallet.private if wallet else None,

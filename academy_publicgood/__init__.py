@@ -260,6 +260,7 @@ page_sequence = [
 
 def vars_for_admin_report(subsession):
     session = subsession.session
+    session._set_admin_report_app_names()
 
     contribute_avg = [None] * C.NUM_ROUNDS
     punish_avg = [None] * C.NUM_ROUNDS

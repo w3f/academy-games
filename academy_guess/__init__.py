@@ -9,7 +9,7 @@ from otree.views import Page, WaitPage
 
 from typing import List
 
-import math
+import json
 
 doc = __doc__
 
@@ -139,3 +139,37 @@ def creating_session(subsession):
 
 
 page_sequence = [Introduction, Guess, ResultsWaitPage, Results]
+
+
+def vars_for_admin_report(subsession):
+    session = subsession.session
+
+    group_sizes = [g.size for g in subsession.get_groups()]
+
+    group1_size = group_sizes[0]
+    group2_size = group_sizes[1] if len(group_sizes) > 1 else 0
+    group3_size = group_sizes[2] if len(group_sizes) > 2 else 0
+
+    group1_best = [None] * C.NUM_ROUNDS
+    group2_best = [None] * C.NUM_ROUNDS
+    group3_best = [None] * C.NUM_ROUNDS
+
+    for round in range(1, C.NUM_ROUNDS + 1):
+        subsession = Subsession.objects_get(session=session, round_number=round)
+
+        best = [g.field_maybe_none('best_guess') for g in subsession.get_groups()]
+
+        i = round - 1
+        group1_best[i] = best[0]
+        group2_best[i] = best[1] if group2_size else None
+        group3_best[i] = best[2] if group3_size else None
+
+    return dict(
+        group1_size=group1_size,
+        group2_size=group2_size,
+        group3_size=group3_size,
+
+        group1_best=json.dumps(group1_best),
+        group2_best=json.dumps(group2_best),
+        group3_best=json.dumps(group3_best),
+    )

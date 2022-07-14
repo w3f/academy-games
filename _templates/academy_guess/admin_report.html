@@ -1,0 +1,64 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="best"></div>
+</figure>
+
+<script>
+Highcharts.chart('best', {
+
+    title: {
+        text: 'Best Guess per Round'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Best Guess'
+        },
+    },
+
+    xAxis: {
+        title: {
+            text: 'Round'
+        },
+    },
+
+    tooltip: {
+        headerFormat: 'Round {point.key}</br>',
+    },
+
+    plotOptions: {
+        series: {
+            pointStart: 1
+        }
+    },
+
+    series: [
+      {
+        name: 'Group Size {{ group1_size }}',
+        data: {{ group1_best }}
+      },
+    {{ if group2_size }}
+      {
+        name: 'Group Size {{ group2_size }}',
+        data: {{ group2_best }}
+      },
+    {{ endif }}
+    {{ if group3_size }}
+      {
+        name: 'Group Size {{ group3_size }}',
+        data: {{ group3_best }}
+      },
+    {{ endif }}
+    ],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+        }]
+    }
+
+});
+</script>

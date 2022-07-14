@@ -9,6 +9,7 @@ from otree.views import Page, WaitPage
 
 from typing import List
 
+import math
 
 doc = __doc__
 
@@ -18,7 +19,7 @@ class C(BaseConstants):
     """Constants used across the app."""
 
     NAME_IN_URL = 'academy_guess'
-    PLAYERS_PER_GROUP = 4
+    PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 10
     TITLE_PREFIX = "Lesson 2.2: "
     JACKPOT = Currency(100)
@@ -103,6 +104,38 @@ class Results(Page):
     """Display result to players."""
 
     timeout_seconds = 45
+
+
+def creating_session(subsession):
+    if subsession.round_number == 1:
+        players = subsession.get_players()
+
+        factor = math.floor(len(players) / 6)
+
+        group_1 = factor * 3 + len(players) % 6
+        if factor > 1:
+            group_2 = factor * 2
+
+            if factor > 2:
+                group_3 = factor
+            else:
+                group_3 = 0
+                group_1 += factor
+        else:
+            group_2 = 0
+            group_3 = 0
+            group_1 += factor * 3
+
+        matrix = [list(range(1, group_1 + 1))]
+        if group_2:
+            matrix += [list(range(group_1 + 1, group_1 + group_2 + 1))]
+
+            if group_3:
+                matrix += [list(range(group_1 + group_2 + 1, group_1 + group_2 + group_3 + 1))]
+
+        subsession.set_group_matrix(matrix)
+    else:
+        subsession.group_like_round(1)
 
 
 page_sequence = [Introduction, Guess, ResultsWaitPage, Results]

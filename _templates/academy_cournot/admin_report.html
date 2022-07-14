@@ -1,0 +1,100 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="units"></div>
+</figure>
+
+<script>
+Highcharts.chart('units', {
+
+    title: {
+        text: 'Average Items Produced per Round'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Average Item Count'
+        },
+    },
+
+    xAxis: {
+        title: {
+            text: 'Round'
+        },
+    },
+
+    tooltip: {
+        headerFormat: 'Round {point.key}</br>',
+    },
+
+    plotOptions: {
+        series: {
+            pointStart: 1
+        }
+    },
+
+     series: [{
+        name: 'Average Items',
+        data: {{ units }}
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+        }]
+    }
+
+});
+</script>
+
+
+<figure class="highcharts-figure">
+    <div id="price"></div>
+</figure>
+
+<script>
+Highcharts.chart('price', {
+
+    title: {
+        text: 'Average Item Price per Round'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Average Item Price'
+        },
+    },
+
+    xAxis: {
+        title: {
+            text: 'Round'
+        },
+    },
+
+    tooltip: {
+        headerFormat: 'Round {point.key}</br>',
+    },
+
+    plotOptions: {
+        series: {
+            pointStart: 1
+        }
+    },
+
+    series: [{
+        name: 'Average Price',
+        data: {{ prices }}
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+        }]
+    }
+
+});
+</script>

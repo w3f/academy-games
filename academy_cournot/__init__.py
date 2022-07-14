@@ -6,6 +6,9 @@ from otree.database import CurrencyField, IntegerField
 
 from otree.views import Page, WaitPage
 
+import json
+
+
 doc = __doc__
 
 
@@ -98,3 +101,31 @@ class ResultPage(Page):
 
 
 page_sequence = [IntroPage, DecisionPage, ResultWaitPage, ResultPage]
+
+
+def vars_for_admin_report(subsession):
+    session = subsession.session
+
+    units_avg = [None] * C.NUM_ROUNDS
+    price_avg = [None] * C.NUM_ROUNDS
+
+    for round in range(1, C.NUM_ROUNDS + 1):
+
+        subsession = Subsession.objects_get(session=session, round_number=round)
+
+        units = [p.field_maybe_none('units') for p in subsession.get_players()]
+        units = [u for u in units if u is not None]
+
+        prices = [g.field_maybe_none('unit_price') for g in subsession.get_groups()]
+        prices = [p for p in prices if p is not None]
+
+        if units:
+            units_avg[round - 1] = sum(units) / len(units)
+
+        if prices:
+            price_avg[round - 1] = float(sum(prices) / len(prices))
+
+    return dict(
+        units=json.dumps(units_avg),
+        prices=json.dumps(price_avg),
+    )

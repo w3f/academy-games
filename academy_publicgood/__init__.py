@@ -62,6 +62,11 @@ class C(BaseConstants):
 class Subsession(BaseSubsession):
     """Default base subsession."""
 
+    def __init__(self, round_number, session):
+        session._set_admin_report_app_names()
+        super().__init__(round_number=round_number, session=session)
+
+
     pass
 
 
@@ -260,7 +265,6 @@ page_sequence = [
 
 def vars_for_admin_report(subsession):
     session = subsession.session
-    session._set_admin_report_app_names()
 
     contribute_avg = [None] * C.NUM_ROUNDS
     punish_avg = [None] * C.NUM_ROUNDS

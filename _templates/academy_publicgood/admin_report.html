@@ -1,0 +1,103 @@
+<script src="https://code.highcharts.com/highcharts.js"></script>
+
+<figure class="highcharts-figure">
+    <div id="contribution"></div>
+</figure>
+
+<script>
+Highcharts.chart('contribution', {
+
+    title: {
+        text: 'Average Contribution per Round'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Average Contribution'
+        },
+    },
+
+    xAxis: {
+        title: {
+            text: 'Round'
+        },
+    },
+
+    tooltip: {
+        headerFormat: 'Round {point.key}</br>',
+    },
+
+    plotOptions: {
+        series: {
+            pointStart: 1
+        }
+    },
+
+     series: [{
+        name: 'Average Contribution',
+        data: {{ contribute }}
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+        }]
+    }
+
+});
+</script>
+
+
+<figure class="highcharts-figure">
+    <div id="punishment"></div>
+</figure>
+
+<script>
+Highcharts.chart('punishment', {
+
+    title: {
+        text: 'Average Punishment per Round'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Average Punishment'
+        },
+        labels: {
+            format: '{value}%'
+        },
+    },
+
+    xAxis: {
+        title: {
+            text: 'Round'
+        },
+    },
+
+    tooltip: {
+        headerFormat: 'Round {point.key}</br>',
+    },
+
+    plotOptions: {
+        series: {
+            pointStart: 1
+        }
+    },
+
+     series: [{
+        name: 'Average Punishment',
+        data: {{ punish }}
+    }],
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+        }]
+    }
+
+});
+</script>

@@ -14,6 +14,8 @@ from otree.i18n import CURRENCY_SYMBOLS
 
 from typing import List, Optional
 
+import json
+
 
 doc = __doc__
 
@@ -254,3 +256,31 @@ page_sequence = [
     PunishWait,
     Results,
 ]
+
+
+def vars_for_admin_report(subsession):
+    session = subsession.session
+
+    contribute_avg = [None] * C.NUM_ROUNDS
+    punish_avg = [None] * C.NUM_ROUNDS
+
+    for round in range(1, C.NUM_ROUNDS + 1):
+
+        subsession = Subsession.objects_get(session=session, round_number=round)
+
+        contribute = [p.field_maybe_none('contribution') for p in subsession.get_players()]
+        contribute = [c for c in contribute if c is not None]
+
+        if contribute:
+            contribute_avg[round - 1] = float(sum(contribute) / len(contribute))
+
+        punish = [p.field_maybe_none('punishment_received') for p in subsession.get_players()]
+        punish = [p / 3 for p in punish if p is not None]
+
+        if punish:
+            punish_avg[round - 1] = sum(punish) / len(punish)
+
+    return dict(
+        contribute=json.dumps(contribute_avg),
+        punish=json.dumps(punish_avg),
+    )

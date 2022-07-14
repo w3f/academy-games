@@ -16,6 +16,7 @@ from typing import List, Optional, Tuple
 
 from bip39 import INDEX_TO_WORD_TABLE, WORD_TO_INDEX_TABLE
 
+from codenamize import codenamize
 
 class WalletError(Exception):
     """Default exception type for wallet runtime errors."""
@@ -181,7 +182,7 @@ class Wallet(ExtraModel):
     @property
     def public(self) -> str:
         """Generate mnemonic phrase from wallet seed."""
-        return seed_to_phrase32(self._public)
+        return codenamize(self._public, 2)
 
     @property
     def private(self) -> str:

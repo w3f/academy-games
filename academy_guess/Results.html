@@ -3,16 +3,16 @@
 
     <p>Here were the numbers guessed:</p>
 
-    <p>
+    <p><strong>
         {{ group.guesses }}
-    </p>
+    </strong></p>
 
     <p>
-        Two-thirds of the average of these numbers is {{ group.two_thirds_avg }};
-        the closest guess was {{ group.best_guess }}.
+        Two-thirds of the average of these numbers is <strong>{{ group.two_thirds_avg }}</strong>;
+        the closest guess was <strong>{{ group.best_guess }}</strong>.
     </p>
 
-    <p>Your guess was {{ player.guess }}.</p>
+    <p>Your guess was <strong>{{ player.guess }}</strong>.</p>
 
     <p>
         {{ if player.is_winner }}
@@ -25,7 +25,7 @@
         {{ else }}
             Therefore, you did not win.
         {{ endif }}
-    Your payoff is {{ player.payoff }}.
+        Your payoff is <strong>{{ player.payoff }}</strong>.
     </p>
 
     {{ next_button }}

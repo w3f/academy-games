@@ -40,6 +40,10 @@ class Group(BaseGroup):
     num_winners = IntegerField()
 
     @property
+    def size(self) -> int:
+        return len(self.get_players())
+
+    @property
     def guesses(self) -> List[int]:
         """Retrieve and sort all guesses from players."""
         return sorted(p.guess for p in self.get_players())

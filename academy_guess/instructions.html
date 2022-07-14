@@ -5,17 +5,17 @@
     <div class="card-body">
 
         <p>
-            You are in a group of {{ C.PLAYERS_PER_GROUP }} people.
+            You are in a group of <strong>{{ group.size }} people</strong>.
             Each of you will be asked to choose a
-            number between 0 and {{ C.GUESS_MAX }}.
+            number between <strong>0 and {{ C.GUESS_MAX }}</strong>.
             The winner will be the participant whose
-            number is closest to 2/3 of the
+            number is closest to <strong>2/3</strong> of the
             average of all chosen numbers.
         </p>
 
         <p>
-            The winner will receive {{ C.JACKPOT }}.
-            In case of a tie, the {{ C.JACKPOT }}
+            The winner will receive <strong>{{ C.JACKPOT }}</strong>.
+            In case of a tie, the <strong>{{ C.JACKPOT }}</strong>
             will be equally divided among winners.
         </p>
 

@@ -4,8 +4,10 @@
     {{ if player.round_number > 1 }}
         <p>
             Here were the two-thirds-average values in previous rounds:
-            {{ group.history }}
         </p>
+
+        <p><strong>{{ group.history }}</strong></p>
+
     {{ endif }}
 
     {{ formfields }}

@@ -6,7 +6,7 @@ import settings
 from otree.constants import BaseConstants
 from otree.currency import Currency
 from otree.models import BaseSubsession, BaseGroup, BasePlayer
-from otree.database import CurrencyField, IntegerField
+from otree.database import db, CurrencyField, IntegerField
 
 from otree.views import Page, WaitPage
 
@@ -66,9 +66,7 @@ class Subsession(BaseSubsession):
         session._set_admin_report_app_names()
         super().__init__(round_number=round_number, session=session)
 
-
-    pass
-
+        db.commit()
 
 class Group(BaseGroup):
     """Track total contributions and its distribution."""

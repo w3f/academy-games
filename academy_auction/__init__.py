@@ -148,7 +148,7 @@ def custom_export(all_players: List[Player]):
             yield [
                 session_code,
                 participant.code,
-                participant.treatment,
+                group.treatment,
                 group.id_in_subsession,
                 group.duration_final,
                 player.id_in_group,

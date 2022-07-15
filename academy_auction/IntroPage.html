@@ -5,11 +5,40 @@
 
   {{ if player.balance > 0 }}
 
-    <p>As the final game in our course you are going to bid on an NFT with the <strong>{{ player.balance }}</strong> you earned so far.</p>
+  <p>As the final game in our course you have the opportunity to bid on an NFT
+    with your earning from the previous games. Your balance is {{ player.balance }}.</p>
 
-    <p>This is a candle auction.</p>
+  <p>When you win the auction, you receive one (randomly selected) of 20 artistic NFTs by Rubentopia:</p>
 
-    <p>Please click the button as soon you are ready.</p>
+  <img src="{{ static 'academy/auction_items.png' }}" class="figure-img img-fluid img-thumbnail">
+
+  <p>Note: If you do not win the auction, or do not bid, then you will receive your earnings after the course.</p>
+
+  <h5>Auction Rules</h5>
+
+  {{ if group.treatment == "hard" }}
+
+  <p>This is a <strong>hard close auction</strong> and play with two other students from the course.
+
+  <p>The auction lasts <strong>4 minutes</strong> and you can cast a bid at any time. The highest bid at the end of the auction wins.</p>
+
+  {{ elif group.treatment == "candle" }}
+
+  <p>You are part of a <strong>candle auction</strong> and play with two other students from the course.</p>
+
+  <p>The auction lasts 4 minutes in total and you can cast a bid at any time. In the candle auction, there is a mechanism that randomly determines the actual end of the auction after the auction ended.</p>
+
+  <p>There are two phases in the auction. The <strong>starting phase (1 minute)</strong> and the <strong>candle phase (3 minutes)</strong>. In the first phase, the candle mechanism is not allowed to end the auction. In the candle phase, every second has the same probability of being the retrospective end of the auction.</p>
+
+  {{ else }}
+
+  <p>You are part of an auction with **activity rule** and play with two other students from the course.</p>
+
+  <p>The auction lasts <strong>30 seconds</strong> initially and you can cast a bid at any time and each new bid resets the timer to <strong>30 seconds</strong> again. That means, as long as there are new and valid bids coming in, the auction goes on. The highest bid wins.</p>
+
+  {{ endif }}
+
+  <p>Please click the button as soon you are ready.</p>
 
   {{ else }}
 

@@ -156,3 +156,34 @@ def custom_export(all_players: List[Player]):
                 bid.timestamp,
                 bid.price,
             ]
+
+    yield []
+
+    yield [
+        'wallet_public',
+        'wallet_private',
+        'wallet_balance',
+        'wallet_games',
+        'wallet_bids',
+        'wallet_winner',
+        'wallet_price',
+    ]
+
+    for player in all_players:
+        bid = Bid.result(player.group)
+
+        winner = (bid.player == player) if bid else False
+        price = bid.price if winner else ""
+
+        wallet = player.wallet
+
+        if wallet:
+            yield [
+                wallet.public,
+                wallet.private,
+                wallet.balance,
+                len(wallet.games),
+                len(Bid.for_player(player)),
+                winner,
+                price,
+            ]

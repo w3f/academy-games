@@ -101,20 +101,23 @@ def vars_for_admin_report(subsession):
     def average(xs):
         return sum(xs) / len(xs) if xs else "-"
 
+    def average_and_round(xs):
+        return round(sum(xs) / len(xs), 2) if xs else "-"
+
     return dict(
-        count_all=average(count_all),
+        count_all=average_and_round(count_all),
         highest_all=average(highest_all),
         winning_all=average(winning_all),
 
-        count_hard=average(count_hard),
+        count_hard=average_and_round(count_hard),
         highest_hard=average(highest_hard),
         winning_hard=average(winning_hard),
 
-        count_candle=average(count_candle),
+        count_candle=average_and_round(count_candle),
         highest_candle=average(highest_candle),
         winning_candle=average(winning_candle),
 
-        count_activity=average(count_activity),
+        count_activity=average_and_round(count_activity),
         highest_activity=average(highest_activity),
         winning_activity=average(winning_activity),
     )

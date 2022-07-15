@@ -203,10 +203,17 @@ class Bid(ExtraModel):
 
         # Check that bid is higher for selection
         highest = Bid.highest(player.group)
-        if highest and highest.price >= price:
-            raise Bid.SubmissionFailure.from_format(
-                "Price below current highest bid of {}", highest.price
-            )
+        if highest:
+            if player.group.treatment == "activity":
+                if highest.price + Constants.activity_increment >= price:
+                    raise Bid.SubmissionFailure.from_format(
+                        "Price has to exceed current highest bid of {} by at least {}", highest.price, Constants.activity_increment
+                    )
+            else:
+                if highest.price >= price:
+                    raise Bid.SubmissionFailure.from_format(
+                        "Price below current highest bid of {}", highest.price
+                    )
 
         Bid.create(
             group=player.group,

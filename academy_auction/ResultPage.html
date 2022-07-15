@@ -15,21 +15,29 @@
       {{ if best.bidder == player.id_in_group }}
 
         <!-- Player has won the auction. -->
-        <p>&#x1F451; <b>Congratulations, you won the auction with your bid of {{ best.price }}!</b> This leaves you with an additional reward of <b>{{ reward }}</b> from the previous games.</p>
+        <p>&#x1F451; <b>Congratulations, you won the auction with your bid of {{ best.price }}!</b></p>
+
+        <p>This leaves you with an additional reward of <b>{{ reward }}</b> from the previous games.</p>
 
       {{ else }}
 
         <!-- Player has lost the auction. -->
-        <p>&#x1F921; You lost the auction to <i>bidder {{ best.bidder }}</i> and his winning bid of <i>{{ best.price }}</i>, however you will be receiving the reward of <b>{{ reward }}</b> from the previous games.</p>
+        <p>&#x1F921; <b>You lost the auction to bidder {{ best.bidder }} and his winning bid of {{ best.price }}.</b></p>
+
+        <p>However you will be receiving the reward of <b>{{ reward }}</b> from the previous games.</p>
 
       {{ endif }}
 
     {{ else }}
 
       <!-- Nobody participated in the auction. -->
-      <p>There were no bids and the object was not sold. You will be receiving a reward of <b>{{ reward }}</b> from the previous games.</p>
+      <p><b>There were no bids and the object was not sold.</b></p>
+
+      <p>You will be receiving a reward of <b>{{ reward }}</b> from the previous games.</p>
 
     {{ endif }}
+
+    <p><strong>Thank you for your participation!</strong></p>
 
   {{ else }}
 

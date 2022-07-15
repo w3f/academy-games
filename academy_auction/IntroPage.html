@@ -6,11 +6,16 @@
   {{ if player.balance > 0 }}
 
   <p>As the final game in our course you have the opportunity to bid on an NFT
-    with your earning from the previous games. Your balance is {{ player.balance }}.</p>
+    with your earning from the previous games. Your balance is <strong>{{ player.balance }}</strong>.</p>
 
   <p>When you win the auction, you receive one (randomly selected) of 20 artistic NFTs by Rubentopia:</p>
 
-  <img src="{{ static 'academy/auction_items.png' }}" class="figure-img img-fluid img-thumbnail">
+  <div class="d-flex justify-content-center">
+    <figure class="figure w-50 mx-auto">
+      <img src="{{ static 'academy/auction_items.png' }}" class="figure-img img-fluid img-thumbnail">
+      <figcaption class="figure-caption text-end">Blockchain Academy 2022 - By Rubentopia</figcaption>
+    </figure>
+  </div>
 
   <p>Note: If you do not win the auction, or do not bid, then you will receive your earnings after the course.</p>
 
@@ -32,7 +37,7 @@
 
   {{ else }}
 
-  <p>You are part of an auction with **activity rule** and play with two other students from the course.</p>
+  <p>You are part of an auction with <strong>activity rule</strong> and play with two other students from the course.</p>
 
   <p>The auction lasts <strong>30 seconds</strong> initially and you can cast a bid at any time and each new bid resets the timer to <strong>30 seconds</strong> again. That means, as long as there are new and valid bids coming in, the auction goes on. The highest bid wins.</p>
 

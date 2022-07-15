@@ -17,12 +17,14 @@
         </div>
     </div>
 
-    <p>You are bidding on the following NFT:</p>
+    <p>When you win the auction, you receive one (randomly selected) of 20 artistic NFTs by Rubentopia:</p>
 
-    <figure class="figure w-50">
+    <div class="d-flex justify-content-center">
+      <figure class="figure w-50">
         <img src="{{ static 'academy/auction_items.png' }}" class="figure-img img-fluid img-thumbnail">
-        <figcaption class="figure-caption text-end">Blockchain Academy NFT Collection</figcaption>
-    </figure>
+        <figcaption class="figure-caption text-end">Blockchain Academy 2022 - By Rubentopia</figcaption>
+      </figure>
+    </div>
 
     <p>&#x1F451; Highest price: <b id="output-highest-price">-</b></p>
     <p>&#x1F451; Highest bidder: <b id="output-highest-bidder">-</b></p>
@@ -31,7 +33,7 @@
 
     <h3>Participate in the auction:</h3>
 
-    <p>You are Bidder {{ player.id_in_group }}.</p>
+    <p>You are <strong>Bidder {{ player.id_in_group }}</strong>.</p>
 
     <!-- Hidden alerts to display success and error messages -->
     <div id="output-success" class="alert alert-success d-none"></div>

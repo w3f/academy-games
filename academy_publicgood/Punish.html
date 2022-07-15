@@ -138,7 +138,7 @@
              /* Callbacks to link input to slider. */
              inputNumber.addEventListener('input', function() {
                  this.value = Math.min(Math.max(this.value, this.min), this.max);
-                 value = Math.round(this.value / {{ C.PUNISHMENT_STEP }}) * {{ C.PUNISHMENT_STEP }};
+                 let value = Math.round(this.value / {{ C.PUNISHMENT_STEP }}) * {{ C.PUNISHMENT_STEP }};
                  inputRange.value = value;
                  updateOutput(value);
              });

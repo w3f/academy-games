@@ -1,0 +1,36 @@
+<table class="table table-bordered">
+  <thead class="table-dark">
+    <tr>
+        <th>Treatment</th>
+        <th>Avg. Winning Price</th>
+        <th>Avg. Final Price</th>
+        <th>Avg. Number of Bids</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+        <th><u>All Treatments</u></th>
+        <td><u>{{ winning_all }}</u></td>
+        <td><u>{{ highest_all }}</u></td>
+        <td><u>{{ count_all }}</u></td>
+    </tr>
+    <tr>
+        <th>Hard Close</th>
+        <td>{{ winning_hard }}</td>
+        <td>{{ highest_hard }}</td>
+        <td>{{ count_hard }}</td>
+    </tr>
+    <tr>
+        <th>Candle Auction</th>
+        <td>{{ winning_candle }}</td>
+        <td>{{ highest_candle }}</td>
+        <td>{{ count_candle }}</td>
+    </tr>
+    <tr>
+        <th>Activity Rule</th>
+        <td>{{ winning_activity }}</td>
+        <td>{{ highest_activity }}</td>
+        <td>{{ count_activity }}</td>
+    </tr>
+  </tbody>
+</table>

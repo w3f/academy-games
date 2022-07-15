@@ -1,6 +1,6 @@
 """An adaption of our auction experiment for the academy."""
 
-from .models import Constants, Subsession, Group, Player
+from .models import Constants, Subsession, Group, Player, Bid
 from .pages import page_sequence
 
 from typing import List
@@ -42,6 +42,82 @@ def creating_session(subsession: Subsession) -> None:
             g.candle_duration = random.randint(
                 Constants.candle_duration_min, Constants.candle_duration_max
             )
+
+
+# CUSTOM ADMIN REPORT
+def vars_for_admin_report(subsession):
+    count_all = []
+    highest_all = []
+    winning_all = []
+
+    count_hard = []
+    highest_hard = []
+    winning_hard = []
+
+    count_activity = []
+    highest_activity = []
+    winning_activity = []
+
+    count_candle = []
+    highest_candle = []
+    winning_candle = []
+
+    for group in subsession.get_groups():
+        count = Bid.count(group)
+        count_all += [ count ]
+
+        highest = Bid.highest(group)
+        if highest:
+            highest_all += [ highest.price ]
+
+        winning = Bid.result(group)
+        if winning:
+            winning_all += [ winning.price ]
+
+        if group.treatment == "hard":
+            count_hard += [ count ]
+
+            if winning:
+                winning_hard += [ winning.price ]
+            if highest:
+                highest_hard += [ highest.price]
+
+        elif group.treatment == "candle":
+            count_candle += [ count ]
+
+            if winning:
+                winning_candle += [ winning.price ]
+            if highest:
+                highest_candle += [ highest.price ]
+
+        elif group.treatment == "activity":
+            count_activity += [ count ]
+
+            if winning:
+                winning_activity += [ winning.price ]
+            if highest:
+                highest_activity += [ highest.price ]
+
+    def average(xs):
+        return sum(xs) / len(xs) if xs else "-"
+
+    return dict(
+        count_all=average(count_all),
+        highest_all=average(highest_all),
+        winning_all=average(winning_all),
+
+        count_hard=average(count_hard),
+        highest_hard=average(highest_hard),
+        winning_hard=average(winning_hard),
+
+        count_candle=average(count_candle),
+        highest_candle=average(highest_candle),
+        winning_candle=average(winning_candle),
+
+        count_activity=average(count_activity),
+        highest_activity=average(highest_activity),
+        winning_activity=average(winning_activity),
+    )
 
 
 # CUSTOM EXPORTER

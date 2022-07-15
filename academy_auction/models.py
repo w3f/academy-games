@@ -27,14 +27,15 @@ class Constants(BaseConstants):
     num_rounds = 1
     title_prefix = "Lesson 2.3: "
 
-    # Duration config
-    hard_duration = 60.0
+    activity_increment = RealWorldCurrency(0.3)
 
-    candle_duration_max = 120
+    # Duration config
+    hard_duration = 240.0
+
+    candle_duration_max = 240
     candle_duration_min = 60
 
-    activity_duration = 60.0
-    activity_reset = 15.0
+    activity_duration = 30.0
 
 
 class Subsession(BaseSubsession):
@@ -85,10 +86,7 @@ class Group(BaseGroup):
         elif self.treatment == "candle":
             return float(Constants.candle_duration_max)
         elif self.treatment == "activity":
-            if self.timestamp_reset - self.timestamp_start > Constants.activity_duration:
-                return Constants.activity_reset
-            else:
-                return Constants.activity_duration
+            return Constants.activity_duration
         else:
             raise Exception("Unknown treatment: ", self.treatment)
 

@@ -7,7 +7,7 @@ repositories:
 releases:
 {{- if eq .Environment.Name "ci" }} 
   - name: otree
-    chart: ../charts/otree
+    chart: w3f/otree
     values:
       - ./config/otree-values.yaml.gotmpl
       - ./config/ci/otree-values.yaml.gotmpl

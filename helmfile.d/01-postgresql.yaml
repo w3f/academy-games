@@ -1,0 +1,25 @@
+environments:
+  production:
+  ci:
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+releases:
+{{- if eq .Environment.Name "ci" }} 
+  - name: postgresql
+    chart: bitnami/postgresql
+    version: ^11.1.14
+    values:
+      - ./config/postgres-values.yaml.gotmpl
+      - ./config/ci/postgres-values.yaml.gotmpl
+{{- end }} 
+
+{{- if eq .Environment.Name "production" }} 
+  - name: postgresql
+    chart: bitnami/postgresql
+    version: ^11.1.14
+    namespace: otree-academy-games
+    values:
+      - ./config/postgres-values.yaml.gotmpl
+      - ./config/prod/postgres-values.yaml.gotmpl
+{{- end }} 

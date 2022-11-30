@@ -1,0 +1,9 @@
+domain: academy.w3f.dev
+
+config:
+  db:
+    user: {{ "ref+vault://op/vaults/k8s-community-secrets/items/otree-postgres-username?proto=http#password" | fetchSecretValue | quote }}
+    password: {{ "ref+vault://op/vaults/k8s-community-secrets/items/otree-postgres-password?proto=http#password" | fetchSecretValue | quote }}
+  otree:
+    adminPassword: {{ "ref+vault://op/vaults/k8s-community-secrets/items/otree-admin-password?proto=http#password" | fetchSecretValue | quote }}
+    production: "1"

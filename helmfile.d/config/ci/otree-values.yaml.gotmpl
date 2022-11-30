@@ -1,0 +1,10 @@
+image:
+  tag: {{ env "CIRCLE_SHA1" | default "kind" }}
+
+config:
+  db:
+    user: 'otree'
+    password: 'otree'
+  otree:
+    adminPassword: "otree"
+    production: "0"

@@ -1,0 +1,7 @@
+auth:
+  postgresPassword: {{ "ref+vault://op/vaults/k8s-community-secrets/items/otree-postgres-postgres-password?proto=http#password" | fetchSecretValue | quote }}
+  username: {{ "ref+vault://op/vaults/k8s-community-secrets/items/otree-postgres-username?proto=http#password" | fetchSecretValue | quote }}
+  password: {{ "ref+vault://op/vaults/k8s-community-secrets/items/otree-postgres-password?proto=http#password" | fetchSecretValue | quote }}
+primary:
+  persistence:
+    enabled: true

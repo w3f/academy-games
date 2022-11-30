@@ -16,9 +16,17 @@
   outputs = { self, nixpkgs, mach-nix, ... }: let
     # Build python environment with mach-nix and patched otree
     mkPython = lib: lib.mkPython {
-      requirements = builtins.readFile ./requirements.txt;
+      requirements = ''
+        otree=5.10.1
+        psycopg2>=2.4.8
+        bip39
+      '';
+
       _.otree = {
-        patches = [ ./.nix/otree-login-logging.patch ];
+        patches = [ 
+          ./.nix/otree-jquery-update.patch
+          ./.nix/otree-login-logging.patch 
+        ];
         propagatedBuildInputs.mod = pyPkgs: _: old: old ++ [ pyPkgs.psycopg2 pyPkgs.bip39 ];
       };
     };

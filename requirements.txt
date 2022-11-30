@@ -1,6 +1,3 @@
-# oTree-may-overwrite-this-file
-# IF YOU MODIFY THIS FILE, remove this comment.
-# otherwise, oTree will automatically overwrite it.
-otree>=5.2.0
-psycopg2>=2.8.4
+git+https://github.com/FlorianFranzen/otree-core.git@main
+psycopg2-binary>=2.8.4
 bip39

@@ -61,7 +61,6 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - helmLint
             - buildImage
       - publishImage:
           context: dockerhub-bot

@@ -8,14 +8,7 @@
   <p>As the final game in our course you have the opportunity to bid on an NFT
     with your earning from the previous games. Your balance is <strong>{{ player.balance }}</strong>.</p>
 
-  <p>When you win the auction, you receive <strong>one</strong> (randomly selected) of <strong>20</strong> artistic NFTs by Rubentopia:</p>
-
-  <div class="d-flex justify-content-center">
-    <figure class="figure w-50 mx-auto">
-      <img src="{{ static 'academy/auction_items.png' }}" class="figure-img img-fluid img-thumbnail">
-      <figcaption class="figure-caption text-end">Blockchain Academy 2022 - By Rubentopia</figcaption>
-    </figure>
-  </div>
+  {{ include "academy_auction/auction_items.html" }}
 
   <p><strong>Note:</strong> If you do not win the auction, or do not bid, then you will receive your earnings after the course.</p>
 

@@ -1,0 +1,37 @@
+{{ block title }}{{ C.TITLE_PREFIX }}Result{{ endblock }}
+{{ block content }}
+
+    <!-- Player outcome and reward -->
+    {{ if group.first_player }}
+
+      {{ if group.first_player == player.id_in_group }}
+
+        <!-- Player has won the auction. -->
+        <p>&#x1F451; <b>Congratulations, you won the auction with your bid of {{ group.first_price }}!</b></p>
+
+      {{ else }}
+
+        <!-- Player has lost the auction. -->
+        <p>&#x1F921; <b>You lost the auction to player {{ group.first_player }} and his winning bid of {{ group.first_price }}.</b></p>
+
+        {{ if group.second_player == player.id_in_group  }}
+
+          <!-- Player had second highest bid. -->
+          <p>Your were the <strong>second highest bidder</strong> with your bid of <strong>{{ group.second_price }}</strong>.</p>
+
+        {{ endif }}
+
+      {{ endif }}
+
+      <p>Your payoff is <strong>{{ participant.payoff_in_real_world_currency }}</strong>.</p>
+
+    {{ else }}
+
+      <!-- Nobody participated in the auction. -->
+      <p><b>There were no bids and the jackpot was not sold.</b></p>
+
+    {{ endif }}
+
+    {{ next_button }}
+
+{{ endblock }}

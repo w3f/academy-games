@@ -70,6 +70,13 @@ ACADEMY_GAME_CONFIGS = {
         academy_wallet_code=True,
         academy_endcard_reward=500,
     ),
+    'dollar': dict(
+        num_demo_participants=5,
+        academy_game_name="Dollar Auction",
+        academy_wallet_phrase=True,
+        academy_wallet_code=True,
+        real_world_currency_per_point = 0.01,
+    ),
     'auction' : ACADEMY_AUCTION_DEFAULTS | dict(
         num_groups_candle=1,
     ),

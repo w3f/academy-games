@@ -1,0 +1,112 @@
+{{ block title }}{{ C.TITLE_PREFIX }}Auction{{ endblock }}
+{{ block content }}
+
+<p>You are bidding on a jackpot of <strong>{{ C.JACKPOT }}</strong>.
+
+<table class="table table-striped table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <td></td>
+            <th class="text-center">Bidder</th>
+            <th class="text-center">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>First Highest Bid:</th>
+            <td id="output-first-player" class="text-center"> - </td>
+            <td id="output-first-price" class="text-center"> - </td>
+        </tr>
+        <tr>
+            <th>Second Highest Bid:</th>
+            <td id="output-second-player" class="text-center"> - </td>
+            <td id="output-second-price" class="text-center"> - </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="d-flex flex-wrap d-gap gap-3 align-items-center">
+    <p id="output-status" class="flex-fill">Waiting for your bid...</p>
+
+    <button type="button" id="input-button" class="btn btn-primary" onclick="sendBid(this)" disabled>...</button>
+</div>
+
+<br><br>
+
+{{ include C.INSTRUCTIONS_TEMPLATE }}
+
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+    const inputButtonDom = document.getElementById('input-button');
+
+    const outputFirstPlayerDom = document.getElementById('output-first-player');
+    const outputFirstPriceDom = document.getElementById('output-first-price');
+
+    const outputSecondPlayerDom = document.getElementById('output-second-player');
+    const outputSecondPriceDom = document.getElementById('output-second-price');
+
+    const outputStatusDom = document.getElementById('output-status');
+
+    function sendBid(self) {
+        liveSend(parseFloat(self.value));
+    }
+
+    function liveRecv(data) {
+        let status = data[0];
+        let payload = data[1];
+
+        if (status == "success") {
+            outputStatusDom.innerHTML = "Bid was successfullt submitted.";
+        }
+
+        if (status == "success" || status == "update" || status == "init" ) {
+            const next_price = payload[0];
+            const next_currency = payload[1];
+
+            inputButtonDom.value = next_price;
+            inputButtonDom.innerText = `Bid ${next_currency}`;
+            inputButtonDom.disabled = false;
+
+            const first_price = payload[2];
+            const first_player = payload[3];
+
+            if (first_player) {
+                let name = `Player ${first_player}`;
+
+                if (first_player == js_vars.id_in_group) {
+                    name += " (Me)";
+                }
+
+                outputFirstPlayerDom.innerHTML = name;
+                outputFirstPriceDom.innerHTML = first_price;
+            }
+
+            const second_price = payload[4];
+            const second_player = payload[5];
+
+            if (second_player) {
+                let name = `Player ${second_player}`;
+
+                if (second_player == js_vars.id_in_group) {
+                    name += " (Me)";
+                }
+
+                outputSecondPlayerDom.innerHTML = name;
+                outputSecondPriceDom.innerHTML = second_price;
+            }
+
+        } else if (status == "error") {
+            outputStatusDom.innerHTML = payload;
+        } else {
+            outputStatusDom.innerHTML = `Unknown status returned: ${status}`;
+        }
+
+   }
+
+   document.addEventListener("DOMContentLoaded", function (event) {
+        liveSend({});
+    });
+</script>
+{{ endblock }}

@@ -4,6 +4,29 @@
     <div id="coop"></div>
 </figure>
 
+  {{ for p1, p2, rounds in all_chats }}
+  <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+            <th colspan="2" class="text-center">{{ p1 }} vs. {{ p2 }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ for rid, messages in rounds }}
+        <tr>
+            <th colspan="2" class="text-center">Round {{ rid }}</th>
+        </tr>
+          {{ for pub, color, msg in messages }}
+          <tr>
+            <td{{ if color }} class="text-{{ color }}"{{ endif }}>{{ pub }}</td>
+            <td>{{ msg }}</td>
+          </tr>
+          {{ endfor }}
+        {{ endfor }}
+      </tbody>
+  </table>
+  {{ endfor }}
+
 <script>
 Highcharts.chart('coop', {
 

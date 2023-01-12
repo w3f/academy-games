@@ -167,3 +167,25 @@ class Results(Page):
     pass
 
 page_sequence = [Intro, WaitToStart, Bid, ResultsWaitPage, Results]
+
+
+# CUSTOM ADMIN REPORT
+def vars_for_admin_report(subsession):
+    prices = []
+
+    for group in subsession.get_groups():
+        if group.first_player:
+            prices += [ group.first_price ]
+
+    if prices:
+        return dict(
+            price_highest=max(prices),
+            price_average=sum(prices) / len(prices),
+            price_lowest=min(prices),
+        )
+    else:
+        return dict(
+            price_highest="-",
+            price_average="-",
+            price_lowest="-",
+       )

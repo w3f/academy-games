@@ -51,6 +51,10 @@ class Player(BasePlayer):
     )
 
     @property
+    def has_chosen(self) -> bool:
+        return (self.field_maybe_none('cooperate') is not None)
+
+    @property
     def choice(self) -> str:
         """Return players choice as string."""
         return self.field_display('cooperate')
@@ -85,6 +89,11 @@ class Decision(Page):
     form_model = 'player'
     form_fields = ['cooperate']
 
+    @staticmethod
+    def live_method(player: Player, message):
+        return {
+            player.opponent.id_in_group: message
+        }
 
 class ResultsWait(WaitPage):
     """Wait for players and determine result."""

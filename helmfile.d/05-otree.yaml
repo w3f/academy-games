@@ -16,7 +16,7 @@ releases:
 {{- if eq .Environment.Name "production" }} 
   - name: otree
     chart: w3f/otree
-    version: ^v1.0.3
+    version: ^v1.0.4
     namespace: otree-academy-games
     values:
       - ./config/otree-values.yaml.gotmpl

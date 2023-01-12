@@ -18,7 +18,7 @@ class C(BaseConstants):
 
     NAME_IN_URL = 'academy_cournot'
     PLAYERS_PER_GROUP = 2
-    NUM_ROUNDS = 5
+    NUM_ROUNDS = 10
     TITLE_PREFIX = "Lesson 2.1: "
     INSTRUCTIONS_TEMPLATE = 'academy_cournot/instructions.html'
     # Total production capacity of all players

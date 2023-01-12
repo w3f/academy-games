@@ -19,7 +19,7 @@ class Constants(BaseConstants):
     name_in_url = 'academy_ultimatum'
     title_prefix = "Lesson 2.1: "
     players_per_group = 2
-    num_rounds = 1
+    num_rounds = 3
 
     instructions_template = 'academy_ultimatum/instructions.html'
 
@@ -136,6 +136,8 @@ page_sequence = [
     Results,
 ]
 
+def creating_session(subsession):
+    subsession.group_randomly()
 
 def vars_for_admin_report(subsession):
     accept = [0] * Constants.num_offers

@@ -8,7 +8,7 @@ from otree.database import (
     st,
     ForeignKey
 )
-from otree.models import BasePlayer, Participant
+from otree.models import BasePlayer, Participant, Session
 
 import secrets
 from hashlib import sha256
@@ -193,9 +193,19 @@ class Wallet(ExtraModel):
         return Participant.objects_get(id=self.id)
 
     @property
+    def game_id(self):
+        """Return session display name of current association."""
+        return self.owner.session.config['academy_game_id']
+
+    @property
+    def game_name(self):
+        """Return session display name of current association."""
+        return self.owner.session.config['academy_game_name']
+
+    @property
     def is_game(self) -> bool:
         """Return true if association is a game, i.e. not a wallet."""
-        return self.owner.session.config['academy_game_id'] != "wallet"
+        return self.game_id != "wallet"
 
     @property
     def value(self) -> RealWorldCurrency:
@@ -206,11 +216,6 @@ class Wallet(ExtraModel):
     def code(self) -> str:
         """Return participant code of current association."""
         return self.owner.code
-
-    @property
-    def game_name(self):
-        """Return session display name of current association."""
-        return self.owner.session.config['academy_game_name']
 
     @property
     def wallet_set(self):
@@ -231,6 +236,11 @@ class Wallet(ExtraModel):
     def endowments(self) -> List[Participant]:
         """List all endowments on account."""
         return [w.owner for w in self.wallet_set if not w.is_game]
+
+    @property
+    def sessions(self) -> List[Session]:
+        """Return all game session in which the wallet participated."""
+        return [p.session for p in self.games] 
 
     @property
     def balance(self) -> RealWorldCurrency:

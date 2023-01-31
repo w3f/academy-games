@@ -3,10 +3,14 @@
 from .models import Constants, Subsession, Group, Player, Bid
 from .pages import page_sequence
 
-from typing import List
+from wallet import Wallet
+
+from typing import Any, List, Set
 
 import random
 
+import operator
+import functools
 
 # Description in UI
 doc = __doc__
@@ -187,3 +191,32 @@ def custom_export(all_players: List[Player]):
                 winner,
                 price,
             ]
+
+    yield []
+
+    yield [
+        'wallet_public',
+        'wallet_private',
+        'wallet_balance',
+        'wallet_games',
+        'wallet_auction',
+    ]
+
+    def flatset(data: List[List[Any]]) -> Set[Any]:
+        return functools.reduce(operator.or_, map(set, data), set())
+
+    all_sessions = flatset([p.wallet.sessions for p in all_players if player.wallet])
+    all_participants = flatset([s.pp_set for s in all_sessions])
+    all_privates = set([Wallet.current(p)._private for p in all_participants if Wallet.current(p)])
+    all_wallets = [Wallet.objects_first(_private=p) for p in all_privates]
+
+    for wallet in all_wallets: 
+        games = [w.game_id for w in wallet.wallet_set if w.is_game]
+
+        yield [
+            wallet.public,
+            wallet.private,
+            wallet.balance,
+            len(games),
+            "auction" in games,
+        ]

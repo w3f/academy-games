@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/w3f/academy-games.svg?style=svg&circle-token=291abfc40771bd8f4372f3cb372cb321a2e47e35)](https://circleci.com/gh/w3f/academy-games)
+[![CircleCI](https://circleci.com/gh/w3f/academy-games.svg?style=svg&circle-token=a5121b27aebec8cf3ad6c073800e993948816ec2)](https://circleci.com/gh/w3f/academy-games)
 
 # Polkadot Blockchain Academy Games
 

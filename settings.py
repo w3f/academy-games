@@ -30,6 +30,12 @@ ACADEMY_AUCTION_TREATMENTS = [ 'hard', 'candle', 'activity' ]
 
 # List of all game identifiers
 ACADEMY_GAME_CONFIGS = {
+    'andrew_test': dict(
+        num_demo_participants=1,
+        academy_game_name="Andrew Test",
+        academy_wallet_create=True,
+        academy_endcard_reward=500,
+    ),
     'wallet': dict(
         num_demo_participants=1,
         academy_game_name="Wallet App",

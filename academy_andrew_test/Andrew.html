@@ -1,0 +1,12 @@
+{{ block title }}
+    {{ C.TITLE_PREFIX }}Andrews Thingie
+{{ endblock }}
+
+{{ block content }}
+
+    <div class="card my-3 p-3">
+        {{ formfield 'my_var' label="Please Type Something" }}
+        <button type="submit" class="btn btn-primary" name="my_var" value="{{ C.ANDREWS_VARIABLE }}">Andrews Variable</button>
+    </div>
+
+{{ endblock }}

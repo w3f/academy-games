@@ -9,4 +9,11 @@
         <button type="submit" class="btn btn-primary" name="my_var" value="{{ C.ANDREWS_VARIABLE }}">Andrews Variable</button>
     </div>
 
+
+    <p id="log"></p>
+
+{{ endblock }}
+
+{{ block scripts }}
+    <script src="{% static 'wallet/bundle.js' %}"></script>
 {{ endblock }}

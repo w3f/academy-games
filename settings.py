@@ -34,7 +34,6 @@ ACADEMY_GAME_CONFIGS = {
         num_demo_participants=1,
         academy_game_name="Andrew Test",
         academy_wallet_create=True,
-        academy_endcard_reward=500,
     ),
     'wallet': dict(
         num_demo_participants=1,

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@polkadot/extension-dapp": "^0.46.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.82.0",
+    "webpack-cli": "^5.1.0"
+  }
+}

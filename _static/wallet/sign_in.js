@@ -1,12 +1,20 @@
-import { web3Accounts, web3Enable, web3FromAddress, web3FromSource } from '@polkadot/extension-dapp';
-import { stringToHex } from "@polkadot/util";
-const { cryptoWaitReady, decodeAddress, signatureVerify } = require('@polkadot/util-crypto');
-const { u8aToHex } = require('@polkadot/util');
+import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-dapp';
+import { cryptoWaitReady, decodeAddress, signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
+import { u8aToHex, stringToHex } from '@polkadot/util'
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log("DOM is ready.");
     document.getElementById("log").innerHTML = "hello there";
-    signIn();
+
+    const {result: signInSuccess, id: userId} = await signIn();
+
+    if (signInSuccess) {
+        console.log("Successful login, userId: ", userId);
+        // TODO: Return userId to the backend to store
+    }
+    else {
+        console.log("Unsuccessful login");
+    }
 });
 
 async function signIn() {
@@ -52,7 +60,12 @@ async function signIn() {
     console.log('Signature verification result: ', verification);
 
 
-    // TODO: Now Add person to database by returning the Hash of the address..
+    // returning the Hash of the address..
+    const hashedAddress = blake2AsHex(sender.address);
+    return {
+        result: verification,
+        id: hashedAddress
+    }
 }
 
 const verifySignature = async (signedMessage, signature, address) => {

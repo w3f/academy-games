@@ -38,7 +38,7 @@ ACADEMY_GAME_CONFIGS = {
     'wallet': dict(
         num_demo_participants=1,
         academy_game_name="Wallet App",
-        academy_wallet_create=True,
+        academy_wallet_pubkey= True,
     ),
     'ultimatum': dict(
         num_demo_participants=2,

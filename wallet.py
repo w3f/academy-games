@@ -115,7 +115,7 @@ class Wallet(ExtraModel):
                 # This should never happen do we need?
                 raise WalletError("Wallet already assosciated with other session participant")
 
-        super().test_create(id=owner.id, _test_public=public)
+        super().test_create(id=owner.id, _test_public=public, _public=0, _private=0)
 
     # Static user-facing API to control wallet associations
     @classmethod
@@ -309,7 +309,6 @@ class Wallet(ExtraModel):
                   ) for p in self.games]
 
         return endowments + games
-
 
 class WalletPlayer(BasePlayer):
     """BasePlayer but with direct access to wallet via property."""

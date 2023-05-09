@@ -53,6 +53,13 @@ class C(BaseConstants):
         """Return if app should determine wallet based on room membership."""
         return model.session.config.get('academy_wallet_code', False)
 
+    WALLET_PUBKEY = 3
+
+    @staticmethod
+    def get_wallet_signin(model: MixinSessionFK) -> bool:
+        """Return if app is able to get a valid signature from the user authenticating them"""
+        return model.session.config.get('academy_wallet_pubkey', False)
+
 
 class Subsession(BaseSubsession):
     """Default base subsession."""
@@ -76,6 +83,7 @@ class Player(WalletPlayer):
             [C.WALLET_CREATE, 'create'],
             [C.WALLET_PHRASE, 'phrase'],
             [C.WALLET_CODE, 'code'],
+            [C.WALLET_PUBKEY, 'pubkey'],
         ]
     )
 
@@ -83,12 +91,13 @@ class Player(WalletPlayer):
 
     code = StringField(blank=True)
 
+    pubkey = StringField(blank=True)
 
 # PAGES
 class Authenticate(Page):
 
     form_model = 'player'
-    form_fields = ['source', 'phrase', 'code']
+    form_fields = ['source', 'phrase', 'code', 'pubkey'] # TODO: How to add another field here?
 
     def inner_dispatch(self, request):
         """Intercept request data to access cookies for wallet."""
@@ -128,9 +137,15 @@ class Authenticate(Page):
                 Wallet.generate(player.participant)
             elif values['source'] == C.WALLET_PHRASE and C.get_wallet_phrase(player) and values['phrase']:
                 Wallet.open(player.participant, values['phrase'])
+            elif values['source'] == C.WALLET_PUBKEY and C.get_wallet_signin(player) and values['pubkey']:
+                print("Hey I got the Hashed Pubkey")
+                Wallet.test_open(player.participant, values['pubkey'])
             elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
                 Wallet.open_with_code(player.participant, values['code'])
+            elif values['source'] == C.WALLET_CODE and C.get_wallet_signin(player) and values['code']:
+                Wallet.test_open_with_code(player.participant, values['code'])
             else:
+                # print(f"values source == {values['source']} values pubkey == {values['pubkey']}")
                 return 'Please enter a valid phrase to open a wallet.'
         except WalletError as err:
             return str(err)
@@ -142,6 +157,7 @@ class Authenticate(Page):
             'wallet_code': C.get_wallet_code(player),
             'wallet_create': C.get_wallet_create(player),
             'wallet_phrase': C.get_wallet_phrase(player),
+            'wallet_pubkey': C.get_wallet_signin(player),
         }
 
     @staticmethod

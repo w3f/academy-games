@@ -133,6 +133,8 @@ class Authenticate(Page):
     def error_message(player, values) -> Optional[str]:
         """Enroll with priority, otherwise try to open wallet."""
         try:
+            print("Got to this try block")
+            print(f"values['source']: {values['source']} values['pubkey']: {values['pubkey']} ")
             if values['source'] == C.WALLET_CREATE and C.get_wallet_create(player):
                 Wallet.generate(player.participant)
             elif values['source'] == C.WALLET_PHRASE and C.get_wallet_phrase(player) and values['phrase']:

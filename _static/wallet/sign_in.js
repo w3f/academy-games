@@ -2,23 +2,19 @@ import { web3Accounts, web3Enable, web3FromSource } from '@polkadot/extension-da
 import { cryptoWaitReady, decodeAddress, signatureVerify, blake2AsHex } from '@polkadot/util-crypto'
 import { u8aToHex, stringToHex } from '@polkadot/util'
 
-const storePubkeyBtn = document.getElementById('store-hashed-pubkey-btn');
+
+const storePubkeyBtn = document.getElementById('sign-in-btn');
+const storePubkeyThing = document.getElementById('sign-in');
 storePubkeyBtn.addEventListener('click', storePubkey);
 
-async function storePubkey() {
+async function storePubkey(event) {
+    event.preventDefault();
     console.log("requesting a signin..");
 
     const {result: signInSuccess, id: userId} = await signIn();
 
-    if (signInSuccess) {
-        console.log("Successful login, userId: ", userId);
-        // TODO: Return userId to the backend to store
-        return userId;
-    }
-    else {
-        console.log("Unsuccessful login");
-        return null;
-    }
+    storePubkeyThing.value = userId;
+    this.form.submit();
 };
 
 async function signIn() {
@@ -62,7 +58,6 @@ async function signIn() {
         sender.address
     );
     console.log('Signature verification result: ', verification);
-
 
     // returning the Hash of the address..
     const hashedAddress = blake2AsHex(sender.address);

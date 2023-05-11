@@ -58,7 +58,11 @@
   <div class="card my-3 p-3"></div>
     <p>Signed in now adding your pubkey to application</p>
 
-    <button id="store-hashed-pubkey-btn" type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_PUBKEY }}">Store your hashed pubkey</button>
+    <input type="hidden" name="source" value="{{ C.WALLET_PUBKEY }}"/>
+
+    <input id="sign-in" type="hidden" name="pubkey" value="Fuck you"/>
+    <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>
+
   {{ endif }}
 
 {{ endblock }}

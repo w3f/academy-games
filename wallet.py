@@ -22,7 +22,6 @@ class WalletError(Exception):
 
     pass
 
-
 # Quick and dirty 32-bit signed seed to/from three word mnemonic phrase (32bit + 1bit CS)
 # Uses signed ints to work with otree IntegerColumn on PostgesSQL
 def random_seed32() -> int:
@@ -160,11 +159,6 @@ class Wallet(ExtraModel):
 
     @staticmethod
     def test_open(owner: Participant, public: str) -> "Wallet":
-
-        # Check that wallet exists at all
-        # wallet = Wallet.objects_first(_test_public=public)
-        # if not wallet:
-        #     raise WalletError("No wallet associated with phrase.")
 
         return Wallet.test_create(owner, public)
 

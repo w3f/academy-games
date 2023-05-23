@@ -215,5 +215,6 @@ def custom_export(all_players: List[Player]):
             participant.code,
             wallet.public if wallet else None,
             wallet.private if wallet else None,
+            wallet.test_public if wallet else None,
             participant.payoff_plus_participation_fee(),
         ]

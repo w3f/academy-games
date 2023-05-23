@@ -111,11 +111,11 @@ class Wallet(ExtraModel):
 
         # Check that wallet has not be claimed for this session
         for other in owner.session.pp_set:
-            if cls.object_exists(id=other.id, _test_public=public):
+            if cls.objects_exists(id=other.id, _test_public=public):
                 # This should never happen do we need?
                 raise WalletError("Wallet already assosciated with other session participant")
 
-        super().test_create(id=owner.id, _test_public=public, _public=0, _private=0)
+        super().create(id=owner.id, _test_public=public, _public=0, _private=0)
 
     # Static user-facing API to control wallet associations
     @classmethod
@@ -162,11 +162,11 @@ class Wallet(ExtraModel):
     def test_open(owner: Participant, public: str) -> "Wallet":
 
         # Check that wallet exists at all
-        wallet = Wallet.objects_first(_test_public=public)
-        if not wallet:
-            raise WalletError("No wallet associated with phrase.")
+        # wallet = Wallet.objects_first(_test_public=public)
+        # if not wallet:
+        #     raise WalletError("No wallet associated with phrase.")
 
-        return Wallet.test_create(owner, wallet._test_public)
+        return Wallet.test_create(owner, public)
 
     @staticmethod
     def open(owner: Participant, phrase: str) -> "Wallet":
@@ -286,7 +286,7 @@ class Wallet(ExtraModel):
     @property
     def sessions(self) -> List[Session]:
         """Return all game session in which the wallet participated."""
-        return [p.session for p in self.games] 
+        return [p.session for p in self.games]
 
     @property
     def balance(self) -> RealWorldCurrency:

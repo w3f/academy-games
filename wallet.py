@@ -216,10 +216,13 @@ class Wallet(ExtraModel):
     @property
     def public(self) -> str:
         """Generate mnemonic phrase from wallet seed."""
+        print("HALLO!!@#!@??")
         return "0x{:04x}".format(int.from_bytes(self._public.to_bytes(4, 'big', signed=True), 'big'))
 
     @property
     def test_public(self) -> str:
+        """Return Hashed Pubkey."""
+        print("WTF!@#!@#??")
         return self._test_public
 
     @property

@@ -143,6 +143,7 @@ class Authenticate(Page):
                 print("Hey I got the Hashed Pubkey")
                 Wallet.test_open(player.participant, values['pubkey'])
             elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
+                print("Getting into this block....")
                 Wallet.open_with_code(player.participant, values['code'])
             elif values['source'] == C.WALLET_CODE and C.get_wallet_signin(player) and values['code']:
                 Wallet.test_open_with_code(player.participant, values['code'])
@@ -202,6 +203,7 @@ def custom_export(all_players: List[Player]):
         'wallet_participant',
         'wallet_public',
         'wallet_private',
+        'wallet_test_public',
         'wallet_payoff'
     ]
     for player in all_players:

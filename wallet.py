@@ -98,10 +98,8 @@ class Wallet(ExtraModel):
     _public = IntegerField()
     _private = IntegerField()
 
-    _test_public = StringField()
-
     @classmethod
-    def test_create(cls, owner: Participant, public: str) -> "Wallet":
+    def create(cls, owner: Participant, public: str) -> "Wallet":
 
         wallet = cls.current(owner)
         if wallet:
@@ -110,27 +108,27 @@ class Wallet(ExtraModel):
 
         # Check that wallet has not be claimed for this session
         for other in owner.session.pp_set:
-            if cls.objects_exists(id=other.id, _test_public=public):
+            if cls.objects_exists(id=other.id, _public=public):
                 # This should never happen do we need?
                 raise WalletError("Wallet already assosciated with other session participant")
 
-        super().create(id=owner.id, _test_public=public, _public=0, _private=0)
+        super().create(id=owner.id, _public=public, _private=0)
 
     # Static user-facing API to control wallet associations
-    @classmethod
-    def create(cls, owner: Participant, public: int, private: int) -> "Wallet":
+    # @classmethod
+    # def create(cls, owner: Participant, public: int, private: int) -> "Wallet":
 
-        wallet = cls.current(owner)
-        if wallet:
-                # Different/Incorrect phrase
-                raise WalletError("Participant can only have one wallet.")
+    #     wallet = cls.current(owner)
+    #     if wallet:
+    #             # Different/Incorrect phrase
+    #             raise WalletError("Participant can only have one wallet.")
 
-        # Check that wallet has not been claimed for this session
-        for other in owner.session.pp_set:
-            if cls.objects_exists(id=other.id, _private=private):
-                raise WalletError("Wallet already associated with other session participant.")
+    #     # Check that wallet has not been claimed for this session
+    #     for other in owner.session.pp_set:
+    #         if cls.objects_exists(id=other.id, _private=private):
+    #             raise WalletError("Wallet already associated with other session participant.")
 
-        super().create(id=owner.id, _public=public, _private=private)
+    #     super().create(id=owner.id, _public=public, _private=private)
 
     @staticmethod
     def generate(owner: Participant) -> str:
@@ -158,22 +156,9 @@ class Wallet(ExtraModel):
         return Wallet.create(owner, public, private)
 
     @staticmethod
-    def test_open(owner: Participant, public: str) -> "Wallet":
+    def open(owner: Participant, public: str) -> "Wallet":
 
-        return Wallet.test_create(owner, public)
-
-    @staticmethod
-    def open(owner: Participant, phrase: str) -> "Wallet":
-        """Associate a participant with a certain wallet."""
-        private = phrase_to_seed32(phrase)
-
-        # Check that wallet exists at all
-        wallet = Wallet.objects_first(_private=private)
-        if not wallet:
-            raise WalletError("No wallet associated with phrase.")
-
-        # Register the existing wallet with the current participant
-        return Wallet.create(owner, wallet._public, private)
+        return Wallet.create(owner, public)
 
     @staticmethod
     def open_with_code(owner: Participant, code: str) -> "Wallet":
@@ -186,20 +171,7 @@ class Wallet(ExtraModel):
         if not wallet:
             raise WalletError("No wallet associated with code.")
 
-        return Wallet.create(owner, wallet._public, wallet._private)
-
-    @staticmethod
-    def test_open_with_code(owner: Participant, code: str) -> "Wallet":
-        """Associate a participant with the wallet of a certain participant."""
-        other = Participant.objects_first(code=code)
-        if not other:
-            raise WalletError("No participant associated with code.")
-
-        wallet = Wallet.current(other)
-        if not wallet:
-            raise WalletError("No wallet associated with code.")
-
-        return Wallet.test_create(owner, wallet._test_public)
+        return Wallet.create(owner, wallet._public)
 
     @staticmethod
     def current(owner: Participant) -> Optional["Wallet"]:
@@ -218,18 +190,13 @@ class Wallet(ExtraModel):
         """Generate mnemonic phrase from wallet seed."""
         print("HALLO!!@#!@??")
         # return "0x{:04x}".format(int.from_bytes(self._public.to_bytes(4, 'big', signed=True), 'big'))
-        return self._test_public
-
-    @property
-    def test_public(self) -> str:
-        """Return Hashed Pubkey."""
-        print("WTF!@#!@#??")
-        return self._test_public
+        return self._public
 
     @property
     def private(self) -> str:
         """Generate mnemonic phrase from wallet seed."""
-        return seed_to_phrase32(self._private)
+        # return seed_to_phrase32(self._private)
+        return "Hey"
 
     @property
     def owner(self) -> Participant:
@@ -316,6 +283,7 @@ class WalletPlayer(BasePlayer):
     @property
     def wallet(self) -> Optional[Wallet]:
         """Retrieve wallet associated with participant."""
+        print("Got in wallet")
         return Wallet.current(self.participant)
 
     @property

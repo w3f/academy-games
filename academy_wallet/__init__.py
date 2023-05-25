@@ -72,7 +72,6 @@ class Group(BaseGroup):
 
     pass
 
-
 # Constants to improve readability
 
 class Player(WalletPlayer):
@@ -80,14 +79,10 @@ class Player(WalletPlayer):
 
     source = IntegerField(
         choices=[
-            [C.WALLET_CREATE, 'create'],
-            [C.WALLET_PHRASE, 'phrase'],
             [C.WALLET_CODE, 'code'],
             [C.WALLET_PUBKEY, 'pubkey'],
         ]
     )
-
-    phrase = StringField(blank=True)
 
     code = StringField(blank=True)
 
@@ -97,14 +92,13 @@ class Player(WalletPlayer):
 class Authenticate(Page):
 
     form_model = 'player'
-    form_fields = ['source', 'phrase', 'code', 'pubkey'] # TODO: How to add another field here?
+    form_fields = ['source', 'code', 'pubkey']
 
     def inner_dispatch(self, request):
         """Intercept request data to access cookies for wallet."""
         if C.get_wallet_code(self.participant):
             # Default value if wallet missing
             self.wallet_template_vars = dict(wallet=None)
-
             # Check academy wallet room cookie
             room = ROOM_DICT.get("academy_wallet")
             if room and room.has_session():
@@ -133,23 +127,14 @@ class Authenticate(Page):
     def error_message(player, values) -> Optional[str]:
         """Enroll with priority, otherwise try to open wallet."""
         try:
-            print("Got to this try block")
-            print(f"values['source']: {values['source']} values['pubkey']: {values['pubkey']} ")
-            if values['source'] == C.WALLET_CREATE and C.get_wallet_create(player):
-                Wallet.generate(player.participant)
-            elif values['source'] == C.WALLET_PHRASE and C.get_wallet_phrase(player) and values['phrase']:
-                Wallet.open(player.participant, values['phrase'])
-            elif values['source'] == C.WALLET_PUBKEY and C.get_wallet_signin(player) and values['pubkey']:
-                print("Hey I got the Hashed Pubkey")
-                Wallet.test_open(player.participant, values['pubkey'])
-            elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
-                print("Getting into this block....")
-                Wallet.open_with_code(player.participant, values['code'])
+            if values['source'] == C.WALLET_PUBKEY and C.get_wallet_signin(player) and values['pubkey']:
+                print("Signin required")
+                Wallet.open(player.participant, values['pubkey'])
             elif values['source'] == C.WALLET_CODE and C.get_wallet_signin(player) and values['code']:
-                Wallet.test_open_with_code(player.participant, values['code'])
+                print("Cookie login")
+                Wallet.open_with_code(player.participant, values['code'])
             else:
-                # print(f"values source == {values['source']} values pubkey == {values['pubkey']}")
-                return 'Please enter a valid phrase to open a wallet.'
+                return 'Error with login no cookie or couldnt sign in'
         except WalletError as err:
             return str(err)
 
@@ -158,8 +143,6 @@ class Authenticate(Page):
         """Return additional data to pass to page template."""
         return {
             'wallet_code': C.get_wallet_code(player),
-            'wallet_create': C.get_wallet_create(player),
-            'wallet_phrase': C.get_wallet_phrase(player),
             'wallet_pubkey': C.get_wallet_signin(player),
         }
 
@@ -170,12 +153,6 @@ class Authenticate(Page):
 
         if not wallet:
             logger.error("Failed to associate participant '{{player.participant}}' with wallet.")
-        elif player.source == C.WALLET_CREATE:
-            # Add phrase to database for new wallets
-            player.phrase = wallet.private
-        elif player.source == C.WALLET_CODE:
-            # Add phrase to database for code-based wallets
-            player.phrase = wallet.private
 
 
 class Profile(Page):
@@ -202,8 +179,6 @@ def custom_export(all_players: List[Player]):
         'wallet_name',
         'wallet_participant',
         'wallet_public',
-        'wallet_private',
-        'wallet_test_public',
         'wallet_payoff'
     ]
     for player in all_players:
@@ -216,7 +191,5 @@ def custom_export(all_players: List[Player]):
             session.config.get('academy_game_name'),
             participant.code,
             wallet.public if wallet else None,
-            wallet.private if wallet else None,
-            wallet.test_public if wallet else None,
             participant.payoff_plus_participation_fee(),
         ]

@@ -17,7 +17,12 @@
 
     {{ else }}
 
-      <p class="mb-0">Unable to associate with wallet from previous session.</p>
+      <p class="mb-0">Unable to associate with wallet from previous session. Sign in again</p>
+
+      <input type="hidden" name="source" value="{{ C.WALLET_PUBKEY }}"/>
+
+      <input id="sign-in" type="hidden" name="pubkey" value=" "/>
+      <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>
 
     {{ endif }}
 
@@ -25,7 +30,7 @@
 
   {{ endif }}
 
-  {{ if wallet_pubkey }}
+  {{ if wallet_pubkey and not wallet_code }}
 
   <div class="card my-3 p-3"></div>
     <p>Signed in now adding your pubkey to application</p>

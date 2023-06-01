@@ -188,15 +188,13 @@ class Wallet(ExtraModel):
     @property
     def public(self) -> str:
         """Generate mnemonic phrase from wallet seed."""
-        print("HALLO!!@#!@??")
-        # return "0x{:04x}".format(int.from_bytes(self._public.to_bytes(4, 'big', signed=True), 'big'))
         return self._public
 
-    @property
-    def private(self) -> str:
-        """Generate mnemonic phrase from wallet seed."""
-        # return seed_to_phrase32(self._private)
-        return "Hey"
+    # @property
+    # def private(self) -> str:
+    #     """Generate mnemonic phrase from wallet seed."""
+    #     # return seed_to_phrase32(self._private)
+    #     return "Hey"
 
     @property
     def owner(self) -> Participant:
@@ -231,7 +229,7 @@ class Wallet(ExtraModel):
     @property
     def wallet_set(self):
         """Return set of all wallet associated with seed."""
-        return Wallet.objects_filter(_private=self._private)
+        return Wallet.objects_filter(_public=self._public)
 
     @property
     def participants(self) -> List[Participant]:
@@ -283,7 +281,6 @@ class WalletPlayer(BasePlayer):
     @property
     def wallet(self) -> Optional[Wallet]:
         """Retrieve wallet associated with participant."""
-        print("Got in wallet")
         return Wallet.current(self.participant)
 
     @property

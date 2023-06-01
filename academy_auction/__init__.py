@@ -165,7 +165,6 @@ def custom_export(all_players: List[Player]):
 
     yield [
         'wallet_public',
-        'wallet_private',
         'wallet_balance',
         'wallet_games',
         'wallet_bids',
@@ -184,7 +183,6 @@ def custom_export(all_players: List[Player]):
         if wallet:
             yield [
                 wallet.public,
-                wallet.private,
                 wallet.balance,
                 len(wallet.games),
                 len(Bid.for_player(player)),
@@ -196,7 +194,6 @@ def custom_export(all_players: List[Player]):
 
     yield [
         'wallet_public',
-        'wallet_private',
         'wallet_balance',
         'wallet_games',
         'wallet_auction',
@@ -210,12 +207,11 @@ def custom_export(all_players: List[Player]):
     all_privates = set([Wallet.current(p)._private for p in all_participants if Wallet.current(p)])
     all_wallets = [Wallet.objects_first(_private=p) for p in all_privates]
 
-    for wallet in all_wallets: 
+    for wallet in all_wallets:
         games = [w.game_id for w in wallet.wallet_set if w.is_game]
 
         yield [
             wallet.public,
-            wallet.private,
             wallet.balance,
             len(games),
             "auction" in games,

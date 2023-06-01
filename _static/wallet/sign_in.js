@@ -11,7 +11,7 @@ async function storePubkey(event) {
     event.preventDefault();
     console.log("requesting a signin..");
 
-    const {result: signInSuccess, id: userId} = await signIn();
+    const {id: userId} = await signIn();
 
     storePubkeyThing.value = userId;
     this.form.submit();
@@ -44,34 +44,16 @@ async function signIn() {
         // we can use it to sign our message
         const { signature: sig } = await signRaw({
             address: sender.address,
-            data: stringToHex('Sign in message'),
+            data: stringToHex('Sign in message'), // This should be participant.id
             type: 'bytes'
         });
         signature = sig;
         console.log('signature produced', signature);
     }
 
-    // Now verify signature.
-    const verification = await verifySignature(
-        'Sign in message',
-        signature,
-        sender.address
-    );
-    console.log('Signature verification result: ', verification);
-
-    // returning the Hash of the address..
-    const hashedAddress = blake2AsHex(sender.address);
     return {
-        result: verification,
-        id: hashedAddress
+        id: sender.address
     }
-}
-
-const verifySignature = async (signedMessage, signature, address) => {
-    await cryptoWaitReady();
-    const publicKey = decodeAddress(address);
-    const hexPublicKey = u8aToHex(publicKey);
-    return signatureVerify(signedMessage, signature, hexPublicKey).isValid
 }
 
 

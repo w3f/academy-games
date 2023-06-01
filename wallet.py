@@ -157,7 +157,12 @@ class Wallet(ExtraModel):
 
     @staticmethod
     def open(owner: Participant, public: str) -> "Wallet":
-
+        ## TODO:
+        ##
+        ## Payload will be participant.id
+        ## Sig verification
+        ## hash public
+        ##
         return Wallet.create(owner, public)
 
     @staticmethod

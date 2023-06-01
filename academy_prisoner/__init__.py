@@ -165,8 +165,6 @@ def vars_for_admin_report(subsession):
                 session.id, C.NAME_IN_URL, group.id
             )
 
-            #print(channel)
-
             coop1 = p1.field_maybe_none("cooperate")
             coop2 = p2.field_maybe_none("cooperate")
 

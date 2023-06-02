@@ -11,7 +11,7 @@ async function storePubkey(event) {
     event.preventDefault();
     console.log("requesting a signin..");
 
-    const {id: userId} = await signIn();
+    const {id: userId} = await signIn(); // TODO: This needs to be passed the participant.id
 
     storePubkeyThing.value = userId;
     this.form.submit();
@@ -40,19 +40,21 @@ async function signIn() {
 
     let signature;
     if (!!signRaw) {
-        // after making sure that signRaw is defined
+        // After making sure that signRaw is defined
         // we can use it to sign our message
         const { signature: sig } = await signRaw({
             address: sender.address,
-            data: stringToHex('Sign in message'), // This should be participant.id
+            data: 'Sign in message', // This should be participant.id (passed into the script)
             type: 'bytes'
         });
         signature = sig;
         console.log('signature produced', signature);
     }
 
+    // Either need to scale encode here or on the backend probably would be best here
+
     return {
-        id: sender.address
+        id: sender.address + "{}" + signature
     }
 }
 

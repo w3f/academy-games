@@ -11,7 +11,7 @@
 
       <p>Continue with wallet from previous session: <strong>{{ wallet.public }}</strong></p>
 
-      <input type="hidden" name="code" value="{{ wallet.code }}"/>
+      <output type="hidden" name="code" value="{{ wallet.code }}"/>
 
       <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_CODE }}">Continue with previous wallet</button>
 
@@ -20,6 +20,8 @@
       <p class="mb-0">Unable to associate with wallet from previous session. Sign in again</p>
 
       <input type="hidden" name="source" value="{{ C.WALLET_PUBKEY }}"/>
+
+      <output id="participant_id" type="hidden" name="participant id" value="{{ participant.id }}"/>
 
       <input id="sign-in" type="hidden" name="pubkey" value=" "/>
       <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>
@@ -36,6 +38,7 @@
     <p>Signed in now adding your pubkey to application</p>
 
     <input type="hidden" name="source" value="{{ C.WALLET_PUBKEY }}"/>
+    <input id="participant_id" type="hidden" name="participant id" value="{{ participant.id }}"/>
 
     <input id="sign-in" type="hidden" name="pubkey" value=" "/>
     <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>

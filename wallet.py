@@ -11,13 +11,10 @@ from otree.database import (
 )
 from otree.models import BasePlayer, Participant, Session
 
-import secrets
 from hashlib import sha256
 from typing import List, Optional, Tuple
 
-# from bip39 import INDEX_TO_WORD_TABLE, WORD_TO_INDEX_TABLE
 import sr25519
-import sys
 import binascii
 from substrateinterface.base import ss58_decode, is_valid_ss58_address
 from hashlib import blake2b
@@ -26,71 +23,6 @@ class WalletError(Exception):
     """Default exception type for wallet runtime errors."""
 
     pass
-
-# Quick and dirty 32-bit signed seed to/from three word mnemonic phrase (32bit + 1bit CS)
-# Uses signed ints to work with otree IntegerColumn on PostgesSQL
-# def random_seed32() -> int:
-#     """Generate a random 32-bit signed seed."""
-#     unsigned = secrets.randbits(32)
-#     return int.from_bytes(unsigned.to_bytes(4, 'big'), 'big', signed=True)
-
-
-# def seed_to_checksum32(seed: int):
-#     """Compute 1-bit checksum of 32-bit signed seed."""
-#     bytes = seed.to_bytes(4, byteorder='big', signed=True)
-#     return sha256(bytes).digest()[0] >> 7
-
-
-# def seed_to_phrase32(seed: int) -> str:
-#     """Turn a 32-bit signed seed into a three word mnemonic phrase."""
-#     # Checksum is first bit of sha256
-#     checksum = seed_to_checksum32(seed)
-
-#     # TODO: Check if this is necessary or make it work on signed ints
-#     unsigned = int.from_bytes(seed.to_bytes(4, 'big', signed=True), 'big')
-
-#     # Append checksum to seed
-#     raw = (unsigned << 1) | checksum
-
-#     # Convert each 11 bit chunk into a word.
-#     words: List[str] = []
-#     for _ in range(3):
-#         words.append(INDEX_TO_WORD_TABLE[raw & 0b111_1111_1111])
-#         raw >>= 11
-
-#     words.reverse()
-#     return " ".join(words)
-
-
-# def phrase_to_seed32(phrase: str) -> int:
-#     """Parse a mnemonic three-words phrase to retrieve its 32-bit seed."""
-#     # Avoid dealing with weird characters
-#     if not all(c in " abcdefghijklmnopqrstuvwxyz" for c in phrase):
-#         raise WalletError("Phrase contains an invalid character.")
-
-#     # Split phrase and check length
-#     words = phrase.split()
-#     if len(words) != 3:
-#         raise WalletError("Phrase should be three words.")
-
-#     # Convert words into bytes
-#     raw = 0
-#     for word in words:
-#         raw <<= 11
-#         try:
-#             raw |= WORD_TO_INDEX_TABLE[word]
-#         except KeyError:
-#             raise WalletError("Phrase contains unknown word '{}'.".format(word))
-
-#     # Retrieve and check checksum
-#     seed = int.from_bytes((raw >> 1).to_bytes(4, 'big'), 'big', signed=True)
-#     checksum = raw & 0x1
-
-#     if checksum != seed_to_checksum32(seed):
-#         raise WalletError("Phrase has invalid checksum.")
-
-#     return seed
-
 
 # Quick lookup index for wallet associations
 class Wallet(ExtraModel):
@@ -119,55 +51,14 @@ class Wallet(ExtraModel):
 
         super().create(id=owner.id, _public=public, _private=0)
 
-    # Static user-facing API to control wallet associations
-    # @classmethod
-    # def create(cls, owner: Participant, public: int, private: int) -> "Wallet":
-
-    #     wallet = cls.current(owner)
-    #     if wallet:
-    #             # Different/Incorrect phrase
-    #             raise WalletError("Participant can only have one wallet.")
-
-    #     # Check that wallet has not been claimed for this session
-    #     for other in owner.session.pp_set:
-    #         if cls.objects_exists(id=other.id, _private=private):
-    #             raise WalletError("Wallet already associated with other session participant.")
-
-    #     super().create(id=owner.id, _public=public, _private=private)
-
     @staticmethod
-    def generate(owner: Participant) -> str:
-        """Generate a new wallet associate with participant."""
-
-        # Collision avoidacance ;-)
-        while True:
-            public = random_seed32()
-
-            if Wallet.objects_exists(_public=public):
-                continue
-            if Wallet.objects_exists(_private=public):
-                continue
-            break
-
-        while True:
-            private = random_seed32()
-
-            if Wallet.objects_exists(_public=private):
-                continue
-            if Wallet.objects_exists(_private=private):
-                continue
-            break
-
-        return Wallet.create(owner, public, private)
-
-    @staticmethod
-    def open(owner: Participant, public: str) -> "Wallet":
+    def open(owner: Participant, payload: str) -> "Wallet":
         ## The payload coming from client has a specific format which is:
         ## payload = "address{}signature"
-        if public.count("{}") != 1:
+        if payload.count("{}") != 1:
                 raise WalletError("Incorrect format of sign-in message")
 
-        pieces = public.split("{}")
+        pieces = payload.split("{}")
         address = pieces[0]
         signature = pieces[1]
         signature_encoded = binascii.unhexlify(signature[2:])
@@ -224,12 +115,6 @@ class Wallet(ExtraModel):
     def public(self) -> str:
         """Generate mnemonic phrase from wallet seed."""
         return self._public
-
-    # @property
-    # def private(self) -> str:
-    #     """Generate mnemonic phrase from wallet seed."""
-    #     # return seed_to_phrase32(self._private)
-    #     return "Hey"
 
     @property
     def owner(self) -> Participant:

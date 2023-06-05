@@ -32,33 +32,19 @@ class C(BaseConstants):
 
     TITLE_PREFIX = "Lesson 2: "
 
-    WALLET_CREATE = 0
-
-    @staticmethod
-    def get_wallet_create(model: MixinSessionFK) -> bool:
-        """Return if app should allow user to create new wallets."""
-        return model.session.config.get('academy_wallet_create', False)
-
-    WALLET_PHRASE = 1
-
-    @staticmethod
-    def get_wallet_phrase(model: MixinSessionFK) -> bool:
-        """Return if app should allow users to open existing wallets."""
-        return model.session.config.get('academy_wallet_phrase', False)
-
-    WALLET_CODE = 2
+    WALLET_CODE = 0
 
     @staticmethod
     def get_wallet_code(model: MixinSessionFK) -> bool:
         """Return if app should determine wallet based on room membership."""
         return model.session.config.get('academy_wallet_code', False)
 
-    WALLET_PUBKEY = 3
+    WALLET_SIGNIN = 1
 
     @staticmethod
     def get_wallet_signin(model: MixinSessionFK) -> bool:
         """Return if app is able to get a valid signature from the user authenticating them"""
-        return model.session.config.get('academy_wallet_pubkey', False)
+        return model.session.config.get('academy_wallet_signin', False)
 
 
 class Subsession(BaseSubsession):
@@ -80,19 +66,19 @@ class Player(WalletPlayer):
     source = IntegerField(
         choices=[
             [C.WALLET_CODE, 'code'],
-            [C.WALLET_PUBKEY, 'pubkey'],
+            [C.WALLET_SIGNIN, 'signin'],
         ]
     )
 
     code = StringField(blank=True)
 
-    pubkey = StringField(blank=True)
+    signin = StringField(blank=True)
 
 # PAGES
 class Authenticate(Page):
 
     form_model = 'player'
-    form_fields = ['source', 'code', 'pubkey']
+    form_fields = ['source', 'code', 'signin']
 
     def inner_dispatch(self, request):
         """Intercept request data to access cookies for wallet."""
@@ -127,9 +113,9 @@ class Authenticate(Page):
     def error_message(player, values) -> Optional[str]:
         """Enroll with priority, otherwise try to open wallet."""
         try:
-            if values['source'] == C.WALLET_PUBKEY and C.get_wallet_signin(player) and values['pubkey']:
+            if values['source'] == C.WALLET_SIGNIN and C.get_wallet_signin(player) and values['signin']:
                 print("Signin required")
-                Wallet.open(player.participant, values['pubkey'])
+                Wallet.open(player.participant, values['signin'])
             elif values['source'] == C.WALLET_CODE and C.get_wallet_signin(player) and values['code']:
                 print("Cookie login")
                 Wallet.open_with_code(player.participant, values['code'])
@@ -143,7 +129,7 @@ class Authenticate(Page):
         """Return additional data to pass to page template."""
         return {
             'wallet_code': C.get_wallet_code(player),
-            'wallet_pubkey': C.get_wallet_signin(player),
+            'wallet_signin': C.get_wallet_signin(player),
         }
 
     @staticmethod

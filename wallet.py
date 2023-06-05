@@ -18,9 +18,8 @@ from typing import List, Optional, Tuple
 # from bip39 import INDEX_TO_WORD_TABLE, WORD_TO_INDEX_TABLE
 import sr25519
 import sys
-from scalecodec.base import ScaleBytes, ScaleType, ScaleDecoder
 import binascii
-
+from substrateinterface.base import ss58_decode, is_valid_ss58_address
 
 class WalletError(Exception):
     """Default exception type for wallet runtime errors."""
@@ -172,21 +171,30 @@ class Wallet(ExtraModel):
         signature = pieces[1]
         signature_encoded = binascii.unhexlify(signature[2:])
 
-        # Remove this is just temporary
-        address_decoded = "".encode('utf-8')
+        if not is_valid_ss58_address(address):
+            raise WalletError("Not a valid ss58 address")
 
-        # address_decoded = do some base 58 decoding here
+        address_decoded = ss58_decode(address)
+        address_bytes = binascii.unhexlify(address_decoded)
 
-        print("Size of signature ", sys.getsizeof(signature_encoded))
-        message = "Sign in message".encode('utf-8')
-        address = bytes(address)
-        if sr25519.verify(signature_encoded, message, address_decoded):
+        # This is hex string of "<Bytes>Sign in message</Bytes>"
+        # Every message needs to be wrapped in <Bytes></Bytes>
+        # This should be now the participant.id
+        message = binascii.unhexlify('3c42797465733e5369676e20696e206d6573736167653c2f42797465733e')
+
+        if sr25519.verify(signature_encoded, message, address_bytes):
             print(f"VERIFIED SIGNATURE TO OPEN WALLET: {address}")
+        else:
+            raise WalletError(
+                f"Couldn't verify signature with sig: {signature}, "
+                f"message: {message}, "
+                f"address: {address}"
+            )
 
         ## TODO:
         ##
         ## Payload will be participant.id
-        ## Sig verification
+        ## Sig verification(Done)
         ## hash public
         ##
         return Wallet.create(owner, address)

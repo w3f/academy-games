@@ -11,7 +11,7 @@
 
       <p>Continue with wallet from previous session: <strong>{{ wallet.public }}</strong></p>
 
-      <output type="hidden" name="code" value="{{ wallet.code }}"/>
+      <input type="hidden" name="code" value="{{ wallet.code }}"/>
 
       <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_CODE }}">Continue with previous wallet</button>
 
@@ -21,7 +21,7 @@
 
       <input type="hidden" name="source" value="{{ C.WALLET_SIGNIN }}"/>
 
-      <output id="participant_id" type="hidden" name="participant id" value="{{ participant.id }}"/>
+      <input id="participant_id" type="hidden" name="participant id" value="{{ participant.id }}"/>
 
       <input id="sign-in" type="hidden" name="signin" value=" "/>
       <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>

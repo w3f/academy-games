@@ -7,7 +7,7 @@ IN_DEMO_MODE = (environ.get('OTREE_AUTH_LEVEL') == "DEMO")
 
 # Default config for all games
 ACADEMY_GAME_DEFAULTS = dict(
-    academy_wallet_code=False,
+    academy_wallet_code=True,
     academy_wallet_signin=True,
     academy_endcard_reward=0,
 )

@@ -78,6 +78,7 @@ class Wallet(ExtraModel):
                 f"Couldn't verify signature with sig: {signature}, "
                 f"message: {message}, "
                 f"address: {address}"
+                f"participant.id: {owner.id}",
             )
 
         ## We want to hash the ss58 encoded address in order to preserve the persons annonymity in the database

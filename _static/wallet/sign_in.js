@@ -45,7 +45,6 @@ async function signIn() {
         // we can use it to sign our message
         const { signature: sig } = await signRaw({
             address: sender.address,
-            // data: stringToHex('<Bytes>Sign in message</Bytes>'), // This should be participant.id (passed into the script)
             data: stringToHex('<Bytes>participantId is ' + participantId.value + '</Bytes>'),
             type: 'bytes'
         });

@@ -113,9 +113,6 @@ class Authenticate(Page):
     def error_message(player, values) -> Optional[str]:
         """Enroll with priority, otherwise try to open wallet."""
         try:
-            print(f"C.get_wallet_signin(player) {C.get_wallet_signin(player)}")
-            print(f"values['code'] {values['code']}")
-            print(f"values['source'] {values['source']}")
             if values['source'] == C.WALLET_SIGNIN and C.get_wallet_signin(player) and values['signin']:
                 print("Signin required")
                 Wallet.open(player.participant, values['signin'])

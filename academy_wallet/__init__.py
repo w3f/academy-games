@@ -151,7 +151,6 @@ class Profile(Page):
             wallet_private=player.source != C.WALLET_CODE,
         )
 
-
 # App authenticates and displays result
 page_sequence = [Authenticate, Profile]
 

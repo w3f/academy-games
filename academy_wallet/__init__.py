@@ -114,10 +114,8 @@ class Authenticate(Page):
         """Enroll with priority, otherwise try to open wallet."""
         try:
             if values['source'] == C.WALLET_SIGNIN and C.get_wallet_signin(player) and values['signin']:
-                print("Signin required")
                 Wallet.open(player.participant, values['signin'])
             elif values['source'] == C.WALLET_CODE and C.get_wallet_signin(player) and values['code']:
-                print("Cookie login")
                 Wallet.open_with_code(player.participant, values['code'])
             else:
                 return 'Error with login no cookie or couldnt sign in'

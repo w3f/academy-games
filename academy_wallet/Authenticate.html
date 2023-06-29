@@ -3,18 +3,6 @@
 {{ endblock }}
 {{ block content }}
 
-  {{ if wallet_phrase }}
-
-    <div class="card my-3 p-3">
-      {{ formfield 'phrase' label="Enter your seed phrase to continue playing under an existing wallet." }}
-
-
-      <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_PHRASE }}">Open existing wallet</button>
-    </div>
-
-  {{ endif }}
-
-
   {{ if wallet_code }}
 
     <div class="card my-3 p-3">
@@ -29,7 +17,18 @@
 
     {{ else }}
 
-      <p class="mb-0">Unable to associate with wallet from previous session.</p>
+      <p class="mb-0">Unable to associate with wallet from previous session. Sign in again</p>
+
+      <label for="accounts">Choose an account:</label>
+
+      <select name="accounts" id="accounts"></select>
+
+      <input type="hidden" name="source" value="{{ C.WALLET_SIGNIN }}"/>
+
+      <input id="participant_id" type="hidden" name="participant id" value="{{ participant.id }}"/>
+
+      <input id="sign-in" type="hidden" name="signin" value=" "/>
+      <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>
 
     {{ endif }}
 
@@ -37,19 +36,26 @@
 
   {{ endif }}
 
+  {{ if wallet_signin and not wallet_code }}
 
-  {{ if wallet_create }}
+  <div class="card my-3 p-3"></div>
+    <p>Signining in now to the application</p>
 
-    <div class="card my-3 p-3">
-      <p>You do not have a wallet yet? You can generate a new wallet right here.</p>
+    <label for="accounts">Choose an account:</label>
 
-      {{ if wallet_phrase }}
-        <p><strong>This can not be undone, if you want to continue with an existing wallet, enter your seed phrase above!</strong></p>
-      {{ endif }}
+    <select name="accounts" id="accounts"></select>
 
-      <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_CREATE }}">Generate new wallet</button>
-    </div>
+    <input type="hidden" name="source" value="{{ C.WALLET_SIGNIN }}"/>
+    <input id="participant_id" type="hidden" name="participant id" value="{{ participant.id }}"/>
+
+    <input id="sign-in" type="hidden" name="signin" value=" "/>
+    <button id="sign-in-btn" type="submit" class="btn btn-primary">Sign-in</button>
 
   {{ endif }}
 
+{{ endblock }}
+
+{{ block scripts }}
+    <script src="{% static 'wallet/wallet_select_bundle.js' %}"></script>
+    <script src="{% static 'wallet/bundle.js' %}"></script>
 {{ endblock }}

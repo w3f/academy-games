@@ -1,3 +1,4 @@
 git+https://github.com/FlorianFranzen/otree-core.git@main
 psycopg2-binary>=2.8.4
-bip39
+py-sr25519-bindings
+substrate-interface

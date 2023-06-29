@@ -7,9 +7,8 @@ IN_DEMO_MODE = (environ.get('OTREE_AUTH_LEVEL') == "DEMO")
 
 # Default config for all games
 ACADEMY_GAME_DEFAULTS = dict(
-    academy_wallet_create=IN_DEMO_MODE,
-    academy_wallet_phrase=False,
-    academy_wallet_code=False,
+    academy_wallet_code=True,
+    academy_wallet_signin=True,
     academy_endcard_reward=0,
 )
 
@@ -17,8 +16,8 @@ ACADEMY_GAME_DEFAULTS = dict(
 ACADEMY_AUCTION_DEFAULTS = dict(
     num_demo_participants=3,
     academy_game_name="NFT Auction",
-    academy_wallet_phrase=True,
     academy_wallet_code=True,
+    academy_wallet_signin=True,
     real_world_currency_per_point=0.01,
     num_groups_hard=0,
     num_groups_candle=0,
@@ -33,48 +32,48 @@ ACADEMY_GAME_CONFIGS = {
     'wallet': dict(
         num_demo_participants=1,
         academy_game_name="Wallet App",
-        academy_wallet_create=True,
+        academy_wallet_signin=True,
     ),
     'ultimatum': dict(
         num_demo_participants=2,
         academy_game_name="Ultimatum Game",
-        academy_wallet_phrase=True,
         academy_wallet_code=True,
+        academy_wallet_signin=False,
         academy_endcard_reward=500,
     ),
     'cournot': dict(
         num_demo_participants=2,
         academy_game_name="Cournot Game",
         academy_wallet_code=True,
-        academy_wallet_phrase=True,
+        academy_wallet_signin=False,
         academy_endcard_reward=500,
     ),
     'guess': dict(
         num_demo_participants=2,
         academy_game_name="Guessing Game",
-        academy_wallet_phrase=True,
         academy_wallet_code=True,
+        academy_wallet_signin=False,
         academy_endcard_reward=250,
     ),
     'prisoner': dict(
         num_demo_participants=2,
         academy_game_name="Prisoner's Dilemma",
-        academy_wallet_phrase=True,
         academy_wallet_code=True,
+        academy_wallet_signin=False,
         academy_endcard_reward=500,
     ),
     'publicgood': dict(
         num_demo_participants=4,
         academy_game_name="Public Good Game",
-        academy_wallet_phrase=True,
         academy_wallet_code=True,
+        academy_wallet_signin=False,
         academy_endcard_reward=500,
     ),
     'dollar': dict(
         num_demo_participants=5,
         academy_game_name="Dollar Auction",
-        academy_wallet_phrase=True,
         academy_wallet_code=True,
+        academy_wallet_signin=False,
         real_world_currency_per_point = 0.01,
     ),
     'auction' : ACADEMY_AUCTION_DEFAULTS | dict(

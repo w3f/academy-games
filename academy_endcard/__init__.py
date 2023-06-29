@@ -23,7 +23,7 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
 
-    TITLE_PREFIX = "Lesson 2: "
+    TITLE_PREFIX = "Academy-Games "
 
     @staticmethod
     def get_reward(model: MixinSessionFK) -> RealWorldCurrency:

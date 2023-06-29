@@ -32,7 +32,7 @@ class Wallet(ExtraModel):
 
     # TODO: Add owner link to participant
 
-    _public = IntegerField()
+    _public = StringField()
     _private = IntegerField()
 
     @classmethod
@@ -71,9 +71,7 @@ class Wallet(ExtraModel):
 
         message = "<Bytes>participantId is {}".format(owner.id) + "</Bytes>"
 
-        if sr25519.verify(signature_encoded, message.encode('utf-8'), address_bytes):
-            print(f"VERIFIED SIGNATURE TO OPEN WALLET: {address}")
-        else:
+        if not sr25519.verify(signature_encoded, message.encode('utf-8'), address_bytes):
             raise WalletError(
                 f"Couldn't verify signature with sig: {signature}, "
                 f"message: {message}, "

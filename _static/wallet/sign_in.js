@@ -53,8 +53,6 @@ async function signIn() {
         console.log('signature produced', signature);
     }
 
-    // Either need to scale encode here or on the backend probably would be best here
-
     return {
         id: sender.address + "{}" + signature
     }

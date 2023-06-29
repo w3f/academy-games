@@ -1,0 +1,50 @@
+{{ block title }}
+{{ C.TITLE_PREFIX }}Select Your Account
+{{ endblock }}
+
+{{ block content }}
+<html>
+<head>
+    <style>
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        padding: 12px 16px;
+        z-index: 1;
+        background-color: #f9f9f9;
+      }
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+
+  <h2>Hover Over Me to See a Dropdown Menu</h2>
+  <div class="dropdown">
+    <span>Hover over me</span>
+    <div id="dropdown-content" class="dropdown-content"></div>
+        <!-- Dropdown accounts will be populated here -->
+    </div>
+
+    <label for="accounts">Choose an account:</label>
+
+    <select name="accounts" id="accounts"></select>
+
+  <script src="{% static 'wallet/wallet_select_bundle.js' %}"></script>
+
+</body>
+
+</html>
+
+  {{ next_button }}
+
+    </div>
+
+{{ endblock }}

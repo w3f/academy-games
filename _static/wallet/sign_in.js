@@ -30,7 +30,9 @@ async function signIn() {
 
     // Extract first account
     // TODO: How to handle if there are no accounts can return an error??
-    const sender = allAccounts[0];
+    const select = document.getElementById("accounts");
+    console.log('Select is: ', select);
+    const sender = JSON.parse(select.options[select.selectedIndex].value);
     console.log('First sender: ', sender.address);
 
     const injector = await web3FromSource(sender.meta.source);
@@ -45,7 +47,6 @@ async function signIn() {
         // we can use it to sign our message
         const { signature: sig } = await signRaw({
             address: sender.address,
-            // data: stringToHex('<Bytes>Sign in message</Bytes>'), // This should be participant.id (passed into the script)
             data: stringToHex('<Bytes>participantId is ' + participantId.value + '</Bytes>'),
             type: 'bytes'
         });

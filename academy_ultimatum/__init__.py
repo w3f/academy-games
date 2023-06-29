@@ -2,7 +2,6 @@
 
 from otree.constants import BaseConstants
 
-from otree.currency import Currency, currency_range
 from otree.api import models
 from otree.models import BaseSubsession, BaseGroup, BasePlayer
 
@@ -23,11 +22,11 @@ class Constants(BaseConstants):
 
     instructions_template = 'academy_ultimatum/instructions.html'
 
-    endowment = Currency(100)
-    payoff_if_rejected = Currency(0)
-    offer_increment = Currency(10)
+    endowment = int(100)
+    payoff_if_rejected = int(0)
+    offer_increment = int(10)
 
-    offer_choices = currency_range(0, endowment, offer_increment)
+    offer_choices = range(0, endowment, offer_increment)
     num_offers = len(offer_choices)
 
 
@@ -40,7 +39,7 @@ class Subsession(BaseSubsession):
 class Group(BaseGroup):
     """Track offers and responses during round."""
 
-    amount_offered = models.CurrencyField(choices=Constants.offer_choices)
+    amount_offered = models.IntegerField(choices=Constants.offer_choices)
 
     offer_accepted = models.BooleanField()
 
@@ -88,6 +87,8 @@ class Introduction(PageWithInstructions):
 class Offer(PageWithInstructions):
     """Collect offer from first player."""
 
+    timeout_seconds = 45
+
     form_model = 'group'
     form_fields = ['amount_offered']
 
@@ -95,6 +96,13 @@ class Offer(PageWithInstructions):
     def is_displayed(player: Player):
         """Only display response page second player."""
         return player.id_in_group == 1
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            ## Do default action
+            player.group.amount_offered = int(50)
+            ## TODO: Make sure to flag this as a default action somehow for data preservation
 
 
 class WaitForProposer(WaitPage):
@@ -104,6 +112,8 @@ class WaitForProposer(WaitPage):
 class Respond(PageWithInstructions):
     """Collect responds to offer from second player."""
 
+    timeout_seconds = 15
+
     form_model = 'group'
     form_fields = ['offer_accepted']
 
@@ -111,6 +121,13 @@ class Respond(PageWithInstructions):
     def is_displayed(player: Player):
         """Only display response page second player."""
         return player.id_in_group == 2
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            ## Do default action
+            player.group.offer_accepted = True
+            ## TODO: Make sure to flag this as a default action somehow for data preservation
 
 
 class ResultsWaitPage(WaitPage):

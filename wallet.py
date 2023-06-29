@@ -32,7 +32,7 @@ class Wallet(ExtraModel):
 
     # TODO: Add owner link to participant
 
-    _public = IntegerField()
+    _public = StringField()
     _private = IntegerField()
 
     @classmethod

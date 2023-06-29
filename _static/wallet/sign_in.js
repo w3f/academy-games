@@ -30,7 +30,9 @@ async function signIn() {
 
     // Extract first account
     // TODO: How to handle if there are no accounts can return an error??
-    const sender = allAccounts[0];
+    const select = document.getElementById("accounts");
+    console.log('Select is: ', select);
+    const sender = JSON.parse(select.options[select.selectedIndex].value);
     console.log('First sender: ', sender.address);
 
     const injector = await web3FromSource(sender.meta.source);

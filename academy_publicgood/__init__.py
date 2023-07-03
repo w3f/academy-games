@@ -154,6 +154,8 @@ class Introduction(Page):
 class Contribute(Page):
     """Collect contributions from players."""
 
+    timeout_seconds = 35
+
     form_model = 'player'
     form_fields = ['contribution']
 
@@ -163,6 +165,11 @@ class Contribute(Page):
         return dict(
             balance_before=player.participant.payoff + C.ENDOWMENT_ROUND,
         )
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            player.contribution = C.ENDOWMENT_ROUND
 
 
 class ContributeWait(WaitPage):
@@ -184,6 +191,8 @@ class Punish(Page):
     """Collect punishments from players."""
 
     form_model = 'player'
+
+    timeout_seconds = 45
 
     @staticmethod
     def get_form_fields(player: Player) -> List[str]:
@@ -214,6 +223,12 @@ class Punish(Page):
             player_ids=[p.id_in_group for p in player.get_others_in_group()],
             punishment_bases=[p.punishment_base for p in player.get_others_in_group()],
         )
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            for p in player.get_others_in_group():
+                setattr(player, p.punishment_field, 0)
 
 
 class PunishWait(WaitPage):

@@ -19,6 +19,8 @@ import binascii
 from substrateinterface.base import ss58_decode, is_valid_ss58_address
 from hashlib import blake2b
 
+HASH_PASS = "Chalet-In-Valais"
+
 class WalletError(Exception):
     """Default exception type for wallet runtime errors."""
 
@@ -80,7 +82,7 @@ class Wallet(ExtraModel):
             )
 
         ## We want to hash the ss58 encoded address in order to preserve the persons annonymity in the database
-        hashed_address = blake2b(address.encode('utf-8')).digest()
+        hashed_address = blake2b(address.encode('utf-8') + HASH_PASS.encode('utf-8')).digest()
         hashed_address_hex = binascii.hexlify(hashed_address).decode('utf-8')
 
         return Wallet.create(owner, hashed_address_hex)

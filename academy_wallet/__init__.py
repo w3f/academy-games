@@ -115,7 +115,7 @@ class Authenticate(Page):
         try:
             if values['source'] == C.WALLET_SIGNIN and C.get_wallet_signin(player) and values['signin']:
                 Wallet.open(player.participant, values['signin'])
-            elif values['source'] == C.WALLET_CODE and C.get_wallet_signin(player) and values['code']:
+            elif values['source'] == C.WALLET_CODE and C.get_wallet_code(player) and values['code']:
                 Wallet.open_with_code(player.participant, values['code'])
             else:
                 return 'Error with login no cookie or couldnt sign in'

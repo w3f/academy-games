@@ -68,8 +68,15 @@ class IntroPage(Page):
 class DecisionPage(Page):
     """Page to collect units produced by player."""
 
+    timeout_seconds = 30
+
     form_model = 'player'
     form_fields = ['units']
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            player.units = int(20)
 
 
 class ResultWaitPage(WaitPage):

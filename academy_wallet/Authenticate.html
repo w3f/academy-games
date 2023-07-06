@@ -9,15 +9,13 @@
 
     {{ if wallet }}
 
-      <p>Continue with wallet from previous session: <strong>{{ wallet.public }}</strong></p>
+      <p>Continue with wallet from previous session:</p>
 
       <input type="hidden" name="code" value="{{ wallet.code }}"/>
 
       <button type="submit" class="btn btn-primary" name="source" value="{{ C.WALLET_CODE }}">Continue with previous wallet</button>
 
     {{ else }}
-
-      <p class="mb-0">Unable to associate with wallet from previous session. Sign in again</p>
 
       <label for="accounts">Choose an account:</label>
 

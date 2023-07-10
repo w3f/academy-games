@@ -89,6 +89,8 @@ class DecisionWait(WaitPage):
 class Decision(Page):
     """Collect players decisions."""
 
+    timeout_seconds = 30
+
     form_model = 'player'
     form_fields = ['cooperate']
 
@@ -97,6 +99,11 @@ class Decision(Page):
         return {
             player.opponent.id_in_group: message
         }
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            player.cooperate = True
 
 class ResultsWait(WaitPage):
     """Wait for players and determine result."""

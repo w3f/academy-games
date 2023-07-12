@@ -89,7 +89,7 @@ class DecisionWait(WaitPage):
 class Decision(Page):
     """Collect players decisions."""
 
-    timeout_seconds = 30
+    timeout_seconds = 50
 
     form_model = 'player'
     form_fields = ['cooperate']

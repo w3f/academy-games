@@ -112,7 +112,7 @@ class WaitForProposer(WaitPage):
 class Respond(PageWithInstructions):
     """Collect responds to offer from second player."""
 
-    timeout_seconds = 15
+    timeout_seconds = 45
 
     form_model = 'group'
     form_fields = ['offer_accepted']

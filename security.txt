@@ -1,0 +1,6 @@
+Contact: security@web3.foundation
+Preferred-Languages: en
+Policy: https://web3.foundation/security-report/
+Encryption: https://web3.foundation/security-report/
+Expires: 08/08/2024
+Hiring: https://web3.bamboohr.com/jobs/

@@ -76,6 +76,16 @@ ACADEMY_GAME_CONFIGS = {
         academy_wallet_signin=True,
         real_world_currency_per_point = 0.01,
     ),
+    'realeffort': dict(
+        academy_game_name="decoding",
+        num_demo_participants=2,
+        academy_wallet_code=True,
+        academy_wallet_signin=True,
+        # app_sequence=["real_effort"],
+        task='decoding',
+        attempts_per_puzzle=1,
+        academy_endcard_reward=500,
+    ),
     'auction' : ACADEMY_AUCTION_DEFAULTS | dict(
         num_groups_candle=1,
     ),
@@ -163,8 +173,8 @@ SESSION_CONFIG_DEFAULTS = dict(
 SESSION_CONFIGS = list(map(AcademyGame.session, ACADEMY_GAMES)) + ACADEMY_AUCTIONS
 
 # Fields used across apps
-PARTICIPANT_FIELDS = ['role', 'treatment', 'finished']
-SESSION_FIELDS = ['reward_round']
+PARTICIPANT_FIELDS = ['role', 'treatment', 'finished', 'is_dropout']
+SESSION_FIELDS = ['reward_round', 'params']
 
 # ISO-639 code
 LANGUAGE_CODE = 'en'

@@ -2,3 +2,7 @@ git+https://github.com/FlorianFranzen/otree-core.git@main
 psycopg2-binary>=2.8.4
 py-sr25519-bindings
 substrate-interface
+otree~=5.4, >=5.2.8
+psycopg2-binary~=2.0
+Pillow~=8.0
+sentry_sdk

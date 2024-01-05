@@ -8,11 +8,11 @@
     </strong></p>
 
     <p>
-        Two-thirds of the average of these numbers is <strong>{{ group.two_thirds_avg }}</strong>;
-        the closest guess was <strong>{{ group.best_guess }}</strong>.
+        Two-thirds of the average of these numbers is <strong>{{ group.field_maybe_none('two_thirds_avg') }}</strong>;
+        the closest guess was <strong>{{ group.field_maybe_none('best_guess') }}</strong>.
     </p>
 
-    <p>Your guess was <strong>{{ player.guess }}</strong>.</p>
+    <p>Your guess was <strong>{{ player.field_maybe_none('guess') }}</strong>.</p>
 
     <p>
         {{ if player.is_winner }}

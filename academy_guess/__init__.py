@@ -7,7 +7,7 @@ from otree.models import BaseSubsession, BaseGroup, BasePlayer
 
 from otree.views import Page, WaitPage
 
-from typing import List
+from typing import List, Optional
 
 import math
 import json
@@ -47,20 +47,23 @@ class Group(BaseGroup):
 
     @property
     def guesses(self) -> List[int]:
-        """Retrieve and sort all guesses from players."""
-        return sorted(p.guess for p in self.get_players())
+        """Retrieve and sort all valid guesses from players."""
+        # Use list comprehension to filter out None values
+        valid_guesses = [p.field_maybe_none('guess') for p in self.get_players() if p.field_maybe_none('guess') is not None]
+        return sorted(valid_guesses)
 
     @property
-    def history(self) -> List[float]:
+    def history(self) -> List[Optional[float]]:
         """Retrieve history of previous averages."""
-        return [g.two_thirds_avg for g in self.in_previous_rounds()]
+        return [g.field_maybe_none('two_thirds_avg') for g in self.in_previous_rounds()]
 
 
 class Player(BasePlayer):
     """Player keeps track of guess and if won."""
 
     guess = IntegerField(
-        min=0, max=C.GUESS_MAX, label="Please pick a number from 0 to 100:"
+        min=0, max=C.GUESS_MAX, label="Please pick a number from 0 to 100:",
+        blank=True,
     )
     is_winner = BooleanField(initial=False)
 
@@ -83,6 +86,13 @@ class Guess(Page):
     form_model = 'player'
     form_fields = ['guess']
 
+    timeout_seconds = 30
+
+    @staticmethod
+    def before_next_page(player: Player, timeout_happened: bool):
+        if timeout_happened:
+            player.guess = None
+
 
 class ResultsWaitPage(WaitPage):
     """Wait for group and compute result."""
@@ -90,21 +100,37 @@ class ResultsWaitPage(WaitPage):
     def after_all_players_arrive(group: Group) -> None:
         """Determine payoff for round."""
         players = group.get_players()
-        guesses = [p.guess for p in players]
-        two_thirds_avg = (2 / 3) * sum(guesses) / len(players)
-        group.two_thirds_avg = round(two_thirds_avg, 2)
-        group.best_guess = min(guesses, key=lambda guess: abs(guess - group.two_thirds_avg))
-        winners = [p for p in players if p.guess == group.best_guess]
-        group.num_winners = len(winners)
-        for p in winners:
-            p.is_winner = True
-            p.payoff = C.JACKPOT / group.num_winners
+
+        # Filter out players whose guess is None
+        players_with_guess = [p for p in players if p.field_maybe_none('guess') is not None]
+
+        # Proceed only if there are players who made a guess
+        if players_with_guess:
+            # Calculate two_thirds_avg with players who made a guess
+            guesses = [p.field_maybe_none('guess') for p in players_with_guess]
+            two_thirds_avg = (2 / 3) * sum(guesses) / len(guesses)
+            group.two_thirds_avg = round(two_thirds_avg, 2)
+
+            # Find the best guess
+            group.best_guess = min(guesses, key=lambda guess: abs(guess - group.two_thirds_avg))
+
+            # Determine winners
+            winners = [p for p in players_with_guess if p.guess == group.best_guess]
+            group.num_winners = len(winners)
+            for p in winners:
+                p.is_winner = True
+                p.payoff = C.JACKPOT / group.num_winners
+        else:
+            # Handle the case where no players made a guess
+            group.two_thirds_avg = None
+            group.best_guess = None
+            group.num_winners = 0
 
 
 class Results(Page):
     """Display result to players."""
 
-    timeout_seconds = 45
+    timeout_seconds = 20
 
 
 def creating_session(subsession):

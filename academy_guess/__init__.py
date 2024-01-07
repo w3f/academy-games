@@ -86,7 +86,7 @@ class Guess(Page):
     form_model = 'player'
     form_fields = ['guess']
 
-    timeout_seconds = 30
+    timeout_seconds = 40
 
     @staticmethod
     def before_next_page(player: Player, timeout_happened: bool):
